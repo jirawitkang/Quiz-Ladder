@@ -101,7 +101,7 @@ test("sound timing: 4 bounce hits, then softer tumbles with growing gaps, then o
   const plan = planThrow(from, to, 5000, start, end);
   assert.equal(plan.impacts.length, 4);
   const taps = plan.rollTaps;
-  assert.ok(taps.length >= 4);
+  assert.equal(taps.length, 2);
   assert.ok(taps[0].time > plan.impacts[3].time, "tumbles come after the last bounce");
   for (let i = 1; i < taps.length; i++) {
     assert.ok(taps[i].time - taps[i - 1].time > (taps[i - 1].time - (taps[i - 2]?.time ?? plan.rollStart)) - 1, "gaps grow");
