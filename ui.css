@@ -229,7 +229,7 @@
     border-radius: 12px;
     outline: none;
     background: #fff;
-    font-size: 14px;
+    font-size: 16px; /* ต่ำกว่า 16px Safari บน iPhone จะซูมเข้าเองตอนแตะช่องพิมพ์ แล้วค้างซูม */
   }
   input:focus, select:focus{
     border-color: rgba(75,60,140,.65);

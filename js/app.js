@@ -413,12 +413,23 @@ function resetRoomUi() {
   show(dom.questionCountdownOverlay, false);
 }
 
+// iPhone อาจค้างซูมจากตอนพิมพ์ชื่อ/รหัสห้อง: ปิดคีย์บอร์ด แล้วล็อก maximum-scale ชั่วครู่เพื่อให้กลับมา 1 เท่า
+function resetPageZoom() {
+  document.activeElement?.blur?.();
+  const meta = document.querySelector('meta[name="viewport"]');
+  if (!meta || (globalThis.visualViewport?.scale ?? 1) <= 1) return;
+  const original = meta.getAttribute("content");
+  meta.setAttribute("content", `${original}, maximum-scale=1`);
+  setTimeout(() => meta.setAttribute("content", original), 400); // คืนค่าเดิม ผู้ใช้ยังซูมเองได้
+}
+
 function enterRoom(code, role, playerId = null) {
   session.roomCode = code;
   session.role = role;
   session.playerId = playerId;
   saveSession();
 
+  resetPageZoom();
   resetRoomUi();
   playerBoardView.setMe(playerId);
   entryPage = null;
