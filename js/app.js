@@ -70,6 +70,7 @@ import { THEME_SIZE } from "./emoji-themes.js";
 import { createDiceController, rollDie } from "./dice.js";
 import { exportRoomToXlsx } from "./export.js";
 import { isMuted, playDiceHit, playDiceTick, setMuted, unlockAudio } from "./sound.js";
+import { clearRoomFromUrl, readRoomFromUrl, renderJoinQr, resetJoinQr } from "./qr.js";
 import {
   getQuestionFromRoom,
   getQuestionSetIds,
@@ -147,6 +148,7 @@ const dom = {
   hostView: $("hostView"),
   hostLobby: $("hostLobby"),
   raceCode: $("raceCode"),
+  joinQr: $("joinQr"),
   lobbyCount: $("lobbyCount"),
   lobbyBadges: $("lobbyBadges"),
   lobbyPlayers: $("lobbyPlayers"),
@@ -397,6 +399,7 @@ function resetRoomUi() {
   hostBoardView.reset();
   playerBoardView.reset();
   setHidden(dom.meChip, true);
+  resetJoinQr(dom.joinQr);
   setHidden(dom.soundToggle, true);
   setHidden(dom.diceDock, true);
   dom.playerAction.innerHTML = "";
@@ -521,6 +524,7 @@ function renderHostView(room) {
   renderWaitPanel(dom.waitPanel, room);
   if (inLobby) {
     if (dom.raceCode) dom.raceCode.textContent = session.roomCode || "-";
+    renderJoinQr(dom.joinQr, session.roomCode);
     if (dom.lobbyCount) dom.lobbyCount.textContent = String(Object.keys(players).length);
     renderLobbyBadges(dom.lobbyBadges, room, session.roomCode);
     renderLobbyPlayers(dom.lobbyPlayers, players);
@@ -1440,7 +1444,19 @@ async function restoreSession() {
 async function boot() {
   bindUIEvents();
   populateQuestionSetSelect();
-  if (!(await restoreSession())) showEntryPage("landing");
+  const roomFromLink = readRoomFromUrl(); // สแกน QR code มา: ?room=XXXXXX
+  if (await restoreSession()) {
+    clearRoomFromUrl();
+    return;
+  }
+  if (roomFromLink) {
+    showEntryPage("player");
+    dom.roomCodeInput.value = roomFromLink;
+    dom.playerNameInput.focus();
+    clearRoomFromUrl();
+  } else {
+    showEntryPage("landing");
+  }
 }
 
 window.addEventListener("unhandledrejection", (e) => console.error("[UNHANDLED PROMISE]", e.reason));

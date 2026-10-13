@@ -371,7 +371,9 @@ export function renderWaitPanel(el, room) {
     <div class="wait-who">${
       pending.length
         ? `<span class="wait-label">${pendingLabel}</span>${pending.map(chip).join("")}`
-        : `<span class="wait-done">✔️ ครบทุกคนแล้ว</span>`
+        : pool.length
+          ? `<span class="wait-done">✔️ ครบทุกคนแล้ว</span>`
+          : `<span class="wait-label">ยังไม่มีผู้เล่น</span>`
     }</div>`;
 }
 

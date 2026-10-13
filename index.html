@@ -236,8 +236,15 @@
         <div class="host-stage">
           <div id="hostLobby" class="host-lobby card">
             <div class="lobby-head">
-              <div><span class="muted">Race Code</span><span class="race-code" id="raceCode">-</span></div>
-              <div class="lobby-count">ผู้เล่นในห้อง <b id="lobbyCount">0</b> คน</div>
+              <div class="lobby-code">
+                <span class="muted">Race Code</span>
+                <span class="race-code" id="raceCode">-</span>
+                <div class="lobby-count">ผู้เล่นในห้อง <b id="lobbyCount">0</b> คน</div>
+              </div>
+              <figure class="join-qr-box">
+                <div id="joinQr" class="join-qr" role="img" aria-label="QR code สำหรับเข้าร่วมห้อง"></div>
+                <figcaption>สแกนด้วยมือถือเพื่อเข้าร่วม</figcaption>
+              </figure>
             </div>
             <div id="lobbyBadges" class="lobby-badges" aria-label="การตั้งค่าห้อง"></div>
             <div class="lobby-legend">❔ เส้นประ = ยังไม่เลือกตัวหมาก</div>
