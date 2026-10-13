@@ -33,6 +33,9 @@ const BOUNCES = 4;
 const GROUND_SHARE = [0.5, 0.25, 0.12, 0.06]; // ระยะทางบนพื้นที่ไปได้ในแต่ละช่วงลอย (ที่เหลือคือช่วงกลิ้ง)
 const SPIN_KEEP_ON_IMPACT = 0.6; // ความเร็วหมุนที่เหลือหลังกระทบพื้นแต่ละครั้ง
 const END_SCALE = 1.45; // ขนาดตอนหยุดกลางกระดาน (เทียบกับตอนอยู่ที่จุดวาง)
+// ตำแหน่งที่ลูกเต๋าแตะพื้นบนจอ (วัดจากมุมกล้อง .dice-cam): หน้าบนอยู่ที่ −0.39×ขนาด → หน้าล่าง/จุดแตะพื้นอยู่ที่ +0.39×ขนาด
+// ฐานที่แตะพื้นกว้าง ~1.45×ขนาด สูง ~0.8×ขนาด (สี่เหลี่ยมที่เห็นเฉียง) — เงาใช้ขนาดนี้ (ตั้งใน CSS .dice-shadow)
+const CONTACT_Y_RATIO = 0.39;
 
 const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -203,16 +206,21 @@ export function createDiceController({
   let state = "hidden"; // "hidden" | "waiting" | "rolling" | "done"
   let posesByTopValue = null;
   let rot = { x: -8, y: 12, z: 0 };
-  const pose = { ground: { x: 0, y: 0 }, z: 0, scale: 1, sx: 1, sy: 1 };
+  // ground = กึ่งกลางลูกเต๋าตอนวางบนพื้น, z = ความสูงจากพื้น, base = ขนาดตามระยะทาง (ไม่รวมผลความสูง)
+  const pose = { ground: { x: 0, y: 0 }, z: 0, base: 1, scale: 1, sx: 1, sy: 1 };
+  const diceSize = () => parseFloat(getComputedStyle(diceOverlayEl).getPropertyValue("--dice-size")) || 84;
 
   function applyPose() {
     if (!mover) return;
-    const { ground, z, scale, sx, sy } = pose;
+    const { ground, z, base, scale, sx, sy } = pose;
+    const contact = CONTACT_Y_RATIO * diceSize();
     mover.style.transform = `translate(${ground.x}px, ${ground.y}px)`;
-    lift.style.transform = `translateY(${-z}px) scale(${scale * sx}, ${scale * sy})`;
-    // แสงจากซ้ายบน: ยิ่งสูง เงายิ่งเล็ก จาง และเลื่อนไปขวาล่าง
+    // ตอนยุบตัวกระแทกพื้น ขยับลงชดเชย ให้ฐานลูกเต๋ายังแตะพื้นอยู่
+    const squashDrop = contact * scale * (1 - sy);
+    lift.style.transform = `translateY(${-z + squashDrop}px) scale(${scale * sx}, ${scale * sy})`;
+    // เงาอยู่บนพื้นใต้จุดแตะพื้นเสมอ (ไม่ลอยตามลูกเต๋า) แสงจากซ้ายบน: ยิ่งลอยสูง เงายิ่งเล็ก จาง และเลื่อนไปขวาล่างเล็กน้อย
     const h = Math.min(z, 320);
-    shadow.style.transform = `translate(calc(-50% + ${h * 0.12}px), calc(10% + ${h * 0.16}px)) scale(${scale * (1 - h / 520)})`;
+    shadow.style.transform = `translate(calc(-50% + ${h * 0.12}px), calc(-50% + ${contact * base + h * 0.08}px)) scale(${base * (1 - h / 520)})`;
     shadow.style.opacity = String(0.08 + 0.34 * (1 - h / 380));
     dice3dEl.style.transform = rotate(rot);
   }
@@ -221,6 +229,7 @@ export function createDiceController({
     const r = getDockRect();
     pose.ground = r ? rectCenter(r) : { x: innerWidth - 90, y: innerHeight - 110 };
     pose.z = 0;
+    pose.base = 1;
     pose.scale = 1;
     pose.sx = pose.sy = 1;
     applyPose();
@@ -296,7 +305,7 @@ export function createDiceController({
 
     if (REDUCED_MOTION) {
       rot = { ...pick };
-      Object.assign(pose, { ground: to, z: 0, scale: END_SCALE, sx: 1, sy: 1 });
+      Object.assign(pose, { ground: to, z: 0, base: END_SCALE, scale: END_SCALE, sx: 1, sy: 1 });
       applyPose();
       sound.hit?.(0.6);
       return finalRoll;
@@ -339,14 +348,15 @@ export function createDiceController({
 
       pose.ground = p.ground;
       pose.z = p.z;
-      pose.scale = (1 + (END_SCALE - 1) * clamp01(p.u)) * (1 + p.z / 700);
+      pose.base = 1 + (END_SCALE - 1) * clamp01(p.u);
+      pose.scale = pose.base * (1 + p.z / 700); // ใกล้กล้องขึ้นเล็กน้อยตอนลอย
       pose.sx = 1 + squash * 0.7;
       pose.sy = 1 - squash;
       applyPose();
     });
 
     rot = { ...pick };
-    Object.assign(pose, { ground: to, z: 0, scale: END_SCALE, sx: 1, sy: 1 });
+    Object.assign(pose, { ground: to, z: 0, base: END_SCALE, scale: END_SCALE, sx: 1, sy: 1 });
     applyPose();
 
     const seenTop = getTopVisibleValue();
