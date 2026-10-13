@@ -956,7 +956,8 @@
   .board-cell{ position:relative; border: 1px solid rgba(75,60,140,.10); background: var(--cell-a); }
   .board-cell.alt{ background: var(--cell-b); }
   .board-cell.start{ background:#ffe9cc; }
-  .board-cell.finish{ background:#cdeed8; box-shadow: inset 0 0 0 3px var(--good); }
+  .board-cell.finish{ background:#cdeed8; }
+  .board-cell.finish.occupied .cell-flag{ display: none; } /* มีคนเข้าเส้นชัยแล้ว ไม่ให้ธงทับตัวหมาก */
   .board-cell.crowded{ cursor: pointer; }
   .cell-num{
     position:absolute; top: 5%; left: 7%;
@@ -994,7 +995,13 @@
   .board-token.me{ box-shadow: 0 0 0 3px var(--p-550), 0 3px 8px rgba(31,35,48,.3); z-index: 5; }
   .board-token.moving{ z-index: 6; transform: translate(-50%, -62%) scale(1.15); }
   .board-token.hidden{ opacity: 0; }
-  .board-token.offline{ filter: grayscale(1); opacity: .55; }
+  /* หลุดการเชื่อมต่อ: ทึบเหมือนเดิม (ไม่ให้สีช่องทะลุ) แต่ขอบประสีเทา + ป้าย 📴 */
+  .board-token.offline{ border-style: dashed; border-color: #9a9aa8; filter: saturate(.35); }
+  .board-token.offline::after{
+    content: "📴"; position: absolute; right: -18%; top: -18%;
+    font-size: 45%; line-height: 1; background: #fff; border-radius: 50%; padding: 1px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  }
   .board-token.glide{ transition: left .75s cubic-bezier(.45,0,.3,1), top .75s cubic-bezier(.45,0,.3,1), transform .2s; }
   .board-more{
     position:absolute; width: 5.6%; aspect-ratio: 1; transform: translate(-50%, -50%);

@@ -164,7 +164,9 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false } =
     }
 
     grid.querySelectorAll(".board-cell").forEach((c) => {
-      c.classList.toggle("crowded", (groups.get(Number(c.dataset.n)) || []).length > 1);
+      const count = (groups.get(Number(c.dataset.n)) || []).length;
+      c.classList.toggle("crowded", count > 1);
+      c.classList.toggle("occupied", count > 0);
     });
 
     const usedChips = new Set();
