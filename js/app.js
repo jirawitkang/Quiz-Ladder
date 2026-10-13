@@ -687,7 +687,8 @@ function renderPlayerView(room) {
 // ช่วงทอย: เปิดลูกเต๋า 3D รอให้ผู้เล่นแตะที่ลูกเต๋าเอง (เหมือนเดิม)
 function syncDiceOverlay(room, me) {
   const canRoll = room.phase === PHASE.ROLLING && room.status === STATUS.IN_GAME && !me.hasRolled && !isPlayerDone(me);
-  setHidden(dom.diceDock, !(canRoll || busy.roll)); // เว้นที่วางลูกเต๋าไว้ระหว่างรอทอย/กำลังโยน
+  // เว้นที่วางลูกเต๋าไว้จนลูกเต๋าปิด — การ์ดข้อความจะได้ไม่เลื่อนขึ้นระหว่างลูกเต๋าค้างอยู่กลางกระดาน
+  setHidden(dom.diceDock, !(canRoll || busy.roll || dice.getState() !== "hidden"));
   if (busy.roll) return;
   const state = dice.getState();
   if (canRoll && (state === "hidden" || state === "waiting")) dice.setState("waiting"); // waiting ซ้ำ = จัดตำแหน่งตามจุดวางใหม่
@@ -1386,6 +1387,7 @@ function bindUIEvents() {
   // player
   on(dom.joinRoomBtn, "click", playerJoin);
   on(dom.rollDiceBtn, "click", playerRollDice); // แตะที่ลูกเต๋า 3D
+  on(dom.diceDock, "click", () => dice.getState() === "waiting" && playerRollDice()); // แตะตรงไหนในกล่องลูกเต๋าก็ได้
   on(dom.soundToggle, "click", () => {
     setMuted(!isMuted());
     if (!isMuted()) unlockAudio();

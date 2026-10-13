@@ -635,10 +635,11 @@
   }
   .dice-lift{ position:absolute; left:0; top:0; width:0; height:0; will-change: transform; }
   .dice-lift > *{ position:absolute; left:0; top:0; transform: translate(-50%, -50%); }
+  /* พื้นที่แตะครอบภาพลูกเต๋าทั้งลูก (ภาพ 3D สูงกว่ากล่องลูกเต๋า เพราะเห็นด้านบน) */
   #rollDiceBtn{
-    width: calc(var(--dice-size) * 1.5); height: calc(var(--dice-size) * 1.5);
+    width: calc(var(--dice-size) * 2); height: calc(var(--dice-size) * 2.1);
     background: transparent; border: none; padding: 0; margin: 0; box-shadow: none;
-    border-radius: 50%; cursor: pointer; pointer-events: auto; z-index: 10;
+    border-radius: 16px; cursor: pointer; pointer-events: auto; z-index: 10;
   }
   #rollDiceBtn:disabled{ cursor: default; opacity: 1; }
   #rollDiceBtn:focus-visible{ outline: 3px solid var(--p-550); outline-offset: 2px; }
@@ -1062,7 +1063,7 @@
   }
   /* จุดวางลูกเต๋า 3D (ตัวลูกเต๋าจริงลอยอยู่ใน #diceOverlay และถูกจัดให้ตรงกลางกล่องนี้) */
   .dice-dock{
-    height: 150px; border-radius: 16px;
+    height: 170px; border-radius: 16px; cursor: pointer; /* แตะตรงไหนในกล่องนี้ก็ทอยได้ */
     background: radial-gradient(circle at 50% 55%, rgba(75,60,140,.10), transparent 65%);
   }
   .sound-toggle{ cursor: pointer; margin: 0; box-shadow: none; }
