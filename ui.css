@@ -827,6 +827,12 @@
     white-space: nowrap;
   }
   .room-chip.phase{ background: var(--p-550); border-color: var(--p-550); color:#2b1b00; }
+  .room-chip.me-chip{ display:inline-flex; align-items:center; gap: 6px; padding: 2px 12px 2px 3px; }
+  .me-chip .me-av{
+    width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--c); background:#fff;
+    display:grid; place-items:center; font-size: 15px;
+  }
+  .me-chip .me-av.waiting{ border-style: dashed; border-color: var(--muted); }
   .room-actions button{ width:auto; margin:0; padding: 8px 14px; border-radius: 12px; }
 
   /* ---------- host layout ---------- */
@@ -1091,10 +1097,9 @@
     .player-layout:not(.in-lobby){
       max-width: none;
       grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
-      grid-template-areas: "me me" "board action";
+      grid-template-areas: "board action";
       align-items: start;
     }
-    .player-layout:not(.in-lobby) > #meLine{ grid-area: me; }
     .player-layout:not(.in-lobby) > #playerBoard{
       grid-area: board; justify-self: center;
       max-width: max(420px, calc((100vh - 170px) * 6 / 5));

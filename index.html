@@ -222,6 +222,7 @@
         <div class="room-status">
           <span class="room-chip" id="roundInfo">Lobby</span>
           <span class="room-chip phase" id="phaseInfo">รอผู้เล่น</span>
+          <span class="room-chip me-chip" id="meChip" hidden></span>
         </div>
         <div id="hostGameControls" class="room-actions" hidden>
           <button id="startGameBtn" class="btn-primary" type="button">▶️ เริ่มเกม</button>
@@ -283,7 +284,6 @@
 
       <!-- PLAYER: มือถือ -->
       <div id="playerView" class="player-layout" hidden>
-        <div id="meLine" class="me-line"></div>
         <div id="playerBoard"></div>
         <div id="playerAction" class="action card" aria-live="polite"></div>
       </div>

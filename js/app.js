@@ -173,7 +173,7 @@ const dom = {
 
   // player view
   playerView: $("playerView"),
-  meLine: $("meLine"),
+  meChip: $("meChip"),
   playerBoard: $("playerBoard"),
   playerAction: $("playerAction"),
 
@@ -249,7 +249,7 @@ const dice = createDiceController({
   diceRollHintEl: dom.diceRollHint,
   rollDiceBtn: dom.rollDiceBtn,
   closeDiceOverlayBtn: dom.closeDiceOverlayBtn,
-  onClose: () => renderBoards(), // ปิดลูกเต๋าแล้วค่อยให้หมากตัวเองเดิน
+  onClose: () => lastRoom && renderRoom(lastRoom), // ปิดลูกเต๋าแล้วค่อยแสดงแต้มและให้หมากตัวเองเดิน
 });
 
 /* =========================
@@ -393,6 +393,7 @@ function resetRoomUi() {
   Object.assign(anim, { seen: new Set(), primed: false, queue: [], timer: null });
   hostBoardView.reset();
   playerBoardView.reset();
+  setHidden(dom.meChip, true);
   dom.playerAction.innerHTML = "";
   dom.playerAction.dataset.mode = "";
   dice.setState("hidden");
@@ -662,14 +663,14 @@ function renderPlayerView(room) {
   setHidden(dom.playerBoard, inLobby);
   dom.playerView.classList.toggle("in-lobby", inLobby);
 
+  // ตัวหมาก + ตำแหน่งของตัวเอง อยู่ในแถบเดียวกับ "รอบที่"
   const av = `<span class="me-av${me.emoji ? "" : " waiting"}" style="--c:${escapeHtml(color)}">${escapeHtml(me.emoji || "❔")}</span>`;
-  if (inLobby) {
-    dom.meLine.innerHTML = `${av}<span>สวัสดี <b>${escapeHtml(me.name || "")}</b> · ${
-      me.emoji ? "รอครูเริ่มเกม" : "เลือกตัวหมากด้านล่างได้เลย"
-    }</span>`;
-  } else {
-    dom.meLine.innerHTML = `${av}<span>คุณอยู่ช่อง <b>${clampPos(me.position)}</b>${isPlayerDone(me) ? " · 🏁 เข้าเส้นชัยแล้ว" : ""}</span>`;
-  }
+  // ระหว่างลูกเต๋ากลิ้ง แสดงช่องเดิมไว้ก่อน ไม่ให้รู้ผลล่วงหน้า
+  const shownPos = isRollRevealPending(room, me) ? me.startOfRoundPos ?? me.position : me.position;
+  setHidden(dom.meChip, false);
+  dom.meChip.innerHTML = inLobby
+    ? `${av}<span>${escapeHtml(me.name || "")}</span>`
+    : `${av}<span>ช่อง <b>${clampPos(shownPos)}</b>${isPlayerDone(me) && !isRollRevealPending(room, me) ? " · 🏁" : ""}</span>`;
 
   if (inLobby) renderPickerAction(room);
   else renderGameAction(room, me);
@@ -685,6 +686,11 @@ function syncDiceOverlay(room, me) {
   if (canRoll && state === "hidden") dice.setState("waiting");
   else if (!canRoll && state === "waiting") dice.setState("hidden");
   else if (state !== "hidden" && state !== "done" && room.phase !== PHASE.ROLLING) dice.setState("hidden");
+}
+
+// ผู้เล่นทอยแล้วแต่ลูกเต๋า 3D ยังกลิ้ง/ยังไม่ปิด → ยังไม่เฉลยแต้ม
+function isRollRevealPending(room, me) {
+  return room.phase === PHASE.ROLLING && !!me.hasRolled && (busy.roll || dice.getState() !== "hidden");
 }
 
 function setActionMode(mode) {
@@ -735,8 +741,8 @@ function renderGameAction(room, me) {
 
   switch (phase) {
     case PHASE.ROLLING: {
-      if (!me.hasRolled) {
-        html(busy.roll
+      if (!me.hasRolled || isRollRevealPending(room, me)) {
+        html(busy.roll || me.hasRolled
           ? `<div class="big">🎲</div><div><b>ลูกเต๋ากำลังกลิ้ง…</b></div>`
           : `<div class="big">🎲</div><div><b>แตะที่ลูกเต๋าเพื่อทอย</b></div><div class="sub">ถ้าไม่เห็นลูกเต๋า แตะปุ่มด้านล่าง</div>
              <button type="button" class="btn-ghost" data-action="show-dice">เปิดลูกเต๋า</button>`);
@@ -1247,7 +1253,7 @@ async function playerRollDice() {
     setTimeout(() => {
       if (dice.getState() === "done") {
         dice.setState("hidden");
-        renderBoards();
+        if (lastRoom) renderRoom(lastRoom);
       }
     }, DICE_AUTO_CLOSE_MS);
   } catch (e) {
