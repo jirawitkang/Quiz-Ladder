@@ -2,14 +2,14 @@
 // ค่าคงที่ของเกมและการตั้งค่า Firebase (ไม่มี side effect — import ได้ทั้งใน browser และ node)
 
 export const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBUHaaYaSzluNnlI4pSmRk-oUomgydiq2I",
-  authDomain: "quizrunner.firebaseapp.com",
-  databaseURL: "https://quizrunner-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "quizrunner",
-  storageBucket: "quizrunner.firebasestorage.app",
-  messagingSenderId: "302500543999",
-  appId: "1:302500543999:web:773c1cd297246f73c87bca",
-  measurementId: "G-QWX3CDCRBE",
+  apiKey: "AIzaSyCOT002ZBTw_roNiN_9npuGJZpuFg3TB5s",
+  authDomain: "snake-quiz-cdf1c.firebaseapp.com",
+  databaseURL: "https://snake-quiz-cdf1c-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "snake-quiz-cdf1c",
+  storageBucket: "snake-quiz-cdf1c.firebasestorage.app",
+  messagingSenderId: "58607066678",
+  appId: "1:58607066678:web:cf6f8a783171e553d80297",
+  measurementId: "G-32FNRV7FH4",
 };
 
 // NOTE: ตรวจที่ฝั่ง client เท่านั้น — กันได้แค่ผู้ใช้ทั่วไป ไม่ใช่ระบบความปลอดภัยจริง
