@@ -246,6 +246,8 @@ let lastRoom = null; // ข้อมูลจริงจาก Firebase (ใช
 let lastView = null; // ห้องที่ใช้แสดงผล (ซ่อนผลทอยที่ลูกเต๋าของคนทอยยังกลิ้งอยู่)
 let entryPage = "landing"; // "landing" | "admin" | "player" | null (อยู่ในห้องแล้ว)
 let presenceMode = null; // "remove" | "mark" — สิ่งที่ onDisconnect ถูกตั้งไว้ตอนนี้
+let socketOnline = false; // ค่าจาก .info/connected
+let healingPresence = false;
 
 const busy = { create: false, join: false, roll: false, answer: false, host: false, emoji: false };
 
@@ -376,9 +378,11 @@ function disarmPresence() {
 }
 
 // ใช้ transaction เพื่อไม่สร้าง record ใหม่ถ้าผู้เล่น/ห้องถูกลบไปแล้ว
+// รอบแรกของ transaction ใช้ค่าใน cache ซึ่งยังว่างตอนเพิ่ง refresh/rejoin (ยังไม่ได้ subscribe ห้อง)
+// → ต้องคืน null (ไม่ใช่ undefined) ให้ไปลองกับค่าจริงบน server; ถ้า server ไม่มีจริง การเขียน null ก็ไม่สร้างอะไร
 function setPlayerConnected(code, pid, connected) {
   return runTransaction(playerRef(code, pid), (p) => {
-    if (!p) return;
+    if (!p) return p;
     p.connected = connected;
     p.lastSeen = serverNow();
     p.disconnectedAt = connected ? null : serverNow();
@@ -386,7 +390,19 @@ function setPlayerConnected(code, pid, connected) {
   });
 }
 
+// onDisconnect ของ connection เก่า (ก่อน refresh) อาจมาถึง server หลังหน้าใหม่ mark ออนไลน์ไปแล้ว
+// → ถ้าเห็นตัวเองเป็น "หลุด" ทั้งที่ยังต่ออยู่ ให้ mark กลับเป็นออนไลน์
+function healPresence(room) {
+  if (!isPlayer() || !socketOnline || healingPresence) return;
+  if (room.players?.[session.playerId]?.connected !== false) return;
+  healingPresence = true;
+  setPlayerConnected(session.roomCode, session.playerId, true)
+    .catch((e) => console.warn("healPresence failed:", e))
+    .finally(() => (healingPresence = false));
+}
+
 onConnectionChange((connected) => {
+  socketOnline = connected;
   if (!connected) {
     presenceMode = null; // server ทำ onDisconnect ไปแล้ว ต้องตั้งใหม่เมื่อกลับมา
     return;
@@ -528,6 +544,7 @@ function subscribeRoom(code) {
     try {
       renderRoom(room);
       armPresence(room);
+      healPresence(room);
     } catch (e) {
       console.error("[renderRoom] crashed:", e);
     }
@@ -1483,6 +1500,9 @@ async function playerSubmitAnswer(optionKey) {
 async function playerLeave() {
   const { roomCode, playerId } = session;
   if (roomCode && playerId) {
+    // เลิกฟังห้องก่อน ไม่งั้น healPresence จะ mark ออนไลน์กลับทันทีที่เขียนว่าออก
+    roomUnsub?.();
+    roomUnsub = null;
     disarmPresence();
     try {
       const room = lastRoom;
