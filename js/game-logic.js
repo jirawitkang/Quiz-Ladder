@@ -12,7 +12,7 @@ import {
   STATUS,
 } from "./config.js";
 import { MOVE, resolveLanding } from "./board-config.js";
-import { DEFAULT_EMOJI_THEME, getVisibleEmojis, getEmojiPool } from "./emoji-themes.js";
+import { DEFAULT_EMOJI_THEME, buildEmojiPool, getThemeEmojis, getVisibleFromBase } from "./emoji-themes.js";
 import { clampPos, deepClone, getPathCells, roundKey } from "./utils.js";
 import { getQuestionFromRoom, getQuestionSetLengthForRoom } from "../questions.js";
 
@@ -31,9 +31,16 @@ export function getSettings(room) {
   };
 }
 
+// 30 ตัวหมากของห้อง: ห้องใหม่เก็บจากชุดคำถามที่ครูเลือก (questionSet.emojis), ห้องเก่าใช้ธีม
+export function getRoomBaseEmojis(room) {
+  const own = room?.questionSet?.emojis;
+  const list = Array.isArray(own) ? own : own && typeof own === "object" ? Object.values(own) : [];
+  return list.length ? list : getThemeEmojis(getSettings(room).emojiTheme);
+}
+
 // emoji ที่ห้องนี้แสดงให้เลือกตอนนี้ (เพิ่มตัวสำรองตามจำนวนผู้เล่น)
 export function getRoomEmojiChoices(room) {
-  return getVisibleEmojis(getSettings(room).emojiTheme, Object.keys(room?.players || {}).length);
+  return getVisibleFromBase(getRoomBaseEmojis(room), Object.keys(room?.players || {}).length);
 }
 
 export function getTakenEmojis(room, exceptPid = null) {
@@ -398,7 +405,7 @@ export function applyStartGame(room, now, random = Math.random) {
   if (room.status !== STATUS.LOBBY || !Object.keys(players).length) return;
 
   const taken = new Set(Object.values(players).map((p) => p.emoji).filter(Boolean));
-  const pool = getEmojiPool(getSettings(room).emojiTheme);
+  const pool = buildEmojiPool(getRoomBaseEmojis(room));
   let free = getRoomEmojiChoices(room).filter((e) => !taken.has(e));
   for (const p of Object.values(players)) {
     if (p.emoji) continue;

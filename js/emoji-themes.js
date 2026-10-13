@@ -28,10 +28,13 @@ export function getThemeEmojis(themeId) {
   return (EMOJI_THEMES[themeId] || EMOJI_THEMES[DEFAULT_EMOJI_THEME]).emojis;
 }
 
-// emoji ทั้งหมดที่ห้องนี้ใช้ได้ เรียงตามลำดับที่แสดง (ธีมก่อน แล้วตามด้วยตัวสำรอง)
+// emoji ทั้งหมดที่ห้องนี้ใช้ได้ เรียงตามลำดับที่แสดง (30 ตัวของชุดก่อน แล้วตามด้วยตัวสำรอง)
+export function buildEmojiPool(baseEmojis) {
+  return [...baseEmojis, ...RESERVE_EMOJIS.filter((e) => !baseEmojis.includes(e))];
+}
+
 export function getEmojiPool(themeId) {
-  const base = getThemeEmojis(themeId);
-  return [...base, ...RESERVE_EMOJIS.filter((e) => !base.includes(e))];
+  return buildEmojiPool(getThemeEmojis(themeId));
 }
 
 // จำนวนตัวที่แสดงให้เลือก: 30 ตัวตามธีม แล้วเพิ่มทีละ 20 เมื่อผู้เล่นเกิน 30 คน
@@ -41,6 +44,22 @@ export function visibleEmojiCount(playerCount, poolSize) {
 }
 
 export function getVisibleEmojis(themeId, playerCount) {
-  const pool = getEmojiPool(themeId);
+  return getVisibleFromBase(getThemeEmojis(themeId), playerCount);
+}
+
+export function getVisibleFromBase(baseEmojis, playerCount) {
+  const pool = buildEmojiPool(baseEmojis);
   return pool.slice(0, visibleEmojiCount(playerCount, pool.length));
 }
+
+// คลัง emoji ให้ครูเลือกตัวหมากเองในหน้าแก้ชุดคำถาม (หมวด → รายการ)
+export const EMOJI_CATALOG = Object.freeze({
+  "🐶 สัตว์": list("🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐢 🐍 🦎 🦖 🐙 🦑 🦀 🐠 🐬 🐳 🦈 🐊 🦓 🦒 🐘 🦛 🐪 🦘 🐿️ 🦔 🦥 🦦 🦩 🦚 🦜"),
+  "🍔 อาหาร": list("🍎 🍊 🍋 🍉 🍇 🍓 🫐 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🥑 🌽 🥕 🥦 🍄 🥜 🍞 🥐 🧀 🥚 🍳 🥞 🍔 🍟 🍕 🌭 🌮 🌯 🍣 🍱 🍜 🍙 🍚 🍤 🥟 🍦 🍩 🍪 🎂 🍰 🧁 🍫 🍬 🍭 🍿 🧋 ☕ 🥤"),
+  "⚽ กีฬา/เกม": list("⚽ 🏀 🏈 ⚾ 🎾 🏐 🏉 🎱 🏓 🏸 🥊 🥋 ⛳ 🏹 🎣 🛹 ⛸️ 🎿 🏆 🥇 🎯 🎳 🎮 🎲 🧩 ♟️ 🎨 🎭 🎤 🎧 🎸 🎹 🥁 🎺 🎻 🪀 🪁"),
+  "🌸 ธรรมชาติ": list("🌸 🌷 🌹 🌺 🌻 🌼 💐 🌱 🌿 🍀 🍁 🍂 🌵 🌴 🌲 🌳 🌈 ☀️ 🌤️ ⛅ 🌧️ ⛈️ ❄️ ☃️ 🔥 💧 🌊 ⭐ 🌟 🌙 🪐 ☄️ 🌍"),
+  "🚗 ยานพาหนะ": list("🚗 🚕 🚙 🚌 🏎️ 🚓 🚑 🚒 🚚 🚜 🛵 🏍️ 🚲 🛴 🚂 🚄 🚇 ✈️ 🚁 🚀 🛸 ⛵ 🚤 🛳️ 🚢 🎡 🎢 🗽 🗼 🏰 🏯 ⛺"),
+  "🛍️ ช้อปปิ้ง/เงิน": list("🛍️ 🛒 💳 💰 💵 💴 💶 💷 💸 🪙 🏦 🏧 🧾 👛 👜 👝 🎁 🏷️ 💎 👑 💍 ⌚ 👟 👠 👗 👕 🧢 🕶️ 🧸 📦"),
+  "💡 ของใช้": list("💼 📎 📌 ✏️ 🖊️ 📏 📐 📁 📅 📊 📈 💻 ⌨️ 🖱️ 📱 ☎️ 📷 🔦 💡 🔋 🔑 🔒 🧲 🔧 🔨 ⚙️ 🧮 🔍 ⏰ ⌛ 📚 📖 🎒 👓 🎈 🎀 🪄"),
+  "❤️ หัวใจ/สัญลักษณ์": list("❤️ 🧡 💛 💚 💙 💜 🤍 🖤 💖 💘 💝 💯 ✅ ❌ ❓ ❗ ⚡ 💥 💫 ✨ 🎵 🔔 🏁 🚩 🔴 🟠 🟡 🟢 🔵 🟣"),
+});

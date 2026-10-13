@@ -3,7 +3,7 @@
 
 import { BOARD_SIZE, PHASE, STATUS } from "./config.js";
 import { getSettings, isPlayerDone } from "./game-logic.js";
-import { getQuestionSetName } from "../questions.js";
+import { getRoomQuestionSetName } from "../questions.js";
 import { clampPos, diceFace, escapeHtml, normalizeName, roundKey, signedText, sortedRoundNumbers } from "./utils.js";
 
 const DICE_GLYPHS = ["☐", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
@@ -72,7 +72,7 @@ export function renderLobbyBadges(el, room, roomCode) {
   const items = [
     `Room: ${roomCode || "-"}`,
     `Host: ${room.hostName || "-"}`,
-    `ชุดคำถาม: ${getQuestionSetName(s.questionSetId)}`,
+    `ชุดคำถาม: ${getRoomQuestionSetName(room)}`,
     `รอบสูงสุด: ${s.maxRounds}`,
     `เข้าเส้นชัย: ${s.maxWinners} คน`,
     `ถูก: ${signedText(s.rewardCorrect)}`,

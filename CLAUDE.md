@@ -13,12 +13,14 @@ Host (ครู) เปิดจอขึ้นโปรเจกเตอร์
 ## โครงสร้าง
 ```
 index.html, ui.css        หน้าเว็บ / สไตล์ทั้งหมด (section 15 = บันไดงู, 17 = หน้าจอเกมก่อนเข้าห้อง)
-questions.js              ชุดคำถาม + QUESTION_SET_THEMES (ชุดคำถาม → ธีม emoji)
+questions.js              ชุดคำถามเดิม (ต้นฉบับที่ย้ายขึ้น Firebase แล้ว + ใช้กับห้องเก่า) + getRoomQuestions() อ่านสำเนาในห้องก่อน
 js/config.js              ค่าคงที่ (BOARD_SIZE=30, เวลา, ROOM_MAX_AGE_MS) + Firebase config + ADMIN_PIN
 js/firebase.js            DB, serverNow() (เวลา server), cleanupOldRooms()
 js/board-config.js        กระดาน 6×5 งูเลื้อย, LADDERS/SNAKES, resolveLanding() กติกาขึ้นบันได/ตกงู
 js/game-logic.js          กติกาทั้งหมดเป็น pure function apply*() ใช้ใน runTransaction (คืน undefined = ยกเลิก)
-js/emoji-themes.js        ธีมละ 30 emoji + ตัวสำรอง เพิ่มทีละ 20 เมื่อผู้เล่นเกิน 30
+js/emoji-themes.js        ธีมละ 30 emoji + ตัวสำรอง เพิ่มทีละ 20 เมื่อผู้เล่นเกิน 30 + EMOJI_CATALOG (ร้าน emoji ให้ครูเลือก)
+js/question-sets.js       ชุดคำถามที่ครูแก้จากเว็บ: validate/แปลง draft ↔ รูปแบบที่เก็บ, สำเนาลงห้อง (pure)
+js/question-editor.js     หน้าคลังชุดคำถาม + หน้าแก้ชุดคำถาม (DOM ล้วน, app.js เป็นคนบันทึก Firebase)
 js/board-view.js          วาดกระดาน/บันได/งู (SVG), ตัวหมากซ้อนช่อง (+N), แอนิเมชันเดิน
 js/render.js              Lobby, ตัวเลือก emoji, แผงรอ, อันดับ (กล่องเขียวคนเข้าเส้นชัย), feed, ตาราง, สรุปผล
 js/dice.js                ลูกเต๋า 3D: วางที่ #diceDock → โยน/กระดอน 4 ครั้ง → หยุดกลางกระดาน (planThrow)
@@ -28,6 +30,8 @@ js/qr.js                  QR ลิงก์ ?room=CODE, อ่าน/ลบ par
 js/export.js              Export Excel ตอนจบเกม
 js/app.js                 session, flow Host/Player, presence, render, timers, event bindings
 tools/check-active-rooms.mjs  เช็กห้องใน Firebase ก่อน deploy
+tools/seed-question-sets.mjs  ย้ายชุดใน questions.js ขึ้น Firebase (เฉพาะที่ยังไม่มี; --write)
+tools/backup-question-sets.mjs  สำรอง questionSets/ → backups/question-sets.json (--restore กู้คืน)
 tests/*.test.mjs          node:test (กติกา, render, emoji, เส้นทางโยนลูกเต๋า)
 ```
 
@@ -44,6 +48,10 @@ tests/*.test.mjs          node:test (กติกา, render, emoji, เส้�
 - หน้าก่อนเข้าห้อง (#entrySection) เป็นหน้าจอเกม ไม่ใช่หน้าเว็บ: body.on-entry ซ่อนแถบหัว, 4 หน้า landing / player / pin / admin
   (showEntryPage), PIN เป็นแป้นตัวเลขในหน้า (ไม่มี overlay), ตั้งค่าห้องหน้าเดียว, ไม่มีคำโปรยใต้โลโก้, ข้อความภาษาไทย
   ชื่อเกม Quiz Ladder, โลโก้ = ตัว Q หางเป็นบันได (SVG inline ใน index.html ใช้ซ้ำทั้ง favicon/แถบหัว/หน้าแรก)
+- ชุดคำถามเก็บใน Firebase `questionSets/{id}` (ชุดเดิม id = general, love, ... ; ชุดใหม่ id จาก push)
+  ครูอ่าน/ทำสำเนา/แก้/ลบได้ทุกชุด (ลบต้องกดยืนยันซ้ำ), ตัวหมาก 30 ตัวเลือกเองจากร้าน emoji (บังคับครบ 30 พอดี)
+  ตัวเลือก 2–4 ข้อ, เวลา 15/30/60/120 วิ; ห้องเก็บสำเนา `room.questionSet` {id,name,emojis,questions} ตอนสร้าง → แก้ชุดระหว่างเกมไม่กระทบ
+  flow: PIN → เมนูครู (hostMenu) → สร้างห้องเกม (admin) หรือ ชุดคำถาม (library → setEditor)
 - เสียง: จอ Host เล่นเสียงของทุกคน (ไม่มีเสียงก้าวเดิน กันรก), มือถือเล่นเฉพาะเรื่องของตัวเอง
 
 ## รัน / ทดสอบ
@@ -81,6 +89,8 @@ node "../.claude/serve.mjs"                  # static server :8765 (python http.
 - Firebase query ที่ต้องใช้ index จะ error (`Index not defined`) — ใช้ REST `?shallow=true` แทน
 - Duplicate Tab คัดลอก sessionStorage → แท็บใหม่จะเข้าห้องเป็นผู้เล่นคนเดิม
 - GitHub Pages cache ~10 นาที
+- Firebase rules เปิด ใครก็ลบ questionSets ได้ → แนะนำผู้ใช้รัน `node tools/backup-question-sets.mjs` แล้ว commit เป็นระยะ
+- `.entry-stage` ต้องมี `grid-template-columns: minmax(0,1fr)` ไม่งั้นแถวที่ nowrap (แถบหมวด emoji) ดันหน้าจอกว้างเกินมือถือ
 
 ## สไตล์โค้ด
 - คอมเมนต์ภาษาไทย สั้น อธิบาย "ทำไม", ชื่อตัวแปร/ฟังก์ชันภาษาอังกฤษ

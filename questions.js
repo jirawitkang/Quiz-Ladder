@@ -796,29 +796,27 @@ export function getQuestionSetById(id) {
   return QUESTION_SETS[id] || QUESTION_SETS.general || [];
 }
 
-/**
- * Get the length of the question set for a room.
- * @param {Object} roomData - The room data object
- * @returns {number} The length of the question set, or 1 as fallback
- */
-export function getQuestionSetLengthForRoom(roomData) {
-  const setId = roomData.gameSettings?.questionSetId || "general";
-  const set = getQuestionSetById(setId);
-  return set.length || 1;
+// คำถามของห้อง: ห้องใหม่เก็บสำเนาไว้ตอนสร้าง (room.questionSet.questions จาก Firebase questionSets/)
+// ห้องเก่าที่ไม่มีสำเนา ใช้ชุดในไฟล์นี้ตาม questionSetId
+export function getRoomQuestions(roomData) {
+  const own = roomData?.questionSet?.questions;
+  const list = Array.isArray(own) ? own : own && typeof own === "object" ? Object.values(own) : [];
+  if (list.length) return list.filter(Boolean);
+  return getQuestionSetById(roomData?.gameSettings?.questionSetId || "general");
 }
 
-/**
- * Get a question from a room's question set by index.
- * @param {Object} roomData - The room data object
- * @param {number} index - The index of the question
- * @returns {Object|null} The question object, or null if not found
- */
+export function getQuestionSetLengthForRoom(roomData) {
+  return getRoomQuestions(roomData).length || 1;
+}
+
 export function getQuestionFromRoom(roomData, index) {
-  const setId = roomData.gameSettings?.questionSetId || "general";
-  const set = getQuestionSetById(setId);
+  const set = getRoomQuestions(roomData);
   if (!set.length) return null;
-  const i = (index ?? 0) % set.length;
-  return set[i];
+  return set[(index ?? 0) % set.length];
+}
+
+export function getRoomQuestionSetName(roomData) {
+  return roomData?.questionSet?.name || getQuestionSetName(roomData?.gameSettings?.questionSetId);
 }
 
 /**

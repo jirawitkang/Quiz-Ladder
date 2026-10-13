@@ -181,11 +181,78 @@
       </div>
     </div>
 
+    <!-- ครู: เมนูหลังใส่ PIN -->
+    <div id="hostMenuPage" class="es-screen" hidden>
+      <div class="es-panel es-panel-menu">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g></svg>
+        <button class="es-back" type="button" data-entry="landing">‹ หน้าแรก</button>
+        <h2>สำหรับครู</h2>
+        <p class="es-sub">จะทำอะไรต่อดี</p>
+        <div class="es-menu">
+          <button type="button" class="es-btn es-play" data-entry="admin"><span class="ico" aria-hidden="true">▶</span><span>สร้างห้องเกม<small>เลือกชุดคำถาม ตั้งกติกา แล้วเปิดห้อง</small></span></button>
+          <button type="button" class="es-btn es-soft" data-entry="library"><span class="ico" aria-hidden="true">📚</span><span>ชุดคำถาม<small>สร้าง แก้ไข ทำสำเนา หรือลบชุดคำถาม</small></span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ครู: คลังชุดคำถาม -->
+    <div id="libraryPage" class="es-screen" hidden>
+      <div class="es-panel es-panel-wide">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#4B3C8C"/><text x="22" y="30" text-anchor="middle" font-size="22">📚</text></svg>
+        <button class="es-back" type="button" data-entry="hostMenu">‹ เมนูครู</button>
+        <h2>ชุดคำถาม</h2>
+        <p class="es-sub">แตะการ์ดเพื่อเปิดดูและแก้ไข · บันทึกไว้ออนไลน์ ใช้ได้ทุกเครื่อง</p>
+        <div class="es-lib" id="setLibrary"></div>
+      </div>
+    </div>
+
+    <!-- ครู: สร้าง/แก้ชุดคำถาม -->
+    <div id="setEditorPage" class="es-screen" hidden>
+      <div class="es-panel es-panel-wide">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><text x="22" y="30" text-anchor="middle" font-size="22">✏️</text></svg>
+        <button class="es-back" type="button" data-entry="library">‹ ชุดคำถาม</button>
+        <h2 id="setEditorTitle">แก้ชุดคำถาม</h2>
+        <p class="es-sub">บันทึกแล้วเลือกใช้ได้ทันทีตอนสร้างห้อง</p>
+
+        <div class="es-field">
+          <label class="es-label" for="setNameInput">ชื่อชุดคำถาม</label>
+          <input id="setNameInput" class="es-input" maxlength="40" placeholder="เช่น สืบค้นฐานข้อมูล บทที่ 3" autocomplete="off" />
+        </div>
+
+        <div class="es-section es-emoji">
+          <div class="es-tray-head">
+            <span class="es-label">ตัวหมาก emoji</span><span class="es-count" id="setEmojiCount">0/30</span>
+            <span class="es-spacer"></span><span class="es-muted">แตะตัวในตะกร้าเพื่อเอาออก</span>
+          </div>
+          <div class="es-tray" id="setEmojiTray" aria-label="emoji ที่เลือกแล้ว"></div>
+          <div class="es-row es-theme-row"><span class="es-muted">เติมเร็วจากธีม:</span><div class="es-chips" id="setEmojiThemes"></div></div>
+          <div class="es-shop">
+            <div class="es-shop-tabs" id="setEmojiTabs" role="group" aria-label="หมวด emoji"></div>
+            <div class="es-shop-grid" id="setEmojiShop"></div>
+          </div>
+          <p class="es-muted">ต้องเลือกให้ครบ 30 ตัวพอดี (ถ้าผู้เล่นเกิน 30 คน ระบบเพิ่มตัวสำรองให้เอง)</p>
+        </div>
+
+        <div class="es-section">
+          <span class="es-label">คำถาม <span class="es-muted">· 1 รอบใช้ 1 ข้อ เรียงตามลำดับ</span></span>
+          <div class="es-qlist" id="setQuestionList"></div>
+          <button type="button" class="es-btn es-soft es-add-q" id="addQuestionBtn">+ เพิ่มคำถาม</button>
+        </div>
+
+        <div class="es-editor-footer">
+          <p class="es-error" id="setEditorError" role="alert" hidden></p>
+          <span class="es-spacer"></span>
+          <button type="button" class="es-btn es-soft" data-entry="library">ยกเลิก</button>
+          <button type="button" class="es-btn es-play es-save" id="saveSetBtn">บันทึก</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ครู: ตั้งค่าห้อง -->
     <div id="adminEntryPage" class="es-screen" hidden>
       <div class="es-panel es-panel-wide">
         <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g></svg>
-        <button class="es-back" type="button" data-entry="landing">‹ หน้าแรก</button>
+        <button class="es-back" type="button" data-entry="hostMenu">‹ เมนูครู</button>
         <h2>ตั้งค่าห้องเกม</h2>
         <p class="es-sub">เลือกชุดคำถามและกติกา แล้วสร้างห้องให้ผู้เล่นสแกนเข้ามา</p>
         <div class="es-setup">
@@ -195,8 +262,8 @@
               <input id="hostNameInput" class="es-input" maxlength="12" placeholder="เช่น ครูฝน" autocomplete="name" spellcheck="false" />
             </div>
             <div class="es-field">
-              <span class="es-label" id="questionSetLabel">ชุดคำถาม</span>
-              <!-- ปุ่มเลือกชุดคำถาม สร้างจาก questions.js (populateQuestionSetPicker) -->
+              <div class="es-row"><span class="es-label" id="questionSetLabel">ชุดคำถาม</span><span class="es-spacer"></span><button type="button" class="es-link" data-entry="library">จัดการชุดคำถาม ›</button></div>
+              <!-- การ์ดเลือกชุดคำถาม สร้างจาก Firebase questionSets/ (renderSetPicker) -->
               <div class="es-sets" id="questionSetPicker" role="group" aria-labelledby="questionSetLabel"></div>
             </div>
           </div>

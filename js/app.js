@@ -32,11 +32,15 @@ import {
   onDisconnect,
   onValue,
   playerRef,
+  push,
+  questionSetRef,
+  questionSetsRef,
   remove,
   roomRef,
   runTransaction,
   serverNow,
   serverTimestamp,
+  set,
 } from "./firebase.js";
 import {
   applyAnswer,
@@ -70,7 +74,17 @@ import {
   renderWaitPanel,
 } from "./render.js";
 import { createBoardView } from "./board-view.js";
-import { THEME_SIZE, getThemeEmojis } from "./emoji-themes.js";
+import { THEME_SIZE } from "./emoji-themes.js";
+import {
+  copySet,
+  fromDraft,
+  listQuestionSets,
+  newDraft,
+  roomQuestionSnapshot,
+  toDraft,
+  validateDraft,
+} from "./question-sets.js";
+import { createSetEditor, renderLibrary } from "./question-editor.js";
 import { createDiceController, rollDie } from "./dice.js";
 import { exportRoomToXlsx } from "./export.js";
 import {
@@ -92,12 +106,7 @@ import {
 } from "./sound.js";
 import { banner, confetti, fireworks, MEDAL_PALETTES } from "./celebrate.js";
 import { clearRoomFromUrl, readRoomFromUrl, renderJoinQr, resetJoinQr } from "./qr.js";
-import {
-  getQuestionFromRoom,
-  getQuestionSetIds,
-  getQuestionSetName,
-  getQuestionSetTheme,
-} from "../questions.js";
+import { getQuestionFromRoom, getRoomQuestionSetName } from "../questions.js";
 import {
   clampPos,
   createId,
@@ -129,6 +138,12 @@ const dom = {
   adminEntryPage: $("adminEntryPage"),
   playerEntryPage: $("playerEntryPage"),
   adminPinPage: $("adminPinPage"),
+  hostMenuPage: $("hostMenuPage"),
+  libraryPage: $("libraryPage"),
+  setEditorPage: $("setEditorPage"),
+  setLibrary: $("setLibrary"),
+  setEditorTitle: $("setEditorTitle"),
+  saveSetBtn: $("saveSetBtn"),
 
   // admin entry
   hostNameInput: $("hostNameInput"),
@@ -238,7 +253,10 @@ const session = {
 let roomUnsub = null;
 let lastRoom = null; // ข้อมูลจริงจาก Firebase (ใช้ตัดสินใจ/ส่ง transaction)
 let lastView = null; // ห้องที่ใช้แสดงผล (ซ่อนผลทอยที่ลูกเต๋าของคนทอยยังกลิ้งอยู่)
-let entryPage = "landing"; // "landing" | "player" | "pin" | "admin" | null (อยู่ในห้องแล้ว)
+let entryPage = "landing"; // "landing" | "player" | "pin" | "hostMenu" | "library" | "setEditor" | "admin" | null (อยู่ในห้องแล้ว)
+const HOST_PAGES = new Set(["hostMenu", "library", "setEditor", "admin"]);
+// ชุดคำถามจาก Firebase questionSets/ (ฟังเฉพาะตอนครูอยู่หน้าเมนู/คลัง/แก้ไข/ตั้งค่าห้อง)
+const qsets = { list: [], loaded: false, unsub: null, selectedId: null, confirmDeleteId: null, editingId: null, saving: false };
 let pinValue = "";
 let presenceMode = null; // "remove" | "mark" — สิ่งที่ onDisconnect ถูกตั้งไว้ตอนนี้
 let socketOnline = false; // ค่าจาก .info/connected
@@ -418,7 +436,17 @@ function showEntryPage(page) {
   setHidden(dom.entryLanding, page !== "landing");
   setHidden(dom.playerEntryPage, page !== "player");
   setHidden(dom.adminPinPage, page !== "pin");
+  setHidden(dom.hostMenuPage, page !== "hostMenu");
+  setHidden(dom.libraryPage, page !== "library");
+  setHidden(dom.setEditorPage, page !== "setEditor");
   setHidden(dom.adminEntryPage, page !== "admin");
+  if (HOST_PAGES.has(page)) watchQuestionSets();
+  else unwatchQuestionSets();
+  if (page === "library") {
+    qsets.confirmDeleteId = null;
+    renderSetLibrary();
+  }
+  if (page === "admin") renderSetPicker();
 
   for (const el of [dom.hostNameInput, dom.confirmCreateRoomBtn, dom.roomCodeInput, dom.playerNameInput, dom.joinRoomBtn]) {
     if (el) el.disabled = false;
@@ -484,6 +512,7 @@ function enterRoom(code, role, playerId = null) {
   resetRoomUi();
   playerBoardView.setMe(playerId);
   entryPage = null;
+  unwatchQuestionSets();
   document.body.classList.remove("on-entry");
   setHidden(dom.entrySection, true);
   setHidden(dom.roomView, true); // เปิดหลังได้ข้อมูลห้องรอบแรก (กันกระดานกระพริบก่อนเข้าหน้า Lobby)
@@ -707,7 +736,7 @@ function updateHostQuestionPanel(room) {
 function fillHostQuestion(room, question, { round, reveal }) {
   const settings = getSettings(room);
   dom.hqLabel.textContent = reveal ? `เฉลยรอบที่ ${round}` : `คำถามรอบที่ ${round}`;
-  dom.hqSetName.textContent = getQuestionSetName(settings.questionSetId);
+  dom.hqSetName.textContent = getRoomQuestionSetName(room);
   dom.hqText.textContent = question.text;
   dom.hqText.classList.toggle("long", question.text.length > 160 && question.text.length <= 320);
   dom.hqText.classList.toggle("very-long", question.text.length > 320);
@@ -1159,31 +1188,143 @@ function celebrateEnd() {
 /* =========================
    Host flows
 ========================= */
-// การ์ดชุดคำถาม (มี emoji ตัวอย่างจากธีมของชุด) + ค่าเริ่มต้นของกติกา
+// ค่าเริ่มต้นของกติกาในหน้าตั้งค่าห้อง
 function populateHostSetup() {
-  const picker = dom.questionSetPicker;
-  if (picker) {
-    picker.innerHTML = "";
-    for (const id of getQuestionSetIds()) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "es-set";
-      btn.dataset.setId = id;
-      btn.setAttribute("aria-pressed", String(id === DEFAULT_SETTINGS.questionSetId));
-      btn.innerHTML = `<span class="emo" aria-hidden="true"></span><span class="nm"></span>`;
-      btn.querySelector(".emo").textContent = getThemeEmojis(getQuestionSetTheme(id)).slice(0, 3).join("");
-      btn.querySelector(".nm").textContent = getQuestionSetName(id);
-      picker.appendChild(btn);
-    }
-  }
   if (dom.maxRoundsInput) dom.maxRoundsInput.value = DEFAULT_SETTINGS.maxRounds;
   if (dom.maxWinnersInput) dom.maxWinnersInput.value = DEFAULT_SETTINGS.maxWinners;
   if (dom.rewardCorrectInput) dom.rewardCorrectInput.value = Math.abs(DEFAULT_SETTINGS.rewardCorrect);
   if (dom.penaltyWrongInput) dom.penaltyWrongInput.value = Math.abs(DEFAULT_SETTINGS.penaltyWrong);
 }
 
+/* ---------- ชุดคำถาม (Firebase questionSets/) ---------- */
+function watchQuestionSets() {
+  if (qsets.unsub) return;
+  qsets.unsub = onValue(
+    questionSetsRef(),
+    (snap) => {
+      qsets.list = listQuestionSets(snap.val());
+      qsets.loaded = true;
+      if (qsets.confirmDeleteId && !qsets.list.some((s) => s.id === qsets.confirmDeleteId)) qsets.confirmDeleteId = null;
+      if (entryPage === "library") renderSetLibrary();
+      if (entryPage === "admin") renderSetPicker();
+    },
+    (err) => {
+      console.error("[questionSets] load failed:", err);
+      alert("โหลดชุดคำถามไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+    }
+  );
+}
+
+function unwatchQuestionSets() {
+  qsets.unsub?.();
+  qsets.unsub = null;
+  qsets.loaded = false;
+}
+
+const findSet = (id) => qsets.list.find((s) => s.id === id) || null;
+
+// การ์ดเลือกชุดคำถามในหน้าตั้งค่าห้อง (emoji 3 ตัวแรกของชุด)
+function renderSetPicker() {
+  const picker = dom.questionSetPicker;
+  if (!picker) return;
+  if (!qsets.loaded) {
+    picker.innerHTML = `<p class="es-muted">กำลังโหลดชุดคำถาม…</p>`;
+    return;
+  }
+  if (!qsets.list.length) {
+    picker.innerHTML = `<p class="es-muted">ยังไม่มีชุดคำถาม — กด "จัดการชุดคำถาม" เพื่อสร้าง</p>`;
+    return;
+  }
+  if (!findSet(qsets.selectedId)) qsets.selectedId = (findSet(DEFAULT_SETTINGS.questionSetId) || qsets.list[0]).id;
+  picker.innerHTML = qsets.list
+    .map(
+      (s) => `<button type="button" class="es-set" data-set-id="${escapeHtml(s.id)}" aria-pressed="${s.id === qsets.selectedId}">
+        <span class="emo" aria-hidden="true">${escapeHtml(s.emojis.slice(0, 3).join(""))}</span>
+        <span class="nm">${escapeHtml(s.name)}</span>
+      </button>`
+    )
+    .join("");
+}
+
 function selectQuestionSet(btn) {
+  qsets.selectedId = btn.dataset.setId;
   for (const b of dom.questionSetPicker.querySelectorAll(".es-set")) b.setAttribute("aria-pressed", String(b === btn));
+}
+
+function renderSetLibrary() {
+  renderLibrary(dom.setLibrary, qsets.list, { confirmDeleteId: qsets.confirmDeleteId, loading: !qsets.loaded });
+}
+
+const setEditor = createSetEditor({
+  name: $("setNameInput"),
+  count: $("setEmojiCount"),
+  tray: $("setEmojiTray"),
+  themes: $("setEmojiThemes"),
+  tabs: $("setEmojiTabs"),
+  shop: $("setEmojiShop"),
+  questions: $("setQuestionList"),
+  addQuestion: $("addQuestionBtn"),
+  error: $("setEditorError"),
+});
+
+function openSetEditor(id) {
+  const existing = id ? findSet(id) : null;
+  qsets.editingId = existing ? id : null;
+  dom.setEditorTitle.textContent = existing ? "แก้ชุดคำถาม" : "สร้างชุดคำถามใหม่";
+  setEditor.open(existing ? toDraft(existing) : newDraft());
+  showEntryPage("setEditor");
+}
+
+async function saveQuestionSet() {
+  if (qsets.saving) return;
+  const draft = setEditor.getDraft();
+  const error = validateDraft(draft);
+  if (error) return setEditor.showError(error);
+
+  qsets.saving = true;
+  dom.saveSetBtn.disabled = true;
+  try {
+    const now = serverNow();
+    const existing = qsets.editingId ? findSet(qsets.editingId) : null;
+    const data = fromDraft(draft, now, existing?.createdAt || now);
+    if (existing) await set(questionSetRef(existing.id), data);
+    else await push(questionSetsRef(), data);
+    showEntryPage("library");
+  } catch (e) {
+    console.error("[questionSets] save failed:", e);
+    setEditor.showError("บันทึกไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+  } finally {
+    qsets.saving = false;
+    dom.saveSetBtn.disabled = false;
+  }
+}
+
+async function onLibraryClick(e) {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const d = b.dataset;
+  try {
+    if (d.setNew != null) return openSetEditor(null);
+    if (d.setOpen) return openSetEditor(d.setOpen);
+    if (d.setCopy) {
+      const src = findSet(d.setCopy);
+      if (src) await push(questionSetsRef(), copySet(src, serverNow()));
+      return;
+    }
+    if (d.setDelete) {
+      // กดครั้งแรก = ถาม, ครั้งที่สอง = ลบจริง
+      if (qsets.confirmDeleteId !== d.setDelete) {
+        qsets.confirmDeleteId = d.setDelete;
+        return renderSetLibrary();
+      }
+      qsets.confirmDeleteId = null;
+      if (qsets.selectedId === d.setDelete) qsets.selectedId = null;
+      await remove(questionSetRef(d.setDelete));
+    }
+  } catch (err) {
+    console.error("[questionSets] action failed:", err);
+    alert("ทำรายการไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+  }
 }
 
 // ปุ่ม − / + ข้างช่องตัวเลข (ยังพิมพ์ตัวเลขเองได้)
@@ -1196,12 +1337,9 @@ function stepRuleInput(btn) {
   input.value = Math.min(max, Math.max(min, next));
 }
 
-function readGameSettings() {
-  const questionSetId =
-    dom.questionSetPicker?.querySelector('.es-set[aria-pressed="true"]')?.dataset.setId || DEFAULT_SETTINGS.questionSetId;
+function readGameSettings(questionSetId) {
   return {
     questionSetId,
-    emojiTheme: getQuestionSetTheme(questionSetId),
     maxRounds: Math.max(1, parseIntOr(dom.maxRoundsInput?.value, DEFAULT_SETTINGS.maxRounds)),
     maxWinners: Math.max(1, parseIntOr(dom.maxWinnersInput?.value, DEFAULT_SETTINGS.maxWinners)),
     rewardCorrect: Math.abs(parseIntOr(dom.rewardCorrectInput?.value, DEFAULT_SETTINGS.rewardCorrect)),
@@ -1214,6 +1352,12 @@ async function hostCreateRoom() {
   const hostName = normalizeName(dom.hostNameInput?.value);
   if (!hostName) {
     alert("กรุณากรอกชื่อของ Host ก่อน");
+    return;
+  }
+
+  const chosenSet = findSet(qsets.selectedId);
+  if (!chosenSet?.questions.length) {
+    alert("เลือกชุดคำถามที่มีคำถามอย่างน้อย 1 ข้อก่อน");
     return;
   }
 
@@ -1230,7 +1374,9 @@ async function hostCreateRoom() {
     phase: PHASE.IDLE,
     questionCountdownSeconds: QUESTION_COUNTDOWN_SECONDS,
     answerDeadlineExpired: false,
-    gameSettings: readGameSettings(),
+    gameSettings: readGameSettings(chosenSet.id),
+    // สำเนาคำถาม + ตัวหมาก ณ ตอนสร้างห้อง: ครูแก้/ลบชุดระหว่างเกม เกมนี้ไม่เพี้ยน
+    questionSet: roomQuestionSnapshot(chosenSet.id, chosenSet),
   };
 
   try {
@@ -1560,7 +1706,7 @@ function pressPin(key) {
   const entered = pinValue;
   setTimeout(() => {
     if (entryPage !== "pin") return;
-    if (entered === ADMIN_PIN) return showEntryPage("admin");
+    if (entered === ADMIN_PIN) return showEntryPage("hostMenu");
     dom.pinDots.classList.remove("shake");
     void dom.pinDots.offsetWidth; // เริ่มแอนิเมชันสั่นใหม่
     dom.pinDots.classList.add("shake");
@@ -1595,6 +1741,9 @@ function bindUIEvents() {
   });
   for (const ev of ["input", "focus", "blur"]) on(dom.roomCodeInput, ev, drawRoomCode);
   on(dom.roomCodeInput, "keydown", (e) => e.key === "Enter" && dom.playerNameInput?.focus());
+
+  on(dom.setLibrary, "click", onLibraryClick);
+  on(dom.saveSetBtn, "click", saveQuestionSet);
 
   // host
   on(dom.confirmCreateRoomBtn, "click", hostCreateRoom);

@@ -19,6 +19,7 @@ export {
   get,
   set,
   update,
+  push,
   remove,
   onValue,
   runTransaction,
@@ -33,6 +34,9 @@ export const db = getDatabase(initializeApp(FIREBASE_CONFIG));
 
 export const roomRef = (code) => ref(db, `rooms/${code}`);
 export const playerRef = (code, pid) => ref(db, `rooms/${code}/players/${pid}`);
+// ชุดคำถามที่ครูสร้าง/แก้จากหน้าเว็บ (แยกจากห้อง ไม่ถูกลบตอนล้างห้องเก่า)
+export const questionSetsRef = () => ref(db, "questionSets");
+export const questionSetRef = (id) => ref(db, `questionSets/${id}`);
 
 // ทุกเครื่องใช้เวลาเดียวกัน (เวลา server) — กันนาฬิกาเครื่องผู้เล่นเพี้ยนแล้วตัดเวลาตอบผิด
 let serverTimeOffset = 0;
