@@ -10,72 +10,69 @@
 </head>
 
 <body>
-  <!-- Dice (no overlay-card) -->
-  <div id="diceOverlay" style="display:none;">
-    <div class="dice-scene">
-      <!-- ตัวครอบกล้อง: ทำให้เห็น 3 ด้านตลอดเวลา (ลำดับหน้า/แต้มต้องตรงกับ FACE_CLASS_TO_VALUE ใน js/dice.js) -->
-      <div class="dice-cam">
-        <div id="dice3d" class="dice">
-          <!-- FRONT = 5 -->
-          <div class="face face-1">
-            <span class="pip tl"></span>
-            <span class="pip tr"></span>
-            <span class="pip c"></span>
-            <span class="pip bl"></span>
-            <span class="pip br"></span>
-          </div>
+  <!-- ลูกเต๋า 3D: วางที่ #diceDock แล้วถูกโยนไปกลางกระดาน (ตำแหน่งคุมด้วย js/dice.js) -->
+  <div id="diceOverlay" hidden>
+    <div class="dice-mover">
+      <div class="dice-shadow"></div>
+      <div class="dice-lift">
+        <div id="diceRollHint" class="dice-roll-hint">
+          <div class="dice-roll-hint-ring"></div>
+          <div class="dice-roll-hint-dots"></div>
+        </div>
+        <div class="dice-scene">
+          <!-- ตัวครอบกล้อง: ทำให้เห็น 3 ด้านตลอดเวลา (ลำดับหน้า/แต้มต้องตรงกับ FACE_CLASS_TO_VALUE ใน js/dice.js) -->
+          <div class="dice-cam">
+            <div id="dice3d" class="dice">
+              <!-- FRONT = 5 -->
+              <div class="face face-1">
+                <span class="pip tl"></span>
+                <span class="pip tr"></span>
+                <span class="pip c"></span>
+                <span class="pip bl"></span>
+                <span class="pip br"></span>
+              </div>
         
-          <!-- RIGHT = 4 -->
-          <div class="face face-2">
-            <span class="pip tl"></span>
-            <span class="pip tr"></span>
-            <span class="pip bl"></span>
-            <span class="pip br"></span>
-          </div>
+              <!-- RIGHT = 4 -->
+              <div class="face face-2">
+                <span class="pip tl"></span>
+                <span class="pip tr"></span>
+                <span class="pip bl"></span>
+                <span class="pip br"></span>
+              </div>
         
-          <!-- TOP = 1 -->
-          <div class="face face-3">
-            <span class="pip c"></span>
-          </div>
+              <!-- TOP = 1 -->
+              <div class="face face-3">
+                <span class="pip c"></span>
+              </div>
         
-          <!-- BOTTOM = 6 -->
-          <div class="face face-4">
-            <span class="pip tl"></span>
-            <span class="pip ml"></span>
-            <span class="pip bl"></span>
-            <span class="pip tr"></span>
-            <span class="pip mr"></span>
-            <span class="pip br"></span>
-          </div>
+              <!-- BOTTOM = 6 -->
+              <div class="face face-4">
+                <span class="pip tl"></span>
+                <span class="pip ml"></span>
+                <span class="pip bl"></span>
+                <span class="pip tr"></span>
+                <span class="pip mr"></span>
+                <span class="pip br"></span>
+              </div>
         
-          <!-- LEFT = 3 -->
-          <div class="face face-5">
-            <span class="pip tl"></span>
-            <span class="pip c"></span>
-            <span class="pip br"></span>
-          </div>
+              <!-- LEFT = 3 -->
+              <div class="face face-5">
+                <span class="pip tl"></span>
+                <span class="pip c"></span>
+                <span class="pip br"></span>
+              </div>
         
-          <!-- BACK = 2 -->
-          <div class="face face-6">
-            <span class="pip tl"></span>
-            <span class="pip br"></span>
+              <!-- BACK = 2 -->
+              <div class="face face-6">
+                <span class="pip tl"></span>
+                <span class="pip br"></span>
+              </div>
+            </div>
           </div>
         </div>
+        <button id="rollDiceBtn" type="button" aria-label="แตะที่ลูกเต๋าเพื่อทอย"></button>
       </div>
     </div>
-
-    <button id="rollDiceBtn" type="button" style="display:none;"></button>
-
-    <div id="diceRollHint" class="dice-roll-hint">
-      <div class="dice-roll-hint-ring"></div>
-      <div class="dice-roll-hint-dots"></div>
-    </div>
-
-    <div id="diceHint" class="overlay-hint" style="display:none;">โปรดรอสักครู่…</div>
-
-    <button id="closeDiceOverlayBtn" class="btn-primary mt-14" type="button" style="display:none;">
-      X
-    </button>
   </div>
 
   <!-- Question Countdown Overlay -->
@@ -223,6 +220,7 @@
           <span class="room-chip" id="roundInfo">Lobby</span>
           <span class="room-chip phase" id="phaseInfo">รอผู้เล่น</span>
           <span class="room-chip me-chip" id="meChip" hidden></span>
+          <button type="button" class="room-chip sound-toggle" id="soundToggle" hidden aria-pressed="true">🔊 เสียง</button>
         </div>
         <div id="hostGameControls" class="room-actions" hidden>
           <button id="startGameBtn" class="btn-primary" type="button">▶️ เริ่มเกม</button>
@@ -285,6 +283,7 @@
       <!-- PLAYER: มือถือ -->
       <div id="playerView" class="player-layout" hidden>
         <div id="playerBoard"></div>
+        <div id="diceDock" class="dice-dock" hidden aria-hidden="true"></div>
         <div id="playerAction" class="action card" aria-live="polite"></div>
       </div>
 

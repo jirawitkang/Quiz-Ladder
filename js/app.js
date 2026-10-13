@@ -69,6 +69,7 @@ import { createBoardView } from "./board-view.js";
 import { THEME_SIZE } from "./emoji-themes.js";
 import { createDiceController, rollDie } from "./dice.js";
 import { exportRoomToXlsx } from "./export.js";
+import { isMuted, playDiceHit, playDiceTick, setMuted, unlockAudio } from "./sound.js";
 import {
   getQuestionFromRoom,
   getQuestionSetIds,
@@ -174,6 +175,8 @@ const dom = {
   // player view
   playerView: $("playerView"),
   meChip: $("meChip"),
+  soundToggle: $("soundToggle"),
+  diceDock: $("diceDock"),
   playerBoard: $("playerBoard"),
   playerAction: $("playerAction"),
 
@@ -190,10 +193,8 @@ const dom = {
   // dice
   diceOverlay: $("diceOverlay"),
   dice3d: $("dice3d"),
-  diceHint: $("diceHint"),
   diceRollHint: $("diceRollHint"),
   rollDiceBtn: $("rollDiceBtn"),
-  closeDiceOverlayBtn: $("closeDiceOverlayBtn"),
 };
 
 const show = (el, visible, display = "block") => {
@@ -242,14 +243,15 @@ const hostBoardView = createBoardView(dom.hostBoard);
 const playerBoardView = createBoardView(dom.playerBoard, { floatsOnlyForMe: true });
 const activeBoardView = () => (isHost() ? hostBoardView : playerBoardView);
 
+const visibleRect = (el) => (el && !el.hidden ? el.getBoundingClientRect() : null);
 const dice = createDiceController({
   diceOverlayEl: dom.diceOverlay,
   dice3dEl: dom.dice3d,
-  diceHintEl: dom.diceHint,
   diceRollHintEl: dom.diceRollHint,
   rollDiceBtn: dom.rollDiceBtn,
-  closeDiceOverlayBtn: dom.closeDiceOverlayBtn,
-  onClose: () => lastRoom && renderRoom(lastRoom), // ปิดลูกเต๋าแล้วค่อยแสดงแต้มและให้หมากตัวเองเดิน
+  getDockRect: () => visibleRect(dom.diceDock), // จุดวางลูกเต๋า (เหนือการ์ดข้อความ)
+  getTargetRect: () => visibleRect(dom.playerBoard), // โยนไปหยุดกลางกระดาน
+  sound: { hit: playDiceHit, tick: playDiceTick },
 });
 
 /* =========================
@@ -394,6 +396,8 @@ function resetRoomUi() {
   hostBoardView.reset();
   playerBoardView.reset();
   setHidden(dom.meChip, true);
+  setHidden(dom.soundToggle, true);
+  setHidden(dom.diceDock, true);
   dom.playerAction.innerHTML = "";
   dom.playerAction.dataset.mode = "";
   dice.setState("hidden");
@@ -676,15 +680,17 @@ function renderPlayerView(room) {
   if (inLobby) renderPickerAction(room);
   else renderGameAction(room, me);
 
+  updateSoundToggle();
   syncDiceOverlay(room, me);
 }
 
 // ช่วงทอย: เปิดลูกเต๋า 3D รอให้ผู้เล่นแตะที่ลูกเต๋าเอง (เหมือนเดิม)
 function syncDiceOverlay(room, me) {
+  const canRoll = room.phase === PHASE.ROLLING && room.status === STATUS.IN_GAME && !me.hasRolled && !isPlayerDone(me);
+  setHidden(dom.diceDock, !(canRoll || busy.roll)); // เว้นที่วางลูกเต๋าไว้ระหว่างรอทอย/กำลังโยน
   if (busy.roll) return;
   const state = dice.getState();
-  const canRoll = room.phase === PHASE.ROLLING && room.status === STATUS.IN_GAME && !me.hasRolled && !isPlayerDone(me);
-  if (canRoll && state === "hidden") dice.setState("waiting");
+  if (canRoll && (state === "hidden" || state === "waiting")) dice.setState("waiting"); // waiting ซ้ำ = จัดตำแหน่งตามจุดวางใหม่
   else if (!canRoll && state === "waiting") dice.setState("hidden");
   else if (state !== "hidden" && state !== "done" && room.phase !== PHASE.ROLLING) dice.setState("hidden");
 }
@@ -692,6 +698,13 @@ function syncDiceOverlay(room, me) {
 // ผู้เล่นทอยแล้วแต่ลูกเต๋า 3D ยังกลิ้ง/ยังไม่ปิด → ยังไม่เฉลยแต้ม
 function isRollRevealPending(room, me) {
   return room.phase === PHASE.ROLLING && !!me.hasRolled && (busy.roll || dice.getState() !== "hidden");
+}
+
+function updateSoundToggle() {
+  if (!dom.soundToggle) return;
+  setHidden(dom.soundToggle, !isPlayer());
+  dom.soundToggle.textContent = isMuted() ? "🔇 ปิดเสียง" : "🔊 เสียง";
+  dom.soundToggle.setAttribute("aria-pressed", String(!isMuted()));
 }
 
 function setActionMode(mode) {
@@ -745,8 +758,7 @@ function renderGameAction(room, me) {
       if (!me.hasRolled || isRollRevealPending(room, me)) {
         html(busy.roll || me.hasRolled
           ? `<div class="big">🎲</div><div><b>ลูกเต๋ากำลังกลิ้ง…</b></div>`
-          : `<div class="big">🎲</div><div><b>แตะที่ลูกเต๋าเพื่อทอย</b></div><div class="sub">ถ้าไม่เห็นลูกเต๋า แตะปุ่มด้านล่าง</div>
-             <button type="button" class="btn-ghost" data-action="show-dice">เปิดลูกเต๋า</button>`);
+          : `<div><b>แตะที่ลูกเต๋าด้านบนเพื่อทอย</b></div><div class="sub">ลูกเต๋าจะกลิ้งไปหยุดกลางกระดาน</div>`);
         return;
       }
       const dm = room.history?.[roundKey(round)]?.diceMoves?.[session.playerId];
@@ -1235,6 +1247,7 @@ async function playerRollDice() {
   const me = lastRoom.players?.[session.playerId];
   if (lastRoom.phase !== PHASE.ROLLING || !me || me.hasRolled || isPlayerDone(me)) return;
 
+  unlockAudio(); // เบราว์เซอร์อนุญาตเสียงหลังผู้ใช้แตะเท่านั้น
   busy.roll = true;
   renderRoom(lastRoom);
   try {
@@ -1373,15 +1386,16 @@ function bindUIEvents() {
   // player
   on(dom.joinRoomBtn, "click", playerJoin);
   on(dom.rollDiceBtn, "click", playerRollDice); // แตะที่ลูกเต๋า 3D
+  on(dom.soundToggle, "click", () => {
+    setMuted(!isMuted());
+    if (!isMuted()) unlockAudio();
+    updateSoundToggle();
+  });
   on(dom.playerAction, "click", (e) => {
     const tile = e.target.closest(".pick-tile");
     if (tile && !tile.disabled) return playerClaimEmoji(tile.dataset.emoji);
     const action = e.target.closest("[data-action]")?.dataset.action;
     if (action === "random-emoji") return playerRandomEmoji();
-    if (action === "show-dice") {
-      if (dice.getState() === "hidden") dice.setState("waiting");
-      return;
-    }
     const choice = e.target.closest("button[data-key]");
     if (choice && !choice.disabled) playerSubmitAnswer(choice.dataset.key);
   });

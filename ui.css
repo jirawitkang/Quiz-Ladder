@@ -543,26 +543,7 @@
     .overlay{ backdrop-filter: none; }
   }
   
-  /* Dice Container (ไม่มี overlay-card แล้ว) */
-  #diceOverlay{
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    pointer-events: none; /* ให้ overlay ไม่บล็อกการคลิก */
-    flex-direction: column;
-    gap: 14px;
-  }
   
-  #diceOverlay .dice-scene,
-  #diceOverlay #rollDiceBtn,
-  #diceOverlay #closeDiceOverlayBtn,
-  #diceOverlay #diceHint{
-    pointer-events: auto; /* ให้ dice-scene และปุ่มยังคลิกได้ */
-  }
   
   .overlay-card{
     width: 420px;
@@ -592,46 +573,9 @@
     color: var(--muted);
     font-weight: 800;
   }
-  /* rollDiceBtn: transparent, no text, positioned over dice, same size as dice */
-  #diceOverlay #rollDiceBtn{
-    position: absolute;
-    width: var(--roll-dice-size);
-    height: var(--roll-dice-size);
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    text-indent: -9999px;
-    overflow: hidden;
-    z-index: 10;
-    /* Center over dice */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
   
-  #diceOverlay #rollDiceBtn:disabled{
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
   
-  /* Dice Roll Hint: Pulsing ring with dotted accent */
-  #diceRollHint{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 260px; /* ~13% larger than dice (150px) */
-    height: 260px;
-    pointer-events: none; /* Don't block clicks on dice */
-    z-index: 5; /* Behind rollDiceBtn (z-index: 10) but above dice */
-    display: none;
-  }
   
-  #diceRollHint.show{
-    display: block !important;
-  }
   
   .dice-roll-hint-ring{
     position: absolute;
@@ -671,35 +615,42 @@
     }
   }
   
-  /* closeDiceOverlayBtn: positioned below dice, color p-550 */
-  #diceOverlay #closeDiceOverlayBtn{
-    position: absolute;
-    top: calc(50% + var(--dice-half) + 70px); /* Below dice: center + half dice size + 70px spacing */
-    left: 50%;
-    transform: translateX(-50%);
-    width: auto;
-    max-width: 388px;
-    justify-content: center;
-    background: var(--p-550) !important;
-    border-color: var(--p-550) !important;
-    color: #fff;
-    margin-top: 0; /* Override mt-14 class */
-  }
   
-  #diceOverlay #closeDiceOverlayBtn:hover{
-    background: var(--p-550) !important;
-    border-color: var(--p-550) !important;
-    opacity: 0.9;
-  }
   
+  /* =========================
+     Dice: ลูกเต๋า 3D ลอยอยู่ชั้นบนสุด (fixed) แล้ว JS ย้ายตำแหน่งจากจุดวาง (#diceDock) ไปกลางกระดาน
+     dice-mover = ตำแหน่งบนพื้น, dice-lift = ความสูง/ขนาด, dice-shadow = เงาบนพื้น
+     ========================= */
+  #diceOverlay{
+    position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+    --dice-size: 84px;
+    --dice-half: calc(var(--dice-size) / 2);
+    --pip: 9px;
+  }
+  .dice-mover{ position:absolute; left:0; top:0; width:0; height:0; will-change: transform; }
+  .dice-shadow{
+    position:absolute; left:0; top:0; width: calc(var(--dice-size) * 1.05); height: calc(var(--dice-size) * 0.42);
+    border-radius: 50%; background: rgba(20, 18, 40, .55); filter: blur(6px);
+    transform: translate(-50%, 10%); opacity: .4; will-change: transform, opacity;
+  }
+  .dice-lift{ position:absolute; left:0; top:0; width:0; height:0; will-change: transform; }
+  .dice-lift > *{ position:absolute; left:0; top:0; transform: translate(-50%, -50%); }
+  #rollDiceBtn{
+    width: calc(var(--dice-size) * 1.5); height: calc(var(--dice-size) * 1.5);
+    background: transparent; border: none; padding: 0; margin: 0; box-shadow: none;
+    border-radius: 50%; cursor: pointer; pointer-events: auto; z-index: 10;
+  }
+  #rollDiceBtn:disabled{ cursor: default; opacity: 1; }
+  #rollDiceBtn:focus-visible{ outline: 3px solid var(--p-550); outline-offset: 2px; }
+  #diceRollHint{ width: calc(var(--dice-size) * 1.65); height: calc(var(--dice-size) * 1.65); pointer-events:none; display:none; }
+  #diceRollHint.show{ display:block; }
+
   /* Dice 3D stage */
   .dice-scene{
     perspective: 900px;
     perspective-origin: 50% 40%;
     display: grid;
     place-items: center;
-    width: auto;
-    height: auto;
     overflow: visible; /* ให้ face แสดงผลได้เต็ม ไม่โดนตัด */
   }
   .dice-cam{
@@ -716,9 +667,9 @@
     position: absolute;
     inset: 0;
     background: #fff;
-    border: 3px solid #111;
-    border-radius: 18px;
-    box-shadow: 0 14px 26px rgba(0,0,0,.18);
+    border: 2px solid #111;
+    border-radius: 14px;
+    box-shadow: inset 0 -4px 8px rgba(0,0,0,.08);
     backface-visibility: hidden;
   }
   #dice3d .face-1{ transform: rotateY(0deg)   translateZ(var(--dice-half)); }   /* front */
@@ -1097,16 +1048,24 @@
     .player-layout:not(.in-lobby){
       max-width: none;
       grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
-      grid-template-areas: "board action";
+      grid-template-areas: "board dock" "board action";
+      grid-template-rows: auto 1fr;
       align-items: start;
     }
+    .player-layout:not(.in-lobby) > #diceDock{ grid-area: dock; }
     .player-layout:not(.in-lobby) > #playerBoard{
       grid-area: board; justify-self: center;
       max-width: max(420px, calc((100vh - 170px) * 6 / 5));
     }
-    .player-layout:not(.in-lobby) > #playerAction{ grid-area: action; position: sticky; top: 12px; }
+    .player-layout:not(.in-lobby) > #playerAction{ grid-area: action; }
     .player-layout.in-lobby{ max-width: 760px; }
   }
+  /* จุดวางลูกเต๋า 3D (ตัวลูกเต๋าจริงลอยอยู่ใน #diceOverlay และถูกจัดให้ตรงกลางกล่องนี้) */
+  .dice-dock{
+    height: 150px; border-radius: 16px;
+    background: radial-gradient(circle at 50% 55%, rgba(75,60,140,.10), transparent 65%);
+  }
+  .sound-toggle{ cursor: pointer; margin: 0; box-shadow: none; }
   .dice-face-big{ font-size: 84px; line-height: 1; color: var(--p-600); }
   .me-line{ display:flex; align-items:center; gap: 8px; font-size: 15px; }
   .me-line .me-av{
