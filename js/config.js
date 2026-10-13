@@ -29,6 +29,9 @@ export const COUNTDOWN_FALLBACK_MS = 3000;
 
 export const STORAGE_KEY = "SQ_SESSION_V1";
 
+// ห้องที่สร้างไว้นานกว่านี้จะถูกลบอัตโนมัติตอนมี Host สร้างห้องใหม่ (ห้องหนึ่งเล่นจบในคาบเรียนเดียว)
+export const ROOM_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
 export const STATUS = Object.freeze({
   LOBBY: "lobby",
   IN_GAME: "inGame",

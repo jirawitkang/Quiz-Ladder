@@ -21,10 +21,12 @@ import {
   PHASE,
   QUESTION_COUNTDOWN_SECONDS,
   ROLE,
+  ROOM_MAX_AGE_MS,
   STATUS,
   STORAGE_KEY,
 } from "./config.js";
 import {
+  cleanupOldRooms,
   get,
   onConnectionChange,
   onDisconnect,
@@ -1060,6 +1062,10 @@ async function hostCreateRoom() {
 
     dom.hostGameOptions?.classList.remove("is-open");
     enterRoom(code, ROLE.HOST); // Race Code แสดงตัวใหญ่ในหน้า Lobby
+    // ล้างห้องเก่าที่ค้างอยู่ (ทำเบื้องหลัง ไม่ให้ช้าตอนสร้างห้อง)
+    cleanupOldRooms(ROOM_MAX_AGE_MS, code)
+      .then((removed) => removed.length && console.info(`[cleanup] ลบห้องเก่า ${removed.length} ห้อง`, removed))
+      .catch((e) => console.warn("[cleanup] failed:", e));
   } catch (err) {
     console.error("Error creating room:", err);
     alert("มีปัญหาในการสร้างห้อง ดู error ใน Console");
