@@ -36,6 +36,8 @@ const END_SCALE = 1.45; // ขนาดตอนหยุดกลางกร�
 // ตำแหน่งที่ลูกเต๋าแตะพื้นบนจอ (วัดจากมุมกล้อง .dice-cam): หน้าบนอยู่ที่ −0.39×ขนาด → หน้าล่าง/จุดแตะพื้นอยู่ที่ +0.39×ขนาด
 // ฐานที่แตะพื้นกว้าง ~1.45×ขนาด สูง ~0.8×ขนาด (สี่เหลี่ยมที่เห็นเฉียง) — เงาใช้ขนาดนี้ (ตั้งใน CSS .dice-shadow)
 const CONTACT_Y_RATIO = 0.39;
+// กึ่งกลางเงา: ขอบล่างลูกเต๋าอยู่ที่ +0.845×ขนาด, เงาสูง 0.72×ขนาด → 0.63 ทำให้เงา ~20% โผล่ต่ำกว่าขอบล่างลูกเต๋า
+const SHADOW_Y_RATIO = 0.63;
 
 const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -220,7 +222,7 @@ export function createDiceController({
     lift.style.transform = `translateY(${-z + squashDrop}px) scale(${scale * sx}, ${scale * sy})`;
     // เงาอยู่บนพื้นใต้จุดแตะพื้นเสมอ (ไม่ลอยตามลูกเต๋า) แสงจากซ้ายบน: ยิ่งลอยสูง เงายิ่งเล็ก จาง และเลื่อนไปขวาล่างเล็กน้อย
     const h = Math.min(z, 320);
-    shadow.style.transform = `translate(calc(-50% + ${h * 0.12}px), calc(-50% + ${contact * base + h * 0.08}px)) scale(${base * (1 - h / 520)})`;
+    shadow.style.transform = `translate(calc(-50% + ${h * 0.12}px), calc(-50% + ${SHADOW_Y_RATIO * diceSize() * base + h * 0.08}px)) scale(${base * (1 - h / 520)})`;
     shadow.style.opacity = String(0.08 + 0.34 * (1 - h / 380));
     dice3dEl.style.transform = rotate(rot);
   }
