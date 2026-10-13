@@ -1,7 +1,7 @@
 // render.js
 // ฟังก์ชันวาด UI จาก room data (อ่านอย่างเดียว ไม่เขียน Firebase)
 
-import { BOARD_SIZE } from "./config.js";
+import { BOARD_SIZE, PHASE, STATUS } from "./config.js";
 import { getSettings, isPlayerDone } from "./game-logic.js";
 import { getQuestionSetName } from "../questions.js";
 import { clampPos, escapeHtml, normalizeName, roundKey, signedText, sortedRoundNumbers } from "./utils.js";
@@ -144,88 +144,6 @@ export function renderPlayerList(el, room, players) {
     </table>`;
 }
 
-/* ---------- Board ---------- */
-
-// สถานะของแต่ละช่อง: past / dice / wrong / correct (ค่าที่สำคัญกว่าทับค่าก่อน)
-function buildCellStates(pid, p, currentRoundData) {
-  const state = new Array(BOARD_SIZE + 1).fill("none");
-  const priority = { none: 0, past: 1, dice: 2, wrong: 3, correct: 4 };
-  const mark = (from, to, value) => {
-    for (let pos = Math.max(1, from); pos <= Math.min(BOARD_SIZE, to); pos++) {
-      if (priority[value] > priority[state[pos]]) state[pos] = value;
-    }
-  };
-
-  const startOfRound = clampPos(p.startOfRoundPos ?? 1);
-  const currentPos = clampPos(p.position);
-  mark(1, startOfRound, "past");
-
-  const rec = currentRoundData.answers?.[pid];
-  if (!rec) {
-    if (p.hasRolled && p.lastRoll != null) mark(startOfRound + 1, currentPos, "dice");
-  } else {
-    const basePos = clampPos(rec.basePosition ?? startOfRound);
-    const finalPos = clampPos(rec.finalPosition ?? currentPos);
-    mark(startOfRound + 1, basePos, "dice");
-    mark(Math.min(basePos, finalPos) + 1, Math.max(basePos, finalPos), rec.correct ? "correct" : "wrong");
-  }
-  return state;
-}
-
-let lastBoardKey = null;
-
-export function resetBoardCache() {
-  lastBoardKey = null;
-}
-
-export function renderBoard(el, room, players, myPlayerId) {
-  if (!el) return;
-
-  const currentRoundData = room.history?.[roundKey(room.currentRound || 0)] || {};
-
-  // วาดใหม่เฉพาะเมื่อข้อมูลที่ใช้เปลี่ยน (room update เกิดบ่อยมากระหว่างตอบคำถาม)
-  const key = JSON.stringify([players, currentRoundData.answers || null, myPlayerId]);
-  if (key === lastBoardKey && el.childElementCount > 0) return;
-  lastBoardKey = key;
-
-  let labelCells = `<div class="cell-card start-cell"><span class="cell-label">START</span></div>`;
-  for (let i = 1; i <= BOARD_SIZE; i++) {
-    labelCells += `<div class="cell-card play-cell"><span class="cell-label">${i}</span></div>`;
-  }
-  labelCells += `<div class="cell-card finish-cell"><span class="cell-label">FINISH</span></div>`;
-
-  let html = `<div class="board-label-row"><div class="board-track">${labelCells}</div></div>`;
-
-  const sorted = Object.entries(players || {}).sort(([, a], [, b]) => byName(a, b));
-  for (const [pid, p] of sorted) {
-    const offline = p.connected === false;
-    const offCls = offline ? " cell-disconnected" : "";
-    const rowCls = ["player-row", offline && "player-disconnected", pid === myPlayerId && "is-me"]
-      .filter(Boolean)
-      .join(" ");
-
-    const states = buildCellStates(pid, p, currentRoundData);
-    const playerPos = clampPos(p.position);
-    const color = SAFE_COLOR.test(p.color || "") ? p.color : "#ffb300";
-    const initial = escapeHtml(String(p.name || "?").charAt(0));
-
-    let cells = `<div class="cell-card start-cell${offCls}">${escapeHtml(p.name || pid)}</div>`;
-    for (let pos = 1; pos <= BOARD_SIZE; pos++) {
-      const stateCls = states[pos] !== "none" ? ` cell-${states[pos]}` : "";
-      const token =
-        playerPos === pos
-          ? `<div class="token" style="background-color:${color}"><div class="token-inner">${initial}</div></div>`
-          : "";
-      cells += `<div class="cell-card play-cell${offCls}${stateCls}">${token}</div>`;
-    }
-    cells += `<div class="cell-card finish-cell${offCls}"></div>`;
-
-    html += `<div class="${rowCls}"><div class="board-track">${cells}</div></div>`;
-  }
-
-  el.innerHTML = html;
-}
-
 /* ---------- Question choices ---------- */
 
 export function renderChoices(el, question, { selected = null, showResult = false, disabled = false } = {}) {
@@ -359,4 +277,179 @@ export function renderEndGameSummary({ titleEl, summaryEl }, room, players) {
         <tbody>${rows}</tbody>
       </table>`;
   }
+}
+
+/* ---------- Lobby: player chips ---------- */
+
+export function renderLobbyPlayers(el, players, myPlayerId = null) {
+  if (!el) return;
+  const list = Object.entries(players || {}).sort(([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0));
+  if (!list.length) {
+    el.innerHTML = `<div class="muted">ยังไม่มีผู้เล่นเข้าห้อง แชร์ Race Code ให้ผู้เล่นได้เลย</div>`;
+    return;
+  }
+  el.innerHTML = list
+    .map(([pid, p]) => {
+      const cls = ["pchip", !p.emoji && "waiting", pid === myPlayerId && "me"].filter(Boolean).join(" ");
+      const color = SAFE_COLOR.test(p.color || "") ? p.color : "#9e9e9e";
+      const title = `${p.name}${p.emoji ? "" : " · ยังไม่เลือกตัวหมาก"}`;
+      return `<div class="${cls}" title="${escapeHtml(title)}"><span class="pchip-av" style="--c:${color}">${
+        escapeHtml(p.emoji || "❔")
+      }</span><span class="pchip-name">${escapeHtml(p.name)}</span></div>`;
+    })
+    .join("");
+}
+
+/* ---------- Lobby: emoji picker ---------- */
+
+// taken: Map emoji -> pid
+export function renderEmojiPicker(el, { choices, taken, players, myPlayerId, themeSize }) {
+  if (!el) return;
+  const top = el.scrollTop;
+  el.innerHTML = choices
+    .map((emoji, i) => {
+      const owner = taken.get(emoji);
+      const mine = owner === myPlayerId;
+      const takenByOther = owner && !mine;
+      const label = takenByOther ? players[owner]?.name || "" : mine ? "คุณ" : "";
+      const reserve = i === themeSize ? `<div class="pick-reserve">ตัวสำรอง · เพิ่มเพราะผู้เล่นเกิน ${themeSize} คน</div>` : "";
+      const aria = `${emoji}${takenByOther ? ` เลือกแล้วโดย ${label}` : mine ? " ตัวของคุณ" : " ว่าง"}`;
+      return `${reserve}<button type="button" class="pick-tile${mine ? " mine" : ""}" data-emoji="${escapeHtml(emoji)}"${
+        takenByOther ? " disabled" : ""
+      } aria-label="${escapeHtml(aria)}"><span>${escapeHtml(emoji)}</span><small>${escapeHtml(label)}</small></button>`;
+    })
+    .join("");
+  el.scrollTop = top;
+}
+
+/* ---------- Host: waiting panel ---------- */
+
+// รายชื่อคนที่ยังไม่ได้ทำสิ่งที่รออยู่ (เลือกตัวหมาก / ทอย / ตอบ)
+export function renderWaitPanel(el, room) {
+  if (!el) return;
+  const phase = room.phase || PHASE.IDLE;
+  const players = Object.values(room.players || {});
+
+  let title = null;
+  let doneOf = null;
+  let pendingLabel = "";
+  let pool = players;
+
+  if (room.status === STATUS.LOBBY) {
+    [title, pendingLabel, doneOf] = ["เลือกตัวหมากแล้ว", "ยังไม่เลือก:", (p) => !!p.emoji];
+  } else if (phase === PHASE.ROLLING) {
+    [title, pendingLabel, doneOf] = ["ทอยแล้ว", "ยังไม่ทอย:", (p) => !!p.hasRolled];
+    pool = players.filter((p) => !isPlayerDone(p));
+  } else if (phase === PHASE.ANSWERING) {
+    [title, pendingLabel, doneOf] = ["ตอบแล้ว", "ยังไม่ตอบ:", (p) => !!p.answered];
+    pool = players.filter((p) => !isPlayerDone(p));
+  }
+
+  if (!title) {
+    const text = {
+      [PHASE.IDLE]: "รอเริ่มรอบใหม่",
+      [PHASE.QUESTION_COUNTDOWN]: "กำลังนับถอยหลังก่อนแสดงคำถาม",
+      [PHASE.RESULT]: "เฉลยแล้ว กดเริ่มรอบใหม่เพื่อเล่นต่อ",
+      [PHASE.ENDED]: "เกมจบแล้ว",
+    }[phase] || "";
+    el.innerHTML = `<div class="wait-note">${escapeHtml(text)}</div>`;
+    return;
+  }
+
+  const online = pool.filter((p) => p.connected !== false);
+  const done = online.filter(doneOf).length;
+  const pending = pool.filter((p) => !doneOf(p));
+  const pct = online.length ? (done / online.length) * 100 : 0;
+  const chip = (p) =>
+    `<span class="${p.connected === false ? "offline" : ""}">${escapeHtml(p.emoji ? `${p.emoji} ` : "")}${escapeHtml(p.name)}${
+      p.connected === false ? " 📴" : ""
+    }</span>`;
+
+  el.innerHTML = `
+    <div class="wait-head"><span>${title}</span><b>${done}/${online.length}</b></div>
+    <div class="meter"><i style="width:${pct}%"></i></div>
+    <div class="wait-who">${
+      pending.length
+        ? `<span class="wait-label">${pendingLabel}</span>${pending.map(chip).join("")}`
+        : `<span class="wait-done">✔️ ครบทุกคนแล้ว</span>`
+    }</div>`;
+}
+
+/* ---------- Host: leaderboard ---------- */
+
+function statusIcon(p, phase) {
+  if (isPlayerDone(p)) return "🏁";
+  if (p.connected === false) return "📴";
+  if (phase === PHASE.ROLLING) return p.hasRolled ? "✔️" : "⏳";
+  if (phase === PHASE.ANSWERING) return p.answered ? "✔️" : "⏳";
+  return "";
+}
+
+export function renderLeaderboard(el, room, players) {
+  if (!el) return;
+  const phase = room.phase || PHASE.IDLE;
+  const rank = new Map((room.winners || []).map((w) => [w.playerId, w.rank ?? Infinity]));
+  const rows = Object.entries(players || {})
+    .map(([pid, p]) => ({ pid, ...p, pos: clampPos(p.position) }))
+    .sort((a, b) => (rank.get(a.pid) ?? Infinity) - (rank.get(b.pid) ?? Infinity) || b.pos - a.pos || byName(a, b));
+
+  const top = el.scrollTop;
+  el.innerHTML = rows
+    .map((p, i) => {
+      const color = SAFE_COLOR.test(p.color || "") ? p.color : "#9e9e9e";
+      const ans = p.lastAnswerCorrect === true ? "✅" : p.lastAnswerCorrect === false ? "❌" : "";
+      const roll = Number.isFinite(p.lastRoll) && p.lastRoll > 0 ? `🎲${p.lastRoll}` : "";
+      const cls = [isPlayerDone(p) && "won", p.connected === false && "offline"].filter(Boolean).join(" ");
+      return `<li class="${cls}">
+        <span class="lb-rank">${i + 1}</span>
+        <span class="lb-av" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span>
+        <span class="lb-name">${escapeHtml(p.name)}</span>
+        <span class="lb-meta">ช่อง <b>${p.pos}</b>${roll || ans ? ` · ${roll} ${ans}` : ""}</span>
+        <span class="lb-st">${statusIcon(p, phase)}</span>
+      </li>`;
+    })
+    .join("");
+  el.scrollTop = top;
+}
+
+/* ---------- Host: event feed ---------- */
+
+// เหตุการณ์เด่นจาก history (บันได/งู/เข้าเส้นชัย/หลุด) ใหม่สุดอยู่บน
+export function buildFeedItems(room, limit = 8) {
+  const history = room.history || {};
+  const players = room.players || {};
+  const items = [];
+  const who = (pid, rec) => `${players[pid]?.emoji ? `${players[pid].emoji} ` : ""}${rec.playerName || players[pid]?.name || pid}`;
+
+  for (const rn of sortedRoundNumbers(history)) {
+    const rd = history[roundKey(rn)] || {};
+    for (const [pid, dm] of Object.entries(rd.diceMoves || {})) {
+      const t = dm.timestamp ?? 0;
+      const land = dm.landingPosition ?? dm.toPosition;
+      if (dm.missed) items.push({ t, kind: "block", text: `📴 ${who(pid, dm)} หลุดการเชื่อมต่อ ถูกข้ามการทอย` });
+      if (dm.special === "ladder") items.push({ t, kind: "ladder", text: `🪜 ${who(pid, dm)} ขึ้นบันได ${land} → ${dm.toPosition}` });
+      if (dm.special === "snake") items.push({ t, kind: "snake", text: `🐍 ${who(pid, dm)} โดนงูกัด ${land} → ${dm.toPosition}` });
+      if ((dm.toPosition ?? 0) >= BOARD_SIZE) items.push({ t: t + 1, kind: "finish", text: `🏁 ${who(pid, dm)} เข้าเส้นชัย!` });
+    }
+    for (const [pid, ar] of Object.entries(rd.answers || {})) {
+      const t = ar.timestamp ?? 0;
+      const land = ar.landingPosition ?? ar.finalPosition;
+      if (ar.special === "ladder") items.push({ t, kind: "ladder", text: `🪜 ${who(pid, ar)} ตอบถูกแล้วขึ้นบันได ${land} → ${ar.finalPosition}` });
+      if (ar.special === "snake") items.push({ t, kind: "snake", text: `🐍 ${who(pid, ar)} ตอบผิดแล้วโดนงูกัด ${land} → ${ar.finalPosition}` });
+      if (ar.blocked === "snake") items.push({ t, kind: "shield", text: `🛡️ ${who(pid, ar)} ตอบถูก จึงรอดจากงูที่ช่อง ${land}` });
+      if (ar.blocked === "ladder") items.push({ t, kind: "block", text: `🚫 ${who(pid, ar)} ตอบผิด จึงขึ้นบันไดที่ช่อง ${land} ไม่ได้` });
+      if ((ar.finalPosition ?? 0) >= BOARD_SIZE && (ar.basePosition ?? 0) < BOARD_SIZE) {
+        items.push({ t: t + 1, kind: "finish", text: `🏁 ${who(pid, ar)} เข้าเส้นชัย!` });
+      }
+    }
+  }
+  return items.sort((a, b) => b.t - a.t).slice(0, limit);
+}
+
+export function renderFeed(el, room) {
+  if (!el) return;
+  const items = buildFeedItems(room);
+  el.innerHTML = items.length
+    ? items.map((it) => `<li class="${it.kind}">${escapeHtml(it.text)}</li>`).join("")
+    : `<li class="feed-empty">บันได งู และการเข้าเส้นชัยจะแสดงที่นี่</li>`;
 }

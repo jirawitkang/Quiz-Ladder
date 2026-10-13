@@ -838,6 +838,26 @@ export const QUESTION_SET_NAMES = {
 };
 
 /**
+ * ธีมตัวหมาก emoji ของแต่ละชุดคำถาม (รายการ emoji อยู่ใน js/emoji-themes.js)
+ * ชุดที่ไม่ได้ระบุจะใช้ธีม "animals"
+ */
+export const QUESTION_SET_THEMES = {
+  general: "office",
+  love: "love",
+  friends: "party",
+  money: "money",
+  food1: "food",
+  food2: "food",
+  food3: "food",
+  food4: "food",
+  food5: "food",
+};
+
+export function getQuestionSetTheme(setId) {
+  return QUESTION_SET_THEMES[setId] || "animals";
+}
+
+/**
  * Get display name for a question set ID.
  * @param {string} setId - The question set ID
  * @returns {string} The display name

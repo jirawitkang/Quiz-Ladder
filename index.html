@@ -216,79 +216,87 @@
       </div>
     </div>
   
-    <!-- LOBBY -->
-    <div id="lobby" style="display:none;">
-      <div class="lobby-bar mt-14">
-        <div class="section-title">LOBBY</div>
-    
-        <div id="lobbyBadges" class="lobby-badges" aria-label="สถานะห้อง"></div>
-    
-        <div class="lobby-actions"></div>
+    <!-- ROOM (lobby + game) -->
+    <section id="roomView" hidden>
+      <div class="room-bar">
+        <div class="room-status">
+          <span class="room-chip" id="roundInfo">Lobby</span>
+          <span class="room-chip phase" id="phaseInfo">รอผู้เล่น</span>
+        </div>
+        <div id="hostGameControls" class="room-actions" hidden>
+          <button id="startGameBtn" class="btn-primary" type="button">▶️ เริ่มเกม</button>
+          <button id="startRoundBtn" class="btn-primary" type="button">🎲 เริ่มรอบใหม่</button>
+          <button id="startQuestionBtn" class="btn-primary" type="button">❓ เริ่มคำถาม</button>
+          <button id="toggleQuestionOverlayBtn" class="btn-ghost" type="button">ซ่อนคำถาม</button>
+          <button id="revealAnswerBtn" class="btn-primary" type="button">✅ เฉลยคำตอบ</button>
+        </div>
       </div>
-    
-      <div class="card lobby-card">
-        <div class="lobby-list-head">
-          <div class="lobby-list-title"><strong>รายชื่อผู้เล่นในห้อง:</strong></div>
-    
-          <div class="lobby-list-actions">
-            <button id="startGameBtn" class="btn-primary" type="button" style="display:none;">
-              เริ่มเล่น
-            </button>
+
+      <!-- HOST: ขึ้นโปรเจกเตอร์หน้าห้อง -->
+      <div id="hostView" class="host-layout" hidden>
+        <div class="host-stage">
+          <div id="hostLobby" class="host-lobby card">
+            <div class="lobby-head">
+              <div><span class="muted">Race Code</span><span class="race-code" id="raceCode">-</span></div>
+              <div class="lobby-count">ผู้เล่นในห้อง <b id="lobbyCount">0</b> คน</div>
+            </div>
+            <div id="lobbyBadges" class="lobby-badges" aria-label="การตั้งค่าห้อง"></div>
+            <div class="lobby-legend">❔ เส้นประ = ยังไม่เลือกตัวหมาก</div>
+            <div id="lobbyPlayers" class="lobby-players" aria-label="ผู้เล่นในห้อง"></div>
+          </div>
+
+          <div id="hostBoardArea" class="board-area">
+            <div id="hostBoard"></div>
+            <div id="hostQuestion" class="hq" hidden>
+              <div class="hq-head"><span id="hqLabel">คำถาม</span><span id="hqSetName"></span></div>
+              <div class="hq-text" id="hqText"></div>
+              <div class="hq-ring" id="hqRing">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <circle class="hq-track" cx="50" cy="50" r="44" fill="none" stroke-width="9"></circle>
+                  <circle class="hq-bar" id="hqBar" cx="50" cy="50" r="44" fill="none" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"></circle>
+                </svg>
+                <div class="hq-num"><div><span id="hqNum">0</span><small>วินาที</small></div></div>
+              </div>
+              <div class="hq-choices" id="hqChoices"></div>
+              <div class="hq-progress"><span id="hqCount"></span><span class="meter"><i id="hqMeter"></i></span></div>
+            </div>
           </div>
         </div>
-    
-        <div id="playerList" aria-label="รายชื่อผู้เล่น"></div>
+
+        <aside class="host-side">
+          <div id="waitPanel" class="wait" aria-live="polite"></div>
+          <div class="side-panel" id="leaderboardPanel">
+            <h2>อันดับตอนนี้</h2>
+            <ol id="leaderboard" class="lb"></ol>
+          </div>
+          <div class="side-panel" id="feedPanel">
+            <h2>เกิดอะไรขึ้นบ้าง</h2>
+            <ul id="feed" class="feed"></ul>
+          </div>
+        </aside>
+
+        <details id="detailTable" class="card detail-table">
+          <summary>ตารางผลทอยและผลคำตอบแบบละเอียด</summary>
+          <div id="playerList" aria-label="ตารางผู้เล่น"></div>
+        </details>
       </div>
-    </div>
-    
-    <!-- GAME BAR -->
-    <div id="gameBar" class="lobby-bar mt-14" style="display:none;">
-      <div class="section-title">GAME BOARD</div>
-    
-      <div class="lobby-badges">
-        <div class="lobby-badge" id="roundInfo">รอบที่: -</div>
-        <div class="lobby-badge" id="phaseInfo">[สถานะรอบ: -]</div>
+
+      <!-- PLAYER: มือถือ -->
+      <div id="playerView" class="player-layout" hidden>
+        <div id="meLine" class="me-line"></div>
+        <div id="playerBoard"></div>
+        <div id="playerAction" class="action card" aria-live="polite"></div>
       </div>
-    
-      <div id="hostGameControls" class="lobby-actions" style="display:none;">
-        <button id="startRoundBtn" class="btn-primary" type="button">เริ่มรอบใหม่</button>
-        <button id="startQuestionBtn" class="btn-ghost" type="button">เริ่มคำถาม</button>
-        <button id="toggleQuestionOverlayBtn" class="btn-ghost" type="button" style="display:none;">
-          ซ่อนคำถาม
-        </button>
-        <button id="revealAnswerBtn" class="btn-ghost" type="button">เฉลยคำถาม</button>
-      </div>
-    </div>
-    
-    <!-- GAME AREA -->
-    <div id="gameArea" class="card" style="display:none;">
-      <div id="board"></div>
-    
-      <div id="endGameArea" style="display:none;">
+
+      <!-- END GAME -->
+      <div id="endGameArea" class="card end-game" hidden>
         <div class="end-game-head">
           <h3 id="endGameTitle">สรุปผลเกม</h3>
-          <button id="exportXlsxBtn" class="btn-ghost" type="button" style="display:none;">
-            Export Excel
-          </button>
+          <button id="exportXlsxBtn" class="btn-ghost" type="button" hidden>Export Excel</button>
         </div>
         <div id="endGameSummary"></div>
       </div>
-    </div>
-    
-    <!-- ระหว่างเล่น: lobby-card จะถูกย้ายมาวางใต้กระดาน -->
-    <div id="lobbyCardHost" style="display:none;"></div>
-    
-    <!-- QUESTION AREA -->
-    <div id="questionAreaOverlay" class="overlay" style="display:none;">
-      <div id="questionArea" class="card">
-        <div id="countdownDisplay" aria-live="assertive"></div>
-        <div id="questionText"></div>
-        <div id="choicesContainer"></div>
-      </div>
-      <button id="closeQuestionAreaBtn" class="btn-primary" type="button" style="display:none;">
-        X
-      </button>
-    </div>
+    </section>
   </main>
 
   <noscript>เกมนี้ต้องเปิดใช้งาน JavaScript</noscript>

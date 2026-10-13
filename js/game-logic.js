@@ -11,6 +11,8 @@ import {
   QUESTION_COUNTDOWN_SECONDS,
   STATUS,
 } from "./config.js";
+import { MOVE, resolveLanding } from "./board-config.js";
+import { DEFAULT_EMOJI_THEME, getVisibleEmojis, getEmojiPool } from "./emoji-themes.js";
 import { clampPos, deepClone, getPathCells, roundKey } from "./utils.js";
 import { getQuestionFromRoom, getQuestionSetLengthForRoom } from "../questions.js";
 
@@ -25,7 +27,21 @@ export function getSettings(room) {
     maxWinners: Math.max(1, num(gs.maxWinners, DEFAULT_SETTINGS.maxWinners)),
     rewardCorrect: num(gs.rewardCorrect, DEFAULT_SETTINGS.rewardCorrect),
     penaltyWrong: num(gs.penaltyWrong, DEFAULT_SETTINGS.penaltyWrong),
+    emojiTheme: gs.emojiTheme || DEFAULT_EMOJI_THEME,
   };
+}
+
+// emoji ที่ห้องนี้แสดงให้เลือกตอนนี้ (เพิ่มตัวสำรองตามจำนวนผู้เล่น)
+export function getRoomEmojiChoices(room) {
+  return getVisibleEmojis(getSettings(room).emojiTheme, Object.keys(room?.players || {}).length);
+}
+
+export function getTakenEmojis(room, exceptPid = null) {
+  const taken = new Map();
+  for (const [pid, p] of Object.entries(room?.players || {})) {
+    if (p?.emoji && pid !== exceptPid) taken.set(p.emoji, pid);
+  }
+  return taken;
 }
 
 export function isPlayerDone(p) {
@@ -171,7 +187,8 @@ export function applyRoll(room, pid, roll, now) {
   if (!me || isPlayerDone(me) || me.hasRolled) return;
 
   const startPos = clampPos(me.position);
-  const newPos = clampPos(startPos + roll);
+  const landing = clampPos(startPos + roll);
+  const { to: newPos, special } = resolveLanding(landing, MOVE.DICE);
 
   me.lastRoll = roll;
   me.position = newPos;
@@ -184,9 +201,11 @@ export function applyRoll(room, pid, roll, now) {
     playerId: pid,
     playerName: me.name || "",
     fromPosition: startPos,
+    landingPosition: landing,
     toPosition: newPos,
+    special,
     diceRoll: roll,
-    pathCells: getPathCells(startPos, newPos),
+    pathCells: getPathCells(startPos, landing),
     timestamp: now,
   };
 
@@ -292,12 +311,17 @@ export function applyReveal(room, now) {
 
     let correct = null;
     let configuredMove = 0;
+    let landing = basePos;
     let finalPos = basePos;
+    let special = null;
+    let blocked = null;
 
     if (!alreadyDone && !missedAnswer) {
       correct = answered && selected === q.correctOption;
       configuredMove = correct ? settings.rewardCorrect : settings.penaltyWrong;
-      finalPos = clampPos(basePos + configuredMove);
+      landing = clampPos(basePos + configuredMove);
+      // ตอบถูก: ขึ้นบันไดได้แต่ไม่ตกงู / ตอบผิดหรือไม่ตอบ: ตกงูได้แต่ไม่ขึ้นบันได
+      ({ to: finalPos, special, blocked } = resolveLanding(landing, correct ? MOVE.CORRECT : MOVE.WRONG));
       p.position = finalPos;
       p.lastAnswerCorrect = correct;
       if (finalPos >= BOARD_SIZE) finishedByAnswer.push([pid, p]);
@@ -318,7 +342,10 @@ export function applyReveal(room, now) {
       missedAnswer,
       diceRoll: p.lastRoll ?? null,
       basePosition: basePos,
+      landingPosition: landing,
       finalPosition: finalPos,
+      special,
+      blocked,
       configuredMove,
       actualDelta: finalPos - basePos,
       answeredAt: answered ? p.answerUpdatedAt ?? null : null,
@@ -347,6 +374,43 @@ export function applyReveal(room, now) {
   } else {
     room.phase = PHASE.RESULT;
   }
+  return room;
+}
+
+/* ---------- Transactions (lobby) ---------- */
+
+// เลือก/เปลี่ยน emoji ใน lobby — ยกเลิกถ้ามีคนอื่นเลือกตัวนี้ไปแล้ว (ไม่มีการแจ้งเตือน UI จะเห็นเป็นสีเทาเอง)
+export function applyClaimEmoji(room, pid, emoji) {
+  if (!room) return room;
+  if (room.status !== STATUS.LOBBY) return;
+  const me = room.players?.[pid];
+  if (!me || !emoji) return;
+  if (!getRoomEmojiChoices(room).includes(emoji)) return;
+  if (getTakenEmojis(room, pid).has(emoji)) return;
+  me.emoji = emoji;
+  return room;
+}
+
+// เริ่มเกม: คนที่ยังไม่เลือก emoji จะได้ตัวที่ว่างแบบสุ่ม
+export function applyStartGame(room, now, random = Math.random) {
+  if (!room) return room;
+  const players = room.players || {};
+  if (room.status !== STATUS.LOBBY || !Object.keys(players).length) return;
+
+  const taken = new Set(Object.values(players).map((p) => p.emoji).filter(Boolean));
+  const pool = getEmojiPool(getSettings(room).emojiTheme);
+  let free = getRoomEmojiChoices(room).filter((e) => !taken.has(e));
+  for (const p of Object.values(players)) {
+    if (p.emoji) continue;
+    if (!free.length) free = pool.filter((e) => !taken.has(e));
+    const emoji = free.length ? free.splice(Math.floor(random() * free.length), 1)[0] : pool[0];
+    p.emoji = emoji;
+    taken.add(emoji);
+  }
+
+  room.status = STATUS.IN_GAME;
+  room.phase = PHASE.IDLE;
+  room.gameStartedAt = now;
   return room;
 }
 

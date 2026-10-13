@@ -56,7 +56,9 @@ test("export tables include room code and totals", () => {
   assert.equal(t.gameRows[0].gameId, "ABC123");
   assert.equal(t.answersRows.length, 6);
   const alice = t.playersRows.find((r) => r.playerId === "a");
-  assert.equal(alice.totalCorrect, 3);
+  // รอบ 1 ตอบถูกแล้วขึ้นบันได 9 → 18, รอบ 3 ทอยเข้าเส้นชัย (ไม่ต้องตอบ)
+  assert.equal(alice.totalCorrect, 2);
+  assert.equal(alice.finishBy, "dice");
   const bob = t.playersRows.find((r) => r.playerId === "b");
   assert.equal(bob.totalTimeout, 3);
   assert.ok(t.answersRows.every((r) => r.correctOption));
