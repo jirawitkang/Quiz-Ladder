@@ -32,6 +32,9 @@ const BOUNCE_HEIGHT_RATIO = 0.35; // แต่ละครั้งสูงเ�
 const BOUNCES = 4;
 const GROUND_SHARE = [0.5, 0.25, 0.12, 0.06]; // ระยะทางบนพื้นที่ไปได้ในแต่ละช่วงลอย (ที่เหลือคือช่วงกลิ้ง)
 const SPIN_KEEP_ON_IMPACT = 0.6; // ความเร็วหมุนที่เหลือหลังกระทบพื้นแต่ละครั้ง
+// เสียงพลิกล้มระหว่างกลิ้ง: [สัดส่วนเวลาในช่วงกลิ้ง, ความดัง]
+// (เบากว่าการกระดอนครั้งสุดท้ายเสมอ เสียงจึงค่อย ๆ เบาลงต่อเนื่อง)
+const ROLL_TAPS = [[0.06, 0.19], [0.17, 0.16], [0.31, 0.13], [0.48, 0.1], [0.68, 0.07]];
 const END_SCALE = 1.45; // ขนาดตอนหยุดกลางกระดาน (เทียบกับตอนอยู่ที่จุดวาง)
 // ตำแหน่งที่ลูกเต๋าแตะพื้นบนจอ (วัดจากมุมกล้อง .dice-cam): หน้าบนอยู่ที่ −0.39×ขนาด → หน้าล่าง/จุดแตะพื้นอยู่ที่ +0.39×ขนาด
 // ฐานที่แตะพื้นกว้าง ~1.45×ขนาด สูง ~0.8×ขนาด (สี่เหลี่ยมที่เห็นเฉียง) — เงาใช้ขนาดนี้ (ตั้งใน CSS .dice-shadow)
@@ -164,6 +167,10 @@ function planThrow(from, to, durationMs, startRot, endRot) {
   }
 
   const impacts = arcs.map((a, k) => ({ time: a.end, strength: Math.sqrt(Math.pow(BOUNCE_HEIGHT_RATIO, k)) }));
+  // ช่วงกลิ้งหลังกระดอน: ลูกเต๋าพลิกล้มทีละด้าน ช่วงห่างยาวขึ้นเรื่อย ๆ (ช้าลง) และเบาลง
+  const rollTaps = ROLL_TAPS.map(([at, strength]) => ({ time: roll.start + rollMs * at, strength }));
+  // หยุดนิ่งจริง = ความเร็วหมุนเป็นศูนย์ที่ท้ายช่วงกลิ้ง
+  const settleTime = roll.end;
   const rotAt = (time) => {
     const p = spinProgress(time);
     return {
@@ -172,7 +179,7 @@ function planThrow(from, to, durationMs, startRot, endRot) {
       z: startRot.z + (endRot.z - startRot.z) * p,
     };
   };
-  return { total, at, rotAt, impacts, rollStart: roll.start, rollEnd: roll.end };
+  return { total, at, rotAt, impacts, rollTaps, settleTime, rollStart: roll.start, rollEnd: roll.end };
 }
 
 export { planThrow as _planThrowForTest };
@@ -323,8 +330,10 @@ export function createDiceController({
     };
     const plan = planThrow(from, to, durationMs, startRot, endRot);
 
-    let nextImpact = 0;
-    let lastTickStep = null;
+    // เสียง: กระทบพื้น 4 ครั้งตอนกระดอน + พลิกล้มระหว่างกลิ้ง (เสียงเดียวกันแต่เบาลง) + แก๊กสุดท้ายตอนหยุดนิ่ง
+    const hits = [...plan.impacts, ...plan.rollTaps].sort((a, b) => a.time - b.time);
+    let nextHit = 0;
+    let settled = false;
     await animateFor(plan.total, (t) => {
       const p = plan.at(t);
       rot = plan.rotAt(t);
@@ -335,18 +344,13 @@ export function createDiceController({
         const since = t - imp.time;
         if (since >= 0 && since < 110) squash = Math.max(squash, 0.13 * imp.strength * (1 - since / 110));
       }
-      while (nextImpact < plan.impacts.length && t >= plan.impacts[nextImpact].time) {
-        sound.hit?.(plan.impacts[nextImpact].strength);
-        nextImpact++;
+      while (nextHit < hits.length && t >= hits[nextHit].time) {
+        sound.hit?.(hits[nextHit].strength);
+        nextHit++;
       }
-
-      // ช่วงกลิ้ง: เสียงแก๊กทุกครั้งที่พลิกไป 90°
-      if (p.phase === "roll") {
-        const step = Math.floor(rot.x / 90);
-        if (lastTickStep !== null && step !== lastTickStep) {
-          sound.tick?.(0.5 * (1 - (t - plan.rollStart) / (plan.rollEnd - plan.rollStart)) + 0.1);
-        }
-        lastTickStep = step;
+      if (!settled && t >= plan.settleTime) {
+        settled = true;
+        sound.tick?.(0.4);
       }
 
       pose.ground = p.ground;

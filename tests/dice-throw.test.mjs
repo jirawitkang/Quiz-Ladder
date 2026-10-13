@@ -96,3 +96,22 @@ test("counter-clockwise plan keeps decreasing until it stops", () => {
   }
   assert.deepEqual(plan.rotAt(5000), end);
 });
+
+test("sound timing: 4 bounce hits, then softer tumbles with growing gaps, then one settle tick when it stops", () => {
+  const plan = planThrow(from, to, 5000, start, end);
+  assert.equal(plan.impacts.length, 4);
+  const taps = plan.rollTaps;
+  assert.ok(taps.length >= 4);
+  assert.ok(taps[0].time > plan.impacts[3].time, "tumbles come after the last bounce");
+  for (let i = 1; i < taps.length; i++) {
+    assert.ok(taps[i].time - taps[i - 1].time > (taps[i - 1].time - (taps[i - 2]?.time ?? plan.rollStart)) - 1, "gaps grow");
+    assert.ok(taps[i].strength < taps[i - 1].strength, "gets quieter");
+  }
+  assert.ok(taps[0].strength < plan.impacts[3].strength, "first tumble quieter than the last bounce");
+  assert.ok(taps.at(-1).time < plan.settleTime);
+  assert.equal(plan.settleTime, plan.rollEnd);
+  // ตอน settle ลูกเต๋าหยุดหมุนแล้ว
+  const a = plan.rotAt(plan.settleTime);
+  const b = plan.rotAt(plan.settleTime + 200);
+  assert.deepEqual(a, b);
+});
