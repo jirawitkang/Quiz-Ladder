@@ -1,0 +1,54 @@
+# สำรองชุดคำถาม + ผลการเล่นจาก Firebase ลง branch "backups" (ไม่ใช่ main → ไม่ทำให้เว็บ deploy ใหม่ระหว่างสอน)
+# รันเองทุกคืน 02:00 เวลาไทย หรือกด "Run workflow" ในแท็บ Actions ของ repo
+# commit เฉพาะเมื่อข้อมูลเปลี่ยน — กู้คืนด้วย: node tools/restore-backup.mjs
+name: Backup Firebase
+
+on:
+  schedule:
+    - cron: "0 19 * * *" # 19:00 UTC = 02:00 เวลาไทย
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: backup
+
+env:
+  DB_URL: https://snake-quiz-cdf1c-default-rtdb.asia-southeast1.firebasedatabase.app
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Switch to backups branch
+        run: |
+          if git ls-remote --exit-code --heads origin backups >/dev/null; then
+            git checkout backups
+          else
+            git checkout --orphan backups
+            git rm -rf --quiet .
+          fi
+
+      - name: Download from Firebase
+        run: |
+          mkdir -p backups
+          curl -sSf "$DB_URL/questionSets.json" | jq --sort-keys . > backups/question-sets.json
+          curl -sSf "$DB_URL/results.json" | jq --sort-keys . > backups/results.json
+          echo "question sets: $(jq 'if . == null then 0 else length end' backups/question-sets.json)"
+          echo "results:       $(jq 'if . == null then 0 else length end' backups/results.json)"
+
+      - name: Commit if changed
+        run: |
+          git add backups
+          if git diff --cached --quiet; then
+            echo "ไม่มีอะไรเปลี่ยน"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Backup $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M')"
+          git push origin backups

@@ -31,7 +31,8 @@ js/export.js              Export Excel ตอนจบเกม
 js/app.js                 session, flow Host/Player, presence, render, timers, event bindings
 tools/check-active-rooms.mjs  เช็กห้องใน Firebase ก่อน deploy
 tools/seed-question-sets.mjs  ย้ายชุดใน questions.js ขึ้น Firebase (เฉพาะที่ยังไม่มี; --write)
-tools/backup-question-sets.mjs  สำรอง questionSets/ → backups/question-sets.json (--restore กู้คืน)
+tools/restore-backup.mjs  กู้ questionSets/ หรือ results/ จาก branch backups กลับขึ้น Firebase
+.github/workflows/backup.yml  GitHub Actions สำรอง Firebase ทุกคืน 02:00 → branch `backups` (กด Run workflow เองได้)
 tests/*.test.mjs          node:test (กติกา, render, emoji, เส้นทางโยนลูกเต๋า)
 ```
 
@@ -89,7 +90,8 @@ node "../.claude/serve.mjs"                  # static server :8765 (python http.
 - Firebase query ที่ต้องใช้ index จะ error (`Index not defined`) — ใช้ REST `?shallow=true` แทน
 - Duplicate Tab คัดลอก sessionStorage → แท็บใหม่จะเข้าห้องเป็นผู้เล่นคนเดิม
 - GitHub Pages cache ~10 นาที
-- Firebase rules เปิด ใครก็ลบ questionSets ได้ → แนะนำผู้ใช้รัน `node tools/backup-question-sets.mjs` แล้ว commit เป็นระยะ
+- Firebase rules เปิด ใครก็ลบข้อมูลได้ → สำรองอัตโนมัติไว้ที่ branch `backups` (ไม่ใช่ main เพราะ push main = deploy)
+  GitHub ปิด scheduled workflow เองถ้า repo ไม่มีความเคลื่อนไหว 60 วัน → กด Enable ในแท็บ Actions
 - `.entry-stage` ต้องมี `grid-template-columns: minmax(0,1fr)` ไม่งั้นแถวที่ nowrap (แถบหมวด emoji) ดันหน้าจอกว้างเกินมือถือ
 
 ## สไตล์โค้ด
