@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Snake Quiz – Multiplayer</title>
+  <title>Quiz Runner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light" />
   <link rel="stylesheet" href="ui.css" />
@@ -13,7 +13,7 @@
   <!-- Dice (no overlay-card) -->
   <div id="diceOverlay" style="display:none;">
     <div class="dice-scene">
-      <!-- ตัวครอบกล้อง: ทำให้เห็น 3 ด้านตลอดเวลา -->
+      <!-- ตัวครอบกล้อง: ทำให้เห็น 3 ด้านตลอดเวลา (ลำดับหน้า/แต้มต้องตรงกับ FACE_CLASS_TO_VALUE ใน js/dice.js) -->
       <div class="dice-cam">
         <div id="dice3d" class="dice">
           <!-- FRONT = 5 -->
@@ -85,14 +85,14 @@
   
   <header class="app-header">
     <div class="header-inner">
-      <div class="brand" aria-label="Snake Quiz – Multiplayer">
+      <div class="brand" aria-label="Quiz Runner">
         <div class="brand-badge badge-v1" aria-hidden="true">
           <span class="badge-text">QR</span>
         </div>
         
         <div class="brand-title">
           <strong>Quiz Runner</strong>
-          <span>Office of Academic Resources</span>
+          <span>Searching Online Databases</span>
         </div>
       </div>
   
@@ -181,7 +181,7 @@
           </div>
         </div>
   
-        <div class="card" aria-hidden="true">
+        <div class="card">
           <h2>How to play</h2>
           <p class="muted">
             Admin สร้างห้องและแชร์ Race Code ให้ผู้เล่น จากนั้นเริ่มเกมใน Lobby
@@ -207,7 +207,7 @@
           </button>
         </div>
   
-        <div class="card" aria-hidden="true">
+        <div class="card">
           <h2>Race Tip</h2>
           <p class="muted">
             Make sure your race code is correct and your runner name is unique.
@@ -227,10 +227,6 @@
       </div>
     
       <div class="card lobby-card">
-        <div class="lobby-card-head">
-          <div id="roleInfo" class="muted role-line" aria-live="polite"></div>
-        </div>
-    
         <div class="lobby-list-head">
           <div class="lobby-list-title"><strong>รายชื่อผู้เล่นในห้อง:</strong></div>
     
@@ -241,7 +237,6 @@
           </div>
         </div>
     
-        <!-- ✅ เปลี่ยนจาก ul เป็น div -->
         <div id="playerList" aria-label="รายชื่อผู้เล่น"></div>
       </div>
     </div>
@@ -263,30 +258,32 @@
         </button>
         <button id="revealAnswerBtn" class="btn-ghost" type="button">เฉลยคำถาม</button>
       </div>
-    
-      <div id="playerGameControls" class="lobby-actions" style="display:none;">
-      </div>
     </div>
     
     <!-- GAME AREA -->
     <div id="gameArea" class="card" style="display:none;">
       <div id="board"></div>
     
-      <div id="endGameArea" style="display:none; margin-top:1rem;">
-        <h3 id="endGameTitle" style="margin:0;">สรุปผลเกม</h3>
+      <div id="endGameArea" style="display:none;">
+        <div class="end-game-head">
+          <h3 id="endGameTitle">สรุปผลเกม</h3>
+          <button id="exportXlsxBtn" class="btn-ghost" type="button" style="display:none;">
+            Export Excel
+          </button>
+        </div>
         <div id="endGameSummary"></div>
-      </div>          
+      </div>
     </div>
     
-    <!-- ✅ NEW: slot สำหรับย้าย lobby-card มาวางใต้ gameArea ตอนเริ่มเกมแล้ว -->
+    <!-- ระหว่างเล่น: lobby-card จะถูกย้ายมาวางใต้กระดาน -->
     <div id="lobbyCardHost" style="display:none;"></div>
     
     <!-- QUESTION AREA -->
     <div id="questionAreaOverlay" class="overlay" style="display:none;">
       <div id="questionArea" class="card">
-      <div id="countdownDisplay" aria-live="assertive"></div>
-      <div id="questionText"></div>
-      <div id="choicesContainer"></div>
+        <div id="countdownDisplay" aria-live="assertive"></div>
+        <div id="questionText"></div>
+        <div id="choicesContainer"></div>
       </div>
       <button id="closeQuestionAreaBtn" class="btn-primary" type="button" style="display:none;">
         X
@@ -302,10 +299,9 @@
       <div class="overlay-hint">กรอกรหัส 4 หลักเพื่อเข้าสู่หน้า Admin</div>
   
       <input id="adminPwInput" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="4"
-        placeholder="••••"
-        style="margin-top:12px; text-align:center; font-size:22px; letter-spacing:10px; font-weight:900;" />
+        placeholder="••••" class="admin-pw-input" />
   
-      <div id="adminPwError" class="muted" style="margin-top:10px; color:#c62828; font-weight:900; display:none;">
+      <div id="adminPwError" class="admin-pw-error" style="display:none;">
         รหัสไม่ถูกต้อง
       </div>
   
@@ -315,7 +311,7 @@
     </div>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 
 </html>

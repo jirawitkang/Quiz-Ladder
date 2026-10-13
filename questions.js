@@ -28,7 +28,7 @@ export const QUESTION_SETS = {
     },
     {
       text: "ถ้าลืมรหัสผ่านบ่อย ควรตั้งรหัสใหม่ว่าอะไร?",
-      choices: { A: "123456", B: "password", C: "ForgetMeNot2025!", D: "ชื่อแมว+วันเกิด+OTP" },
+      choices: { A: "123456", B: "password", C: "ForgetMeNot202!", D: "ชื่อแมว+วันเกิด+OTP" },
       correctOption: "C",
       timeLimit: 30,
     },
@@ -404,7 +404,387 @@ export const QUESTION_SETS = {
       correctOption: "B",
       timeLimit: 30,
     },
-  ],  
+  ],
+   
+   food1: [
+     {
+       text: "Question : In the article “Microbiological safety and quality of ceviche, poke, and sushi dishes sold at retail outlets in Orange County, CA”, at what annual rate has global seafood consumption increased (from 1961 to 2017)?\n\nคำถาม : บทความนี้ ระบุอัตราการบริโภคอาหารทะเลทั่วโลกเพิ่มขึ้นกี่เปอร์เซ็นต์ต่อปี\n\nHint : In the first paragraph of the introduction.\n\nDatabase : ScienceDirect",
+       choices: { A: "3.0%", B: "3.1%", C: "3.2%" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Kimchi and its antiobesity and anticancer functions”, what is the recommended cut size (in centimeters) for Matbaechu kimchi when preparing Baechu cabbage kimchi?\n\nคำถาม : บทความนี้ ระบุควรหั่น Matbaechu kimchi (ผักกาดขาว) ให้มีขนาดกี่เซนติเมตร สำหรับเตรียมทำเมนู Baechu cabbage kimchi (กิมจิผักกาดขาวแบบดั้งเดิมของเกาหลี)\n\nHint : In the Fig. 1.\n\nDatabase : SpringerNature Link",
+       choices: { A: "3-5 centimeters", B: "3-4 centimeters", C: "2-3 centimeters" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Nutritional quality of organic, conventional, and seasonally grown broccoli using vitamin C as a marker”, which vegetable contains the highest amount of ascorbic acid?\n\nคำถาม : บทความนี้ ผักชนิดใดมีปริมาณกรดแอสคอร์บิกมากที่สุด\n\nHint : In the Figure 4.\n\nDatabase : Taylor & Francis Online",
+       choices: { A: "swamp cabbage", B: "Chinese kale", C: "spinach" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which email address should be used to contact the Research Support Service at the Central Library, Chulalongkorn University?\n\nคำถาม : อีเมลใด เป็นช่องทางสำหรับติดต่อบริการสนับสนุนงานวิจัย ของหอสมุดกลางจุฬาฯ\n\nHint : -\n\nDatabase : -",
+       choices: { A: "rsp@car.chula.ac.th", B: "rcs@car.chula.ac.th", C: "rss@car.chula.ac.th" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article \"Contribution of black olives and other vegetable toppings to acrylamide formation in pizzas\", what range does the acrylamide content in pizza fall (in µg/kg)?\n\nคำถาม : บทความนี้ ระบุว่าพิซซ่ามีปริมาณอะคริลาไมด์ (acrylamide) กี่ไมโครกรัมต่อกิโลกรัม\n\nHint : In the second paragraph of the introduction.\n\nDatabase : ScienceDirect",
+       choices: { A: "60 - 250 µg/kg", B: "70 - 260 µg/kg", C: "80 - 270 µg/kg" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Farmer Business School participation and its impact on cocoa productivity and food security in Ghana”, what percentage of Ghana’s export earnings comes from cocoa?\n\nคำถาม : บทความนี้ รายได้จากการส่งออกของกานามาจากโกโก้กี่ %?\n\nHint : In the first paragraph of the introduction.\n\nDatabase : Emerald Management",
+       choices: { A: "about 18%", B: "about 28%", C: "about 38%" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Sushi Delights and Parasites: The Risk of Fishborne and Foodborne Parasitic Zoonoses in Asia”, at what temperature and for how long should marine fish for raw consumption be frozen under the European Union–Hazard Analysis and Critical Control Points (HACCP) guidelines?\n\nคำถาม : บทความนี้ ระบุว่า HACCP (กฎหมายสำหรับธุรกิจอาหาร่ในสหภาพยุโรป) กำหนดให้แช่แข็งปลาทะเลเพื่อบริโภคแบบดิบที่อุณหภูมิเท่าไรและเป็นเวลานานเท่าใด\n\nHint : In the first paragraph of the conclusions.\n\nDatabase : Oxford Journals Online",
+       choices: {
+         A: "less than -10°C for more than 24 h.",
+         B: "less than -15°C for more than 24 h.",
+         C: "less than -20°C for more than 24 h."
+       },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which Boolean operator is used to exclude unwanted terms from search results?\n\nคำถาม : Boolean operator ข้อใดที่ใช้ในการตัดคำที่ไม่ต้องการออกจากผลลัพธ์\n\nHint : -\n\nDatabase : -",
+       choices: { A: "AND", B: "OR", C: "NOT" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Improving stability of frying oils and food quality with addition of dried olive mill wastewater”, which analytical technique was used to determine the polyphenolic composition of the dried olive mill wastewater?\n\nคำถาม : บทความนี้ ผู้วิจัยใช้เทคนิคใดวิเคราะห์องค์ประกอบของสารโพลีฟีนอลในน้ำเสียจากโรงงานผลิตน้ำมันมะกอกแห้ง\n\nHint : In the first paragraph of the results and discussion.\n\nDatabase : Nature",
+       choices: { A: "GC-FID", B: "LC-MS", C: "HPLC" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which symbol is used to search for an exact phrase without splitting the words?\n\nคำถาม : เครื่องหมายใดใช้ช่วยค้นหาวลีหรือประโยคแบบตรงตัวโดยไม่แยกคำออกจากกัน\n\nHint : -\n\nDatabase : -",
+       choices: {
+         A: "Quotation marks หรือเครื่องหมายอัญประกาศ (\"...\")",
+         B: "Question mark หรือเครื่องหมายคำถาม (?)",
+         C: "Nesting หรือเครื่องหมายวงเล็บ ((...))"
+       },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+   ],
+   food2: [
+     {
+       text: "Question : If you can’t find the full text of a research article, which Facebook page should Chulalongkorn University members message for help?\n\nคำถาม : หากชาวจุฬาฯ ค้นหา full text ของบทความวิจัยไม่พบ สามารถติดต่อสอบถามผ่าน Facebook เพจใด\n\nHint : -\n\nDatabase : -",
+       choices: { A: "RefCU", B: "CURef", C: "ChulaRef" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which Boolean operator is used to exclude unwanted terms from search results?\n\nคำถาม : Boolean operator ข้อใดที่ใช้ในการตัดคำที่ไม่ต้องการออกจากผลลัพธ์\n\nHint : -\n\nDatabase : -",
+       choices: { A: "AND", B: "OR", C: "NOT" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which symbol is used to search for an exact phrase without splitting the words?\n\nคำถาม : เครื่องหมายใดใช้ช่วยค้นหาวลีหรือประโยคแบบตรงตัวโดยไม่แยกคำออกจากกัน\n\nHint : -\n\nDatabase : -",
+       choices: {
+         A: "Quotation marks หรือเครื่องหมายอัญประกาศ (\"...\")",
+         B: "Question mark หรือเครื่องหมายคำถาม (?)",
+         C: "Nesting หรือเครื่องหมายวงเล็บ ((...))",
+       },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which Boolean operator should be used to broaden the search results?\n\nคำถาม : ควรใช้ Boolean operator ใด หากต้องการให้ผลการสืบค้นกว้างขึ้น\n\nHint : -\n\nDatabase : -",
+       choices: { A: "AND", B: "OR", C: "NOT" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which symbol should be used if you want to search for words with the same root, such as educate, education, educational?\n\nคำถาม : ควรใช้เครื่องหมายใด หากต้องการค้นหาคำที่มีรากศัพท์เดียวกัน เช่น educate, education, educational\n\nHint : -\n\nDatabase : -",
+       choices: { A: "*", B: "+", C: "&" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : What is the purpose of using a Year filter in database searching?\n\nคำถาม : การใช้ตัวกรองปี มีประโยชน์อย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: {
+         A: "To increase the number of results (เพิ่มจำนวนผลลัพธ์ให้มากขึ้น)",
+         B: "To limit results to a specific time period (จำกัดผลลัพธ์ให้เฉพาะช่วงเวลาที่ต้องการ)",
+         C: "To find similar words (ค้นหาคำที่คล้ายกัน)",
+       },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : If you want the results to show food safety as an exact phrase, how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า food safety แบบติดกัน ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: { A: "food AND safety", B: "\"food safety\"", C: "food-safety" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : If you want the results to appear for the years 2019–2024, which filter should you use in the database?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏในช่วงปี 2019–2024 ควรใช้ตัวใดในฐานข้อมูล\n\nHint : -\n\nDatabase : -",
+       choices: { A: "Language filter", B: "Document type filter", C: "Publication date filter" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : If you want the results to show pizza or pasta (either one), how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า pizza หรือ pasta (อย่างใดอย่างหนึ่ง) ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: { A: "pizza OR pasta", B: "pizza or pasta", C: "pizza Or pasta" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+        text: "Question : Which email address should be used to contact the Research Support Service at the Central Library, Chulalongkorn University?\n\nคำถาม : อีเมลใด เป็นช่องทางสำหรับติดต่อบริการสนับสนุนงานวิจัย ของหอสมุดกลางจุฬาฯ\n\nHint : -\n\nDatabase : -",
+       choices: { A: "rsp@car.chula.ac.th", B: "rcs@car.chula.ac.th", C: "rss@car.chula.ac.th" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+   ],
+   food3: [
+     {
+       text: "Question : Why do onions make you cry when cutting them?\n\nคำถาม : ทำไมหั่นหัวหอมแล้วน้ำตาไหลเหมือนโดนเท\n\nHint : -\n\nDatabase : -",
+       choices: {
+         A: "เพราะหัวหอมสะเทือนใจ",
+         B: "เพราะปล่อยสารระเหยไปทำปฏิกิริยากับน้ำตา",
+         C: "เพราะมีพริกซ่อนอยู่",
+       },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which type of cheese is generally smellier?\n\nคำถาม : “ชีส” แบบไหนมักมีกลิ่นแรงจนเพื่อนร้องขอชีวิต\n\nHint : -\n\nDatabase : -",
+       choices: {
+         A: "ชีสสด",
+         B: "ชีสแข็งอายุสั้น",
+         C: "ชีสบ่ม/ชีสอายุเยอะ",
+       },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which Boolean operator is used to exclude unwanted terms from search results?\n\nคำถาม : Boolean operator ข้อใดที่ใช้ในการตัดคำที่ไม่ต้องการออกจากผลลัพธ์\n\nHint : -\n\nDatabase : -",
+       choices: { A: "AND", B: "OR", C: "NOT" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : If you want the results to show pizza or pasta (either one), how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า pizza หรือ pasta (อย่างใดอย่างหนึ่ง) ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: { A: "pizza OR pasta", B: "pizza or pasta", C: "pizza Or pasta" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : How many authors are there in the article “Would offering vegetables to children for breakfast increase their total daily vegetable intake?”?\n\nคำถาม : บทความเรื่องนี้ มีผู้แต่งกี่คน\n\nHint : -\n\nDatabase : Cambridge Journals Online",
+       choices: { A: "2 people", B: "3 people", C: "4 people" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In Figure 1 of the article “What We Talk about when We Talk about Food Experiences”, which stimulus was used for the umami taste?\n\nคำถาม : ในภาพที่ 1 ของบทความนี้ อาหารชนิดใดถูกใช้เพื่อกระตุ้นรสอูมามิ\n\nHint : In the Figure 1.\n\nDatabase : ACM",
+       choices: { A: "Plain cookie", B: "Cheese ball", C: "Mango juice" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : If you want the results to appear for the years 2019–2024, which filter should you use in the database?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏในช่วงปี 2019–2024 ควรใช้ตัวใดในฐานข้อมูล\n\nHint : -\n\nDatabase : -",
+       choices: { A: "Language filter", B: "Document type filter", C: "Publication date filter" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Investigation of key chemical species from durian peduncles and their correlations with durian maturity”, which part shown in Figure 1 is the edible portion?\n\nคำถาม : ส่วนของเนื้อทุเรียนที่สามารถรับประทานได้ในภาพที่ 1 ของบทความนี้ เรียกว่าอะไร\n\nHint : -\n\nDatabase : Nature",
+       choices: { A: "Aril", B: "Husk", C: "Peduncle" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Contents and Risk Assessment of Heavy Metals in Marine Invertebrates from Korean Coastal Fish Markets”, which heavy metal has the highest recovery (%) in Table 2?\n\nคำถาม : โลหะหนักชนิดใดมีค่า Recovery (%) สูงที่สุดในตารางที่ 2 ของบทความนี้\n\nHint : -\n\nDatabase : ScienceDirect",
+       choices: { A: "Ni", B: "Cd", C: "Cu" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : If you want the results to show food safety as an exact phrase, how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า food safety แบบติดกัน ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: { A: "food AND safety", B: "\"food safety\"", C: "food-safety" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+   ],
+   food4: [
+     {
+       text: "Question : If you want the results to show pizza or pasta (either one), how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า pizza หรือ pasta (อย่างใดอย่างหนึ่ง) ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: { A: "pizza OR pasta", B: "pizza or pasta", C: "pizza Or pasta" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : How many authors are there in the article \"Acorn flour and sourdough: an innovative combination to improve gluten free bread characteristics\"?\n\nคำถาม : บทความเรื่องนี้ มีผู้แต่งกี่คน\n\nHint : -\n\nDatabase : SpringerNature Link",
+       choices: { A: "4 people", B: "6 people", C: "8 people" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Kimchi and its antiobesity and anticancer functions”, what is the recommended cut size (in centimeters) for Matbaechu kimchi when preparing Baechu cabbage kimchi?\n\nคำถาม : บทความนี้ ระบุควรหั่น Matbaechu kimchi (ผักกาดขาว) ให้มีขนาดกี่เซนติเมตร สำหรับเตรียมทำเมนู Baechu cabbage kimchi (กิมจิผักกาดขาวแบบดั้งเดิมของเกาหลี)\n\nHint : In the Fig. 1.\n\nDatabase : SpringerNature Link",
+       choices: { A: "3-5 centimeters", B: "3-4 centimeters", C: "2-3 centimeters" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article \"Goose meat production and consumption: current knowledge and market challenges\" what is the projected global goose meat production in 2027?\n\nคำถาม : บทความนี้ คาดการณ์การผลิตเนื้อห่านทั่วโลกในปี 2027 อยู่ที่เท่าใด\n\nHint : In the introduction.\n\nDatabase : Taylor & Francis Online",
+       choices: { A: "3.75 million tons", B: "4.75 million tons", C: "5.75 million tons" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which symbol should be used if you want to search for words with the same root, such as educate, education, educational?\n\nคำถาม : ควรใช้เครื่องหมายใด หากต้องการค้นหาคำที่มีรากศัพท์เดียวกัน เช่น educate, education, educational\n\nHint : -\n\nDatabase : -",
+       choices: { A: "*", B: "+", C: "&" },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Effect of a popular Middle Eastern food (Falafel) on rat liver”, which cooking method is used to prepare falafel?\n\nคำถาม : บทความนี้ ระบุว่าฟาลาเฟล (Falafel) เป็นอาหารที่ปรุงด้วยวิธีใด\n\nHint : In the first paragraph of the introduction.\n\nDatabase : Taylor & Francis Online",
+       choices: { A: "Boiled food", B: "Grilled food", C: "Fried food" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : The article “Teacher, I Don't Know How to Describe ‘Tom Yum Kung’ in English, but I Know ‘Hamburger’ and ‘Pizza’: Will Global Englishes Language Teaching be a Beacon of Hope or a Recipe for Disaster in Thai ELT?” was published in what year and in what journal?\n\nคำถาม : บทความนี้ตีพิมพ์เผยแพร่ในปีใดและในวารสารชื่ออะไร\n\nHint : -\n\nDatabase : Wiley Online Library",
+       choices: {
+         A: "Clin Infect Dis, Published in 2024.",
+         B: "The International Journal of Applied Linguistics, Published in 2024.",
+         C: "Clinical Infectious Diseases, Published in 2024.",
+       },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “The Demand and Allocation of Alaskan and Canadian Snow Crab”, what is the time range shown in Figure 1 for Alaskan crab landings?\n\nคำถาม : กราฟในรูปที่ 1 ในบทความนี้ แสดงข้อมูลการจับปู Alaskan ในช่วงปีใด\n\nHint : In the Figure 1.\n\nDatabase : Wiley Online Library",
+       choices: { A: "1950-2000", B: "1950-2001", C: "1950-2002" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : If you want the results to show food safety as an exact phrase, how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า food safety แบบติดกัน ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: { A: "food AND safety", B: "\"food safety\"", C: "food-safety" },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “A brief nudge or education intervention delivered online can increase willingness to order a beef-mushroom burger”, approximately how many cows were slaughtered in 2018?\n\nคำถาม : บทความนี้ มีวัวถูกฆ่าเพื่อการผลิตเนื้อวัวประมาณกี่ล้านตัว ในปี 2018\n\nHint : In the first paragraph of the introduction.\n\nDatabase : ScienceDirect",
+       choices: { A: "106.7 million cows", B: "54.2 million cows", C: "33.7 million cows" },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+   ],
+   food5: [
+     {
+       text: "Question : If you want the results to show pizza or pasta (either one), how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า pizza หรือ pasta (อย่างใดอย่างหนึ่ง) ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: {
+         A: "pizza OR pasta",
+         B: "pizza or pasta",
+         C: "pizza Or pasta",
+       },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “The Demand and Allocation of Alaskan and Canadian Snow Crab”, what is the time range shown in Figure 1 for Alaskan crab landings?\n\nคำถาม : กราฟในรูปที่ 1 ในบทความนี้ แสดงข้อมูลการจับปู Alaskan ในช่วงปีใด\n\nHint : In the Figure 1.\n\nDatabase : Wiley Online Library",
+       choices: {
+         A: "1950-2000",
+         B: "1950-2001",
+         C: "1950-2002",
+       },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : How many authors are there in the article “Would offering vegetables to children for breakfast increase their total daily vegetable intake?”?\n\nคำถาม : บทความเรื่องนี้ มีผู้แต่งกี่คน\n\nHint : -\n\nDatabase : Cambridge Journals Online",
+       choices: {
+         A: "2 people",
+         B: "3 people",
+         C: "4 people",
+       },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : Which symbol should be used if you want to search for words with the same root, such as nutrition, nutritional, nutritious?\n\nคำถาม : ควรใช้เครื่องหมายใด หากต้องการค้นหาคำที่มีรากศัพท์เดียวกัน เช่น nutrition, nutritional, nutritious\n\nHint : -\n\nDatabase : -",
+       choices: {
+         A: "*",
+         B: "+",
+         C: "&",
+       },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article \"Contribution of black olives and other vegetable toppings to acrylamide formation in pizzas\", what range does the acrylamide content in pizza fall (in µg/kg)?\n\nคำถาม : บทความนี้ ระบุว่าพิซซ่ามีปริมาณอะคริลาไมด์ (acrylamide) กี่ไมโครกรัมต่อกิโลกรัม\n\nHint : In the second paragraph of the introduction.\n\nDatabase : ScienceDirect",
+       choices: {
+         A: "60 - 250 µg/kg",
+         B: "70 - 260 µg/kg",
+         C: "80 - 270 µg/kg",
+       },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Effects of freezing rate and terminal freezing temperature on frozen croissant dough quality”, what variable is shown on the y-axis of Figure 1?\n\nคำถาม : แกน y ของรูปที่ 1 ในบทความนี้ แสดงค่าใด\n\nHint : -\n\nDatabase : ScienceDirect",
+       choices: {
+         A: "Temperature",
+         B: "Yeast viability",
+         C: "Specific volume",
+       },
+       correctOption: "A",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Pad Thai: the Thai-ization of Chinese food and the Thai nationalism project by the Phibunsongkhram government”, which of the following is NOT a keyword of the article?\n\nคำถาม : ข้อใดไม่ใช่คำสำคัญของบทความเรื่องนี้\n\nHint : -\n\nDatabase : Taylor & Francis Online",
+       choices: {
+         A: "kway teow",
+         B: "localization of food",
+         C: "national cuisine",
+       },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : If you want the results to show food safety as an exact phrase, how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า food safety แบบติดกัน ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+       choices: {
+         A: "food AND safety",
+         B: "\"food safety\"",
+         C: "food-safety",
+       },
+       correctOption: "B",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “High-fiber breakfast cereals using only carrot and cereal by-products”, what does the ‘BCP’ stand for?\n\nคำถาม : ‘BCP’ ในบทความนี้ ย่อมาจากคำว่าอะไร\n\nHint : In the first paragraph of the introduction.\n\nDatabase : ScienceDirect",
+       choices: {
+         A: "Breakfast Cookie Products",
+         B: "Breakfast Cereals Protein",
+         C: "Breakfast Cereals Products",
+       },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+     {
+       text: "Question : In the article “Nutritional quality of organic, conventional, and seasonally grown broccoli using vitamin C as a marker”, which vegetable contains the highest amount of ascorbic acid?\n\nคำถาม : บทความนี้ ผักชนิดใดมีปริมาณกรดแอสคอร์บิกมากที่สุด\n\nHint : In the Figure 4.\n\nDatabase : Taylor & Francis Online",
+       choices: {
+         A: "swamp cabbage",
+         B: "Chinese kale",
+         C: "spinach",
+       },
+       correctOption: "C",
+       timeLimit: 120,
+     },
+   ],
+   
 };
 
 /**
@@ -450,6 +830,11 @@ export const QUESTION_SET_NAMES = {
   love: "ไม่เป็นไร (แต่จำได้หมด)",
   friends: "Friends, Fun & Facts",
   money: "Money Coach ที่ยังต้องรอเงินเดือน",
+  food1: "Food Quest set 1",
+  food2: "Food Quest set 2",
+  food3: "Food Quest set 3",
+  food4: "Food Quest set 4",
+  food5: "Food Quest set 5",
 };
 
 /**
@@ -458,7 +843,10 @@ export const QUESTION_SET_NAMES = {
  * @returns {string} The display name
  */
 export function getQuestionSetName(setId) {
-  return QUESTION_SET_NAMES[setId] || setId;
+  if (QUESTION_SET_NAMES[setId]) return QUESTION_SET_NAMES[setId];
+  return String(setId || "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
 /**
@@ -468,4 +856,3 @@ export function getQuestionSetName(setId) {
 export function getQuestionSetIds() {
   return Object.keys(QUESTION_SETS);
 }
-
