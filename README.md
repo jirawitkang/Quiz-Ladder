@@ -32,6 +32,7 @@ js/
   dice.js           ลูกเต๋า 3D
   export.js         Export Excel (โหลด SheetJS เมื่อกดปุ่มเท่านั้น)
 tests/              unit test ของกติกาเกมและการ render
+tools/              สคริปต์ช่วยงาน (check-active-rooms.mjs: เช็กห้องใน Firebase ก่อน deploy)
 ```
 
 ## รันในเครื่อง
