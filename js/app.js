@@ -55,6 +55,7 @@ import {
   getViewPlayers,
   isGameEnded,
   isPlayerDone,
+  maskPendingRolls,
 } from "./game-logic.js";
 import {
   renderChoices,
@@ -241,7 +242,8 @@ const session = {
 };
 
 let roomUnsub = null;
-let lastRoom = null;
+let lastRoom = null; // ข้อมูลจริงจาก Firebase (ใช้ตัดสินใจ/ส่ง transaction)
+let lastView = null; // ห้องที่ใช้แสดงผล (ซ่อนผลทอยที่ลูกเต๋าของคนทอยยังกลิ้งอยู่)
 let entryPage = "landing"; // "landing" | "admin" | "player" | null (อยู่ในห้องแล้ว)
 let presenceMode = null; // "remove" | "mark" — สิ่งที่ onDisconnect ถูกตั้งไว้ตอนนี้
 
@@ -438,7 +440,9 @@ function resetRoomUi() {
   Object.assign(hq, { questionHidden: false, revealKey: null, revealOpen: false, revealCloseAt: 0, revealTimer: null });
   Object.assign(anim, { seen: new Set(), primed: false, queue: [], timer: null });
   clearInterval(fx.endTimer);
-  Object.assign(fx, { countdownBeep: null, clockTick: null, prevEnded: null, endTimer: null });
+  clearTimeout(fx.revealTimer);
+  Object.assign(fx, { countdownBeep: null, clockTick: null, prevEnded: null, endTimer: null, revealTimer: null });
+  lastView = null;
   dom.podium?.classList.remove("rise");
   hostBoardView.reset();
   playerBoardView.reset();
@@ -539,8 +543,16 @@ const PHASE_TEXT = {
   [PHASE.ENDED]: "เกมจบแล้ว",
 };
 
-function renderRoom(room) {
-  lastRoom = room;
+// ผลทอยของคนอื่นถูกซ่อนจนลูกเต๋า 3D บนมือถือคนทอยกลิ้งจบ (DICE_ROLL_MS) — คนดูจอ Host จะได้ลุ้นไปพร้อมกัน
+function renderRoom(rawRoom) {
+  lastRoom = rawRoom;
+  const masked = maskPendingRolls(rawRoom, serverNow(), DICE_ROLL_MS, isPlayer() ? session.playerId : null);
+  const room = masked.room;
+  lastView = room;
+  clearTimeout(fx.revealTimer);
+  if (masked.nextRevealAt) {
+    fx.revealTimer = setTimeout(() => lastRoom && renderRoom(lastRoom), Math.max(0, masked.nextRevealAt - serverNow()) + 30);
+  }
   const inLobby = room.status === STATUS.LOBBY;
   const ended = isGameEnded(room);
   const { maxRounds } = getSettings(room);
@@ -1032,7 +1044,7 @@ function boardPlayers(room) {
 
 function renderBoards() {
   clearTimeout(anim.timer);
-  const room = lastRoom;
+  const room = lastView;
   if (!room || room.status === STATUS.LOBBY) return;
 
   const now = Date.now();

@@ -198,3 +198,43 @@ test("start game assigns unique emoji to players who did not pick", () => {
   assert.equal(r.players.p0.emoji, getThemeEmojis("office")[0]);
   assert.equal(r.status, STATUS.IN_GAME);
 });
+
+/* ---------- hiding rolls until the roller's dice stops ---------- */
+
+test("maskPendingRolls hides a fresh roll from other screens until the hold time passes", async () => {
+  const { maskPendingRolls } = await import("../js/game-logic.js");
+  const r = room({ a: p("A", { position: 5 }), b: p("B", { position: 5 }) });
+  applyStartRound(r);
+  applyRoll(r, "a", 2, 1000);
+
+  const during = maskPendingRolls(r, 3000, 5000);
+  assert.equal(during.room.players.a.position, 5);
+  assert.equal(during.room.players.a.lastRoll, null);
+  assert.equal(during.room.history.round_1.diceMoves.a, undefined);
+  assert.equal(during.nextRevealAt, 6000);
+  assert.equal(r.players.a.position, 7, "original room untouched");
+
+  const after = maskPendingRolls(r, 6001, 5000);
+  assert.equal(after.room, r);
+  assert.equal(after.nextRevealAt, null);
+
+  const own = maskPendingRolls(r, 3000, 5000, "a");
+  assert.equal(own.room.players.a.position, 7, "roller's own phone is not masked");
+});
+
+test("maskPendingRolls hides a winning roll and the game end it caused", async () => {
+  const { maskPendingRolls } = await import("../js/game-logic.js");
+  const r = room({ a: p("A", { position: 28 }), b: p("B") });
+  r.gameSettings.maxWinners = 1;
+  applyStartRound(r);
+  applyRoll(r, "a", 5, 1000);
+  assert.equal(r.phase, PHASE.ENDED);
+
+  const v = maskPendingRolls(r, 2000, 5000).room;
+  assert.equal(v.phase, PHASE.ROLLING);
+  assert.equal(v.status, STATUS.IN_GAME);
+  assert.equal(v.players.a.finished, false);
+  assert.equal(v.players.a.position, 28);
+  assert.deepEqual(v.winners, []);
+  assert.equal(v.finalPlayers, undefined);
+});

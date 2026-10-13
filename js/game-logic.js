@@ -424,3 +424,50 @@ export function applyAnswer(player, optionKey, now) {
   player.answerUpdatedAt = now;
   return player;
 }
+
+/* ---------- Display: ซ่อนผลทอยที่ลูกเต๋าของคนทอยยังกลิ้งไม่จบ ---------- */
+
+// ผลทอยถูกบันทึกทันทีที่แตะ (กันแท็บเบื้องหลัง) แต่คนทอยยังดูลูกเต๋ากลิ้งอยู่ holdMs
+// คืนห้อง "สำหรับแสดงผล" ที่ย้อนการทอยนั้นกลับ (ตำแหน่งเดิม, ยังไม่เข้าเส้นชัย, ยังไม่มีในผู้ชนะ/ประวัติ, เกมยังไม่จบ)
+// และเวลา server ที่ควรวาดใหม่ครั้งถัดไป (nextRevealAt) — exceptPid = ไม่ซ่อนของตัวเอง (มือถือคนทอยจัดการเอง)
+export function maskPendingRolls(room, now, holdMs, exceptPid = null) {
+  const round = room?.currentRound || 0;
+  const moves = room?.history?.[roundKey(round)]?.diceMoves || {};
+  const pending = Object.entries(moves).filter(
+    ([pid, dm]) => pid !== exceptPid && !dm.missed && Number.isFinite(dm.timestamp) && dm.timestamp + holdMs > now
+  );
+  if (!pending.length) return { room, nextRevealAt: null };
+
+  const view = deepClone(room);
+  const roundHistory = view.history[roundKey(round)];
+  let nextRevealAt = Infinity;
+  let maskedEnd = false;
+
+  for (const [pid, dm] of pending) {
+    nextRevealAt = Math.min(nextRevealAt, dm.timestamp + holdMs);
+    delete roundHistory.diceMoves[pid];
+    const p = view.players?.[pid];
+    if (p) {
+      p.position = dm.fromPosition;
+      p.lastRoll = null;
+      if (p.finished && p.finishedRound === round && p.finishedBy === "dice") {
+        p.finished = false;
+        p.finishedRound = null;
+        p.finishedBy = null;
+      }
+    }
+    if (Array.isArray(view.winners)) view.winners = view.winners.filter((w) => w.playerId !== pid);
+    // เกมจบเพราะการทอยครั้งนี้ → ยังไม่ให้เห็นว่าจบ
+    if (isGameEnded(view) && Math.abs((view.endInfo?.endedAt ?? 0) - dm.timestamp) < 5000) maskedEnd = true;
+  }
+
+  if (maskedEnd) {
+    view.status = STATUS.IN_GAME;
+    view.phase = PHASE.ROLLING;
+    delete view.endInfo;
+    delete view.finalPlayers;
+    delete view.finalWinners;
+    delete view.ui;
+  }
+  return { room: view, nextRevealAt };
+}
