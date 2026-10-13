@@ -208,7 +208,8 @@ const setHidden = (el, hidden) => {
    State
 ========================= */
 const REVEAL_PANEL_MS = 3500; // จอ Host ค้างหน้าเฉลยไว้ก่อนให้หมากเดิน
-const DICE_AUTO_CLOSE_MS = 1300;
+// ช่วงให้เห็นแต้มอยู่ในแอนิเมชันแล้ว (ท้ายการกลิ้ง + พัก ≈ 1.2 วิ) จึงปิดลูกเต๋าทันทีที่แอนิเมชันจบ
+const DICE_AUTO_CLOSE_MS = 0;
 
 const session = {
   roomCode: null,
