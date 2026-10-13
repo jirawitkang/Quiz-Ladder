@@ -212,6 +212,42 @@ function collectPlayerStats(players, history) {
   return Object.values(stats);
 }
 
+// อันดับสุดท้าย: คนเข้าเส้นชัยตามลำดับ → รอบที่เข้า → ช่องที่อยู่ → % ตอบถูก → ชื่อ
+export function computeStandings(room, players) {
+  const winnerRank = new Map((room.winners || []).map((w) => [w.playerId, w.rank ?? Infinity]));
+  return collectPlayerStats(players || {}, room.history || {}).sort(
+    (a, b) =>
+      (winnerRank.get(a.id) ?? Infinity) - (winnerRank.get(b.id) ?? Infinity) ||
+      (a.finishRound ?? Infinity) - (b.finishRound ?? Infinity) ||
+      b.finalPosition - a.finalPosition ||
+      b.pctCorrect - a.pctCorrect ||
+      byName(a, b)
+  );
+}
+
+// แท่นรับรางวัล 3 อันดับแรก เรียง 2-1-3 (อันดับ 1 อยู่กลางและสูงสุด)
+export function renderPodium(el, room, players, myPlayerId = null) {
+  if (!el) return;
+  const top = computeStandings(room, players).slice(0, 3);
+  if (!top.length) {
+    el.innerHTML = "";
+    return;
+  }
+  const medals = ["🥇", "🥈", "🥉"];
+  const slot = (s, rank) => {
+    if (!s) return `<div class="podium-col empty rank-${rank}"></div>`;
+    const color = SAFE_COLOR.test(s.player?.color || "") ? s.player.color : "#9e9e9e";
+    const where = s.finished ? "เข้าเส้นชัย" : `ช่อง ${s.finalPosition}`;
+    return `<div class="podium-col rank-${rank}${s.id === myPlayerId ? " me" : ""}">
+      <div class="podium-av" style="--c:${color}">${escapeHtml(s.player?.emoji || "❔")}</div>
+      <div class="podium-name">${escapeHtml(s.name)}</div>
+      <div class="podium-where">${where}</div>
+      <div class="podium-block"><span class="podium-medal">${medals[rank - 1]}</span><b>${rank}</b></div>
+    </div>`;
+  };
+  el.innerHTML = slot(top[1], 2) + slot(top[0], 1) + slot(top[2], 3);
+}
+
 export function renderEndGameSummary({ titleEl, summaryEl }, room, players) {
   const history = room.history || {};
   const settings = getSettings(room);
@@ -225,15 +261,7 @@ export function renderEndGameSummary({ titleEl, summaryEl }, room, players) {
     reasonText = `เกมจบเพราะเล่นครบ ${settings.maxRounds} รอบแล้ว`;
   }
 
-  const winnerRank = new Map((room.winners || []).map((w) => [w.playerId, w.rank ?? Infinity]));
-  const stats = collectPlayerStats(players || {}, history).sort(
-    (a, b) =>
-      (winnerRank.get(a.id) ?? Infinity) - (winnerRank.get(b.id) ?? Infinity) ||
-      (a.finishRound ?? Infinity) - (b.finishRound ?? Infinity) ||
-      b.finalPosition - a.finalPosition ||
-      b.pctCorrect - a.pctCorrect ||
-      byName(a, b)
-  );
+  const stats = computeStandings(room, players);
 
   const roundsToShow = Number(room.currentRound || 0) || sortedRoundNumbers(history).length;
   const finishByIcon = { dice: "🎲", answer: "📝" };

@@ -63,3 +63,26 @@ test("export tables include room code and totals", () => {
   assert.equal(bob.totalTimeout, 3);
   assert.ok(t.answersRows.every((r) => r.correctOption));
 });
+
+test("podium shows top 3 in 2-1-3 order with medals; non-finishers ranked by position", async () => {
+  const { renderPodium, computeStandings } = await import("../js/render.js");
+  const room = {
+    status: STATUS.FINISHED,
+    phase: PHASE.ENDED,
+    winners: [{ playerId: "b", rank: 1 }],
+    history: {},
+    players: {
+      a: { name: "A", emoji: "🍎", color: "#e53935", position: 12 },
+      b: { name: "B", emoji: "🍕", color: "#3949ab", position: 30, finished: true, finishedRound: 3 },
+      c: { name: "C", emoji: "🍣", color: "#43a047", position: 20 },
+      d: { name: "D", emoji: "🍩", color: "#fb8c00", position: 5 },
+    },
+  };
+  assert.deepEqual(computeStandings(room, room.players).map((s) => s.id), ["b", "c", "a", "d"]);
+  const el = { innerHTML: "" };
+  renderPodium(el, room, room.players, "a");
+  const order = [...el.innerHTML.matchAll(/podium-col rank-(\d)/g)].map((m) => m[1]);
+  assert.deepEqual(order, ["2", "1", "3"]);
+  assert.match(el.innerHTML, /rank-1"?[^>]*>[\s\S]*🍕/);
+  assert.match(el.innerHTML, /rank-3 me/); // A อันดับ 3 และเป็นผู้เล่นของเครื่องนี้
+});

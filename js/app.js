@@ -65,13 +65,31 @@ import {
   renderLobbyBadges,
   renderLobbyPlayers,
   renderPlayerList,
+  renderPodium,
   renderWaitPanel,
 } from "./render.js";
 import { createBoardView } from "./board-view.js";
 import { THEME_SIZE } from "./emoji-themes.js";
 import { createDiceController, rollDie } from "./dice.js";
 import { exportRoomToXlsx } from "./export.js";
-import { isMuted, playDiceHit, playDiceTick, setMuted, unlockAudio } from "./sound.js";
+import {
+  isMuted,
+  playClockTick,
+  playCorrect,
+  playCountdownBeep,
+  playDiceHit,
+  playDiceTick,
+  playFanfare,
+  playFireworkPop,
+  playHop,
+  playLadder,
+  playReveal,
+  playSnake,
+  playWrong,
+  setMuted,
+  unlockAudio,
+} from "./sound.js";
+import { banner, confetti, fireworks, MEDAL_PALETTES } from "./celebrate.js";
 import { clearRoomFromUrl, readRoomFromUrl, renderJoinQr, resetJoinQr } from "./qr.js";
 import {
   getQuestionFromRoom,
@@ -188,6 +206,7 @@ const dom = {
   endGameArea: $("endGameArea"),
   endGameTitle: $("endGameTitle"),
   endGameSummary: $("endGameSummary"),
+  podium: $("podium"),
   exportXlsxBtn: $("exportXlsxBtn"),
 
   // countdown overlay
@@ -237,6 +256,9 @@ const hq = {
   revealTimer: null,
 };
 
+// เสียง/ฉลอง: ค่าที่ใช้กันเล่นซ้ำ
+const fx = { lastPlayed: {}, countdownBeep: null, clockTick: null, prevEnded: null, endTimer: null };
+
 // แอนิเมชัน: การเดินใหม่จาก history ที่ยังไม่ได้เล่น
 const anim = { seen: new Set(), primed: false, queue: [], timer: null };
 
@@ -244,8 +266,22 @@ const inRoom = () => !!session.roomCode && !!session.role;
 const isHost = () => session.role === ROLE.HOST;
 const isPlayer = () => session.role === ROLE.PLAYER;
 
-const hostBoardView = createBoardView(dom.hostBoard);
-const playerBoardView = createBoardView(dom.playerBoard, { floatsOnlyForMe: true });
+// จอ Host = ลำโพงหลักของห้อง: เสียงบันได/งู/เข้าเส้นชัยของทุกคน (ไม่เล่นเสียงก้าวเดิน กันเสียงรก)
+const hostBoardView = createBoardView(dom.hostBoard, {
+  hooks: {
+    onSpecial: (_pid, kind) => throttled(kind, kind === "ladder" ? playLadder : playSnake),
+    onFinish: (pid) => celebrateFinish(pid),
+  },
+});
+// มือถือ: เสียงเฉพาะหมากของตัวเอง
+const playerBoardView = createBoardView(dom.playerBoard, {
+  floatsOnlyForMe: true,
+  hooks: {
+    onStep: (pid) => pid === session.playerId && playHop(),
+    onSpecial: (pid, kind) => pid === session.playerId && (kind === "ladder" ? playLadder() : playSnake()),
+    onFinish: (pid) => celebrateFinish(pid),
+  },
+});
 const activeBoardView = () => (isHost() ? hostBoardView : playerBoardView);
 
 const visibleRect = (el) => (el && !el.hidden ? el.getBoundingClientRect() : null);
@@ -401,6 +437,9 @@ function resetRoomUi() {
   clearTimeout(anim.timer);
   Object.assign(hq, { questionHidden: false, revealKey: null, revealOpen: false, revealCloseAt: 0, revealTimer: null });
   Object.assign(anim, { seen: new Set(), primed: false, queue: [], timer: null });
+  clearInterval(fx.endTimer);
+  Object.assign(fx, { countdownBeep: null, clockTick: null, prevEnded: null, endTimer: null });
+  dom.podium?.classList.remove("rise");
   hostBoardView.reset();
   playerBoardView.reset();
   setHidden(dom.meChip, true);
@@ -522,7 +561,11 @@ function renderRoom(room) {
   setHidden(dom.exportXlsxBtn, !(ended && isHost()));
   if (ended) {
     renderEndGameSummary({ titleEl: dom.endGameTitle, summaryEl: dom.endGameSummary }, room, getViewPlayers(room));
+    renderPodium(dom.podium, room, getViewPlayers(room), isPlayer() ? session.playerId : null);
   }
+  // เพิ่งจบเกมต่อหน้า (ไม่ใช่เปิดหน้ามาตอนจบแล้ว) → ฉลองหลังหมากเดินเสร็จ
+  if (fx.prevEnded === false && ended) scheduleEndCelebration();
+  fx.prevEnded = ended;
 }
 
 /* ---------- Host ---------- */
@@ -550,6 +593,7 @@ function renderHostView(room) {
     if (dom.detailTable?.open) renderPlayerList(dom.playerList, room, players);
   }
 
+  updateSoundToggle();
   updateHostQuestionPanel(room); // ก่อน controls เพราะปุ่มสลับใช้สถานะแผงเฉลย
   updateHostControls(room);
 }
@@ -600,6 +644,7 @@ function revealInfo(room) {
 
 function openReveal(key) {
   clearTimeout(hq.revealTimer);
+  if (hq.revealKey !== null || anim.primed) playReveal();
   hq.revealKey = key;
   hq.revealOpen = true;
   hq.revealCloseAt = Date.now() + REVEAL_PANEL_MS;
@@ -724,7 +769,7 @@ function isRollRevealPending(room, me) {
 
 function updateSoundToggle() {
   if (!dom.soundToggle) return;
-  setHidden(dom.soundToggle, !isPlayer());
+  setHidden(dom.soundToggle, !inRoom());
   dom.soundToggle.textContent = isMuted() ? "🔇" : "🔊"; // ไอคอนอย่างเดียว ให้แถบบนมือถืออยู่บรรทัดเดียว
   dom.soundToggle.title = isMuted() ? "เปิดเสียง" : "ปิดเสียง";
   dom.soundToggle.setAttribute("aria-label", isMuted() ? "เปิดเสียง" : "ปิดเสียง");
@@ -866,6 +911,10 @@ function updateCountdownAndTimers(room) {
     startTicker(`${session.roomCode}|countdown|${room.currentRound}|${startAt}`, () => {
       const remaining = Math.max(0, Math.ceil((endAt - serverNow()) / 1000));
       if (dom.questionCountdownNumber) dom.questionCountdownNumber.textContent = remaining > 0 ? String(remaining) : "";
+      if (isHost() && fx.countdownBeep !== remaining) {
+        if (fx.countdownBeep !== null || remaining > 0) playCountdownBeep(remaining === 0);
+        fx.countdownBeep = remaining;
+      }
       if (remaining > 0) return;
 
       finishTicker();
@@ -891,6 +940,11 @@ function updateCountdownAndTimers(room) {
       const current = lastRoom || room;
       if (isHost()) updateHostClock(current);
       else updatePlayerClock(current);
+      // ติ๊กช่วง 5 วินาทีสุดท้าย: Host เสมอ / ผู้เล่นเฉพาะคนที่ยังไม่ตอบ
+      const left = Math.max(0, Math.ceil((deadline - serverNow()) / 1000));
+      const me = current.players?.[session.playerId];
+      if (left > 0 && left <= 5 && fx.clockTick !== left && (isHost() || (me && !me.answered))) playClockTick();
+      fx.clockTick = left;
       if (serverNow() <= deadline) return;
 
       finishTicker();
@@ -937,6 +991,10 @@ function collectMoveEvents(room) {
       const key = `a|${rn}|${pid}`;
       if (anim.seen.has(key)) continue;
       anim.seen.add(key);
+      // มือถือ: เสียงตอบถูก/ผิดของตัวเองตอนเฉลย
+      if (anim.primed && isPlayer() && pid === session.playerId && !ar.missedAnswer && (ar.basePosition ?? 0) < BOARD_SIZE) {
+        (ar.correct ? playCorrect : playWrong)();
+      }
       if (!anim.primed || ar.missedAnswer || (ar.basePosition ?? 0) >= BOARD_SIZE) continue;
       anim.queue.push({
         // จอ Host: รอให้ทุกคนเห็นเฉลยก่อน แล้วค่อยให้หมากเดิน
@@ -997,6 +1055,83 @@ function renderBoards() {
 
   const nextAt = Math.min(...keep.map((i) => i.readyAt).filter((t) => t > now));
   if (Number.isFinite(nextAt)) anim.timer = setTimeout(renderBoards, nextAt - now + 20);
+}
+
+/* =========================
+   Celebrations (พลุ / แท่นรับรางวัล / เสียง)
+========================= */
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+function throttled(kind, play, gapMs = 150) {
+  const now = Date.now();
+  if (now - (fx.lastPlayed[kind] || 0) < gapMs) return;
+  fx.lastPlayed[kind] = now;
+  play();
+}
+
+// หมากเดินถึงเส้นชัยบนจอ: อันดับ 1–3 ได้พลุ/กระดาษสี
+function celebrateFinish(pid) {
+  const room = lastRoom;
+  const p = room ? getViewPlayers(room)[pid] : null;
+  if (!p) return;
+  const rank = (room.winners || []).find((w) => w.playerId === pid)?.rank ?? null;
+  const who = `${p.emoji || ""} ${p.name}`.trim();
+  const mine = isPlayer() && pid === session.playerId;
+
+  if (rank && rank <= 3) {
+    const title = `${MEDALS[rank - 1]} ${who} เข้าเส้นชัยอันดับ ${rank}!`;
+    if (isHost()) {
+      fireworks({ bursts: 4 - rank + 2, palette: MEDAL_PALETTES[rank], onBurst: () => throttled("pop", playFireworkPop, 90) });
+      banner(title);
+      playFanfare();
+    } else if (mine) {
+      confetti({ palette: MEDAL_PALETTES[rank] });
+      banner(`${MEDALS[rank - 1]} คุณเข้าเส้นชัยอันดับ ${rank}!`);
+      playFanfare();
+    } else {
+      banner(title, "", { small: true, ms: 2000 });
+    }
+    return;
+  }
+  // อันดับถัดไป: แจ้งเบา ๆ
+  if (isHost()) {
+    banner(`🏁 ${who} เข้าเส้นชัย${rank ? ` อันดับ ${rank}` : ""}`, "", { small: true, ms: 2000 });
+    throttled("finish", playCorrect);
+  } else if (mine) {
+    banner(`🏁 คุณเข้าเส้นชัย${rank ? ` อันดับ ${rank}` : ""}!`, "", { small: true });
+    playFanfare();
+  }
+}
+
+// จบเกม: รอหมากเดินจบ (และแผงเฉลยปิด) แล้วค่อยขึ้นแท่นรับรางวัล + พลุ
+function scheduleEndCelebration() {
+  clearInterval(fx.endTimer);
+  const startedAt = Date.now();
+  fx.endTimer = setInterval(() => {
+    const idle = activeBoardView().isIdle() && anim.queue.length === 0 && !hq.revealOpen;
+    if (!idle && Date.now() - startedAt < 12000) return;
+    clearInterval(fx.endTimer);
+    fx.endTimer = null;
+    celebrateEnd();
+  }, 300);
+}
+
+function celebrateEnd() {
+  const room = lastRoom;
+  if (!room || !isGameEnded(room)) return;
+  dom.podium?.classList.remove("rise");
+  void dom.podium?.offsetWidth; // เริ่มแอนิเมชันแท่นใหม่
+  dom.podium?.classList.add("rise");
+  dom.endGameArea?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  if (isHost()) {
+    fireworks({ bursts: 9, spreadMs: 3200, onBurst: () => throttled("pop", playFireworkPop, 90) });
+    playFanfare(true);
+    return;
+  }
+  const myRank = room.winners?.findIndex((w) => w.playerId === session.playerId);
+  if (myRank >= 0 && myRank < 3) confetti({ palette: MEDAL_PALETTES[myRank + 1], pieces: 160 });
+  playFanfare(myRank >= 0 && myRank < 3);
 }
 
 /* =========================
@@ -1413,6 +1548,8 @@ function bindUIEvents() {
 
   // player
   on(dom.joinRoomBtn, "click", playerJoin);
+  // เบราว์เซอร์อนุญาตเสียงหลังผู้ใช้แตะครั้งแรก — Host ปลดล็อกตอนกดปุ่มใดก็ได้
+  document.addEventListener("pointerdown", () => !isMuted() && unlockAudio(), { passive: true });
   on(dom.rollDiceBtn, "click", playerRollDice); // แตะที่ลูกเต๋า 3D
   on(dom.diceDock, "click", () => dice.getState() === "waiting" && playerRollDice()); // แตะตรงไหนในกล่องลูกเต๋าก็ได้
   on(dom.soundToggle, "click", () => {

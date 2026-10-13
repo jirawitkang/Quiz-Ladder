@@ -77,7 +77,8 @@ function snakeSvg(head, tail) {
 
 /* ---------- component ---------- */
 
-export function createBoardView(root, { meId = null, floatsOnlyForMe = false } = {}) {
+// hooks: { onStep(pid), onSpecial(pid, "ladder"|"snake"), onFinish(pid) } — เรียกตามจังหวะแอนิเมชันจริงบนจอ
+export function createBoardView(root, { meId = null, floatsOnlyForMe = false, hooks = {} } = {}) {
   root.classList.add("board");
   root.innerHTML = "";
 
@@ -238,6 +239,7 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false } =
       pos += step;
       display.set(pid, pos);
       layout();
+      hooks.onStep?.(pid);
       await sleep(HOP_MS);
     }
     moving.delete(pid);
@@ -268,10 +270,12 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false } =
 
     if (ev.special === "ladder") {
       float(pid, "🪜 ขึ้นบันได!", "ladder");
+      hooks.onSpecial?.(pid, "ladder");
       await sleep(PAUSE_MS);
       await glide(pid, ev.to);
     } else if (ev.special === "snake") {
       float(pid, "🐍 โดนงูกัด!", "snake");
+      hooks.onSpecial?.(pid, "snake");
       await sleep(PAUSE_MS);
       await glide(pid, ev.to);
     } else if (ev.blocked === "snake") {
@@ -279,7 +283,10 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false } =
     } else if (ev.blocked === "ladder") {
       float(pid, "ตอบผิด ขึ้นบันไดไม่ได้", "info");
     }
-    if (ev.to >= BOARD_SIZE) float(pid, "🏁 เข้าเส้นชัย!", "finish");
+    if (ev.to >= BOARD_SIZE) {
+      float(pid, "🏁 เข้าเส้นชัย!", "finish");
+      hooks.onFinish?.(pid);
+    }
   }
 
   function enqueue(ev) {
@@ -323,6 +330,10 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false } =
     },
     setMe(pid) {
       me = pid;
+    },
+    // ไม่มีแอนิเมชันค้าง (ใช้รอให้หมากเดินจบก่อนฉลองจบเกม)
+    isIdle() {
+      return chains.size === 0;
     },
     reset() {
       players = {};
