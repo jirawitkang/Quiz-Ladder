@@ -384,6 +384,9 @@ function updateHeader() {
   if (dom.rolePill) dom.rolePill.textContent = `Role: ${session.role || "-"}`;
 
   const joined = inRoom();
+  // ผู้เล่นไม่ต้องเห็น Room/Role (ประหยัดพื้นที่แถบบนมือถือ) — Host ยังเห็นเหมือนเดิม
+  show(dom.roomPill, !isPlayer(), "inline-flex");
+  show(dom.rolePill, !isPlayer(), "inline-flex");
   show(dom.adminTopBtn, !joined && entryPage === "landing", "inline-flex");
   show(dom.headerHomeBtn, !joined && (entryPage === "admin" || entryPage === "player"), "inline-flex");
   show(dom.headerExitBtn, joined, "inline-flex");
@@ -709,7 +712,9 @@ function isRollRevealPending(room, me) {
 function updateSoundToggle() {
   if (!dom.soundToggle) return;
   setHidden(dom.soundToggle, !isPlayer());
-  dom.soundToggle.textContent = isMuted() ? "🔇 ปิดเสียง" : "🔊 เสียง";
+  dom.soundToggle.textContent = isMuted() ? "🔇" : "🔊"; // ไอคอนอย่างเดียว ให้แถบบนมือถืออยู่บรรทัดเดียว
+  dom.soundToggle.title = isMuted() ? "เปิดเสียง" : "ปิดเสียง";
+  dom.soundToggle.setAttribute("aria-label", isMuted() ? "เปิดเสียง" : "ปิดเสียง");
   dom.soundToggle.setAttribute("aria-pressed", String(!isMuted()));
 }
 
