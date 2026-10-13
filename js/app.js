@@ -67,7 +67,7 @@ import {
 } from "./render.js";
 import { createBoardView } from "./board-view.js";
 import { THEME_SIZE } from "./emoji-themes.js";
-import { createDiceController } from "./dice.js";
+import { createDiceController, rollDie } from "./dice.js";
 import { exportRoomToXlsx } from "./export.js";
 import {
   getQuestionFromRoom,
@@ -79,6 +79,7 @@ import {
   clampPos,
   createId,
   createRoomCode,
+  diceFace,
   escapeHtml,
   nameKey,
   normalizeName,
@@ -614,7 +615,10 @@ function fillHostQuestion(room, question, { round, reveal }) {
   dom.hqLabel.textContent = reveal ? `เฉลยรอบที่ ${round}` : `คำถามรอบที่ ${round}`;
   dom.hqSetName.textContent = getQuestionSetName(settings.questionSetId);
   dom.hqText.textContent = question.text;
+  dom.hqText.classList.toggle("long", question.text.length > 160 && question.text.length <= 320);
+  dom.hqText.classList.toggle("very-long", question.text.length > 320);
   setHidden(dom.hqRing, reveal);
+  dom.hq.classList.toggle("no-ring", reveal);
 
   const active = Object.values(room.players || {}).filter((p) => !isPlayerDone(p) && p.connected !== false);
   const records = Object.values(room.history?.[roundKey(round)]?.answers || {});
@@ -622,6 +626,7 @@ function fillHostQuestion(room, question, { round, reveal }) {
   const total = reveal ? records.filter((r) => !r.missedAnswer && (r.basePosition ?? 0) < BOARD_SIZE).length : active.length;
   dom.hqCount.textContent = `ตอบแล้ว ${answered}/${total}`;
   dom.hqMeter.style.width = `${total ? (answered / total) * 100 : 0}%`;
+  dom.hqMeter.parentElement.classList.toggle("complete", total > 0 && answered >= total);
 
   const counts = {};
   if (reveal) records.forEach((r) => r.selectedOption && (counts[r.selectedOption] = (counts[r.selectedOption] || 0) + 1));
@@ -655,6 +660,7 @@ function renderPlayerView(room) {
   const color = me.color || "#9e9e9e";
 
   setHidden(dom.playerBoard, inLobby);
+  dom.playerView.classList.toggle("in-lobby", inLobby);
 
   const av = `<span class="me-av${me.emoji ? "" : " waiting"}" style="--c:${escapeHtml(color)}">${escapeHtml(me.emoji || "❔")}</span>`;
   if (inLobby) {
@@ -668,8 +674,17 @@ function renderPlayerView(room) {
   if (inLobby) renderPickerAction(room);
   else renderGameAction(room, me);
 
-  // ลูกเต๋าที่ยังค้างหลังเปลี่ยน phase
-  if (!busy.roll && dice.getState() !== "hidden" && room.phase !== PHASE.ROLLING) dice.setState("hidden");
+  syncDiceOverlay(room, me);
+}
+
+// ช่วงทอย: เปิดลูกเต๋า 3D รอให้ผู้เล่นแตะที่ลูกเต๋าเอง (เหมือนเดิม)
+function syncDiceOverlay(room, me) {
+  if (busy.roll) return;
+  const state = dice.getState();
+  const canRoll = room.phase === PHASE.ROLLING && room.status === STATUS.IN_GAME && !me.hasRolled && !isPlayerDone(me);
+  if (canRoll && state === "hidden") dice.setState("waiting");
+  else if (!canRoll && state === "waiting") dice.setState("hidden");
+  else if (state !== "hidden" && state !== "done" && room.phase !== PHASE.ROLLING) dice.setState("hidden");
 }
 
 function setActionMode(mode) {
@@ -721,16 +736,17 @@ function renderGameAction(room, me) {
   switch (phase) {
     case PHASE.ROLLING: {
       if (!me.hasRolled) {
-        if (changed || !box.querySelector(".roll-btn")) {
-          html(`<button type="button" class="roll-btn" data-action="roll">🎲 แตะเพื่อทอยลูกเต๋า</button><div class="sub">ทอยแล้วหมากจะเดินบนกระดานทันที</div>`);
-        }
-        box.querySelector(".roll-btn").disabled = busy.roll;
+        html(busy.roll
+          ? `<div class="big">🎲</div><div><b>ลูกเต๋ากำลังกลิ้ง…</b></div>`
+          : `<div class="big">🎲</div><div><b>แตะที่ลูกเต๋าเพื่อทอย</b></div><div class="sub">ถ้าไม่เห็นลูกเต๋า แตะปุ่มด้านล่าง</div>
+             <button type="button" class="btn-ghost" data-action="show-dice">เปิดลูกเต๋า</button>`);
         return;
       }
       const dm = room.history?.[roundKey(round)]?.diceMoves?.[session.playerId];
       const extra =
         dm?.special === "ladder" ? `🪜 ขึ้นบันไดไปช่อง ${dm.toPosition}!` : dm?.special === "snake" ? `🐍 โดนงูกัด ลงไปช่อง ${dm.toPosition}` : "";
-      html(`<div class="big">🎲 ${me.lastRoll ?? "-"}</div>${extra ? `<div><b>${extra}</b></div>` : ""}<div class="sub">รอครูเริ่มคำถาม</div>`);
+      html(`<div class="dice-face-big" aria-label="ทอยได้ ${me.lastRoll ?? "-"} แต้ม">${diceFace(me.lastRoll)}</div>
+        <div><b>ทอยได้ ${me.lastRoll ?? "-"} แต้ม</b></div>${extra ? `<div><b>${extra}</b></div>` : ""}<div class="sub">รอครูเริ่มคำถาม</div>`);
       return;
     }
     case PHASE.QUESTION_COUNTDOWN:
@@ -1215,24 +1231,25 @@ async function playerRollDice() {
   busy.roll = true;
   renderRoom(lastRoom);
   try {
-    const roll = await dice.rollWithOverlay(DICE_ROLL_MS);
-    dice.setState("committing", { roll });
-
+    // บันทึกผลก่อน แล้วค่อยเล่นแอนิเมชันไปพร้อมกัน — ถ้าผู้ใช้สลับแท็บ (แอนิเมชันหยุด) ผลก็ยังถูกบันทึก
+    const roll = rollDie();
+    const animation = dice.rollWithOverlay(DICE_ROLL_MS, roll);
     const tx = await runTransaction(roomRef(session.roomCode), (room) =>
       applyRoll(room, session.playerId, roll, serverNow())
     );
-    if (tx.committed) {
-      dice.setState("done", { roll });
-      setTimeout(() => {
-        if (dice.getState() === "done") {
-          dice.setState("hidden");
-          renderBoards();
-        }
-      }, DICE_AUTO_CLOSE_MS);
-    } else {
+    if (!tx.committed) {
       dice.setState("hidden");
       alert("บันทึกผลทอยไม่สำเร็จ (สถานะห้องเปลี่ยนแล้ว)");
+      return;
     }
+    await animation;
+    dice.setState("done", { roll });
+    setTimeout(() => {
+      if (dice.getState() === "done") {
+        dice.setState("hidden");
+        renderBoards();
+      }
+    }, DICE_AUTO_CLOSE_MS);
   } catch (e) {
     console.error(e);
     dice.setState("hidden");
@@ -1348,12 +1365,16 @@ function bindUIEvents() {
 
   // player
   on(dom.joinRoomBtn, "click", playerJoin);
+  on(dom.rollDiceBtn, "click", playerRollDice); // แตะที่ลูกเต๋า 3D
   on(dom.playerAction, "click", (e) => {
     const tile = e.target.closest(".pick-tile");
     if (tile && !tile.disabled) return playerClaimEmoji(tile.dataset.emoji);
     const action = e.target.closest("[data-action]")?.dataset.action;
     if (action === "random-emoji") return playerRandomEmoji();
-    if (action === "roll") return playerRollDice();
+    if (action === "show-dice") {
+      if (dice.getState() === "hidden") dice.setState("waiting");
+      return;
+    }
     const choice = e.target.closest("button[data-key]");
     if (choice && !choice.disabled) playerSubmitAnswer(choice.dataset.key);
   });

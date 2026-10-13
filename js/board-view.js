@@ -4,7 +4,7 @@
 
 import { BOARD_SIZE } from "./config.js";
 import { BOARD_COLS, BOARD_ROWS, LADDERS, SNAKES, cellNumberAt, cellPosition } from "./board-config.js";
-import { escapeHtml } from "./utils.js";
+import { diceFace, escapeHtml } from "./utils.js";
 
 const REDUCED_MOTION = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const HOP_MS = REDUCED_MOTION ? 20 : 170;
@@ -92,7 +92,7 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false } =
       cell.innerHTML =
         `<span class="cell-num">${n}</span>` +
         (n === 1 ? '<span class="cell-tag">START</span>' : "") +
-        (n === BOARD_SIZE ? '<span class="cell-tag">🏁 FINISH</span>' : "");
+        (n === BOARD_SIZE ? '<span class="cell-flag" aria-hidden="true">🏁</span><span class="cell-tag">FINISH</span>' : "");
       grid.appendChild(cell);
     }
   }
@@ -259,7 +259,7 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false } =
     if (!players[pid]) return;
     if (!display.has(pid)) display.set(pid, ev.from);
 
-    if (ev.kind === "dice") float(pid, `🎲 ${ev.roll}`);
+    if (ev.kind === "dice") float(pid, `${diceFace(ev.roll)} ${ev.roll}`, "dice");
     else float(pid, ev.correct ? `✅ ${ev.delta >= 0 ? "+" : ""}${ev.delta}` : `❌ ${ev.delta}`, ev.correct ? "good" : "bad");
     await sleep(PAUSE_MS);
     await hop(pid, ev.landing);

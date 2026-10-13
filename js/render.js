@@ -4,7 +4,7 @@
 import { BOARD_SIZE, PHASE, STATUS } from "./config.js";
 import { getSettings, isPlayerDone } from "./game-logic.js";
 import { getQuestionSetName } from "../questions.js";
-import { clampPos, escapeHtml, normalizeName, roundKey, signedText, sortedRoundNumbers } from "./utils.js";
+import { clampPos, diceFace, escapeHtml, normalizeName, roundKey, signedText, sortedRoundNumbers } from "./utils.js";
 
 const DICE_GLYPHS = ["☐", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 const SAFE_COLOR = /^#[0-9a-f]{3,8}$/i;
@@ -367,7 +367,7 @@ export function renderWaitPanel(el, room) {
 
   el.innerHTML = `
     <div class="wait-head"><span>${title}</span><b>${done}/${online.length}</b></div>
-    <div class="meter"><i style="width:${pct}%"></i></div>
+    <div class="meter${online.length && done >= online.length ? " complete" : ""}"><i style="width:${pct}%"></i></div>
     <div class="wait-who">${
       pending.length
         ? `<span class="wait-label">${pendingLabel}</span>${pending.map(chip).join("")}`
@@ -378,37 +378,49 @@ export function renderWaitPanel(el, room) {
 /* ---------- Host: leaderboard ---------- */
 
 function statusIcon(p, phase) {
-  if (isPlayerDone(p)) return "🏁";
+  if (isPlayerDone(p)) return "";
   if (p.connected === false) return "📴";
   if (phase === PHASE.ROLLING) return p.hasRolled ? "✔️" : "⏳";
   if (phase === PHASE.ANSWERING) return p.answered ? "✔️" : "⏳";
   return "";
 }
 
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+function leaderboardRow(p, i) {
+  const color = SAFE_COLOR.test(p.color || "") ? p.color : "#9e9e9e";
+  const ans = p.lastAnswerCorrect === true ? "✅" : p.lastAnswerCorrect === false ? "❌" : "";
+  const roll = Number.isFinite(p.lastRoll) && p.lastRoll > 0 ? `<span class="dice-face">${diceFace(p.lastRoll)}</span>` : "";
+  const finished = isPlayerDone(p);
+  const rank = finished && i < MEDALS.length ? MEDALS[i] : String(i + 1);
+  const meta = finished ? "เข้าเส้นชัย" : `ช่อง <b>${p.pos}</b>${roll || ans ? ` · ${roll} ${ans}` : ""}`;
+  return `<li class="${p.connected === false && !finished ? "offline" : ""}">
+    <span class="lb-rank">${rank}</span>
+    <span class="lb-av" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span>
+    <span class="lb-name">${escapeHtml(p.name)}</span>
+    <span class="lb-meta">${meta}</span>
+    <span class="lb-st">${p.statusIcon}</span>
+  </li>`;
+}
+
+// คนที่เข้าเส้นชัยแล้วอยู่ในกล่องสีเขียวด้านบน เรียงตามอันดับเข้าเส้นชัย
 export function renderLeaderboard(el, room, players) {
   if (!el) return;
   const phase = room.phase || PHASE.IDLE;
   const rank = new Map((room.winners || []).map((w) => [w.playerId, w.rank ?? Infinity]));
   const rows = Object.entries(players || {})
-    .map(([pid, p]) => ({ pid, ...p, pos: clampPos(p.position) }))
+    .map(([pid, p]) => ({ pid, ...p, pos: clampPos(p.position), statusIcon: statusIcon(p, phase) }))
     .sort((a, b) => (rank.get(a.pid) ?? Infinity) - (rank.get(b.pid) ?? Infinity) || b.pos - a.pos || byName(a, b));
 
+  const finished = rows.filter((p) => isPlayerDone(p));
+  const racing = rows.filter((p) => !isPlayerDone(p));
   const top = el.scrollTop;
-  el.innerHTML = rows
-    .map((p, i) => {
-      const color = SAFE_COLOR.test(p.color || "") ? p.color : "#9e9e9e";
-      const ans = p.lastAnswerCorrect === true ? "✅" : p.lastAnswerCorrect === false ? "❌" : "";
-      const roll = Number.isFinite(p.lastRoll) && p.lastRoll > 0 ? `🎲${p.lastRoll}` : "";
-      const cls = [isPlayerDone(p) && "won", p.connected === false && "offline"].filter(Boolean).join(" ");
-      return `<li class="${cls}">
-        <span class="lb-rank">${i + 1}</span>
-        <span class="lb-av" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span>
-        <span class="lb-name">${escapeHtml(p.name)}</span>
-        <span class="lb-meta">ช่อง <b>${p.pos}</b>${roll || ans ? ` · ${roll} ${ans}` : ""}</span>
-        <span class="lb-st">${statusIcon(p, phase)}</span>
-      </li>`;
-    })
-    .join("");
+  el.innerHTML =
+    (finished.length
+      ? `<div class="lb-finish"><div class="lb-finish-head">🏁 เข้าเส้นชัยแล้ว · ${finished.length} คน</div>
+         <ol class="lb-list">${finished.map((p, i) => leaderboardRow(p, i)).join("")}</ol></div>`
+      : "") +
+    `<ol class="lb-list">${racing.map((p, i) => leaderboardRow(p, finished.length + i)).join("")}</ol>`;
   el.scrollTop = top;
 }
 

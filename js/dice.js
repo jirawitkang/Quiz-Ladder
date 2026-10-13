@@ -21,6 +21,11 @@ const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const rotate = ({ x, y, z }) => `rotateX(${x}deg) rotateY(${y}deg) rotateZ(${z}deg)`;
 const easeOutPow = (t, p = 3.2) => 1 - Math.pow(1 - t, p);
 
+// สุ่มแต้มลูกเต๋า 1–6 (แยกจากแอนิเมชัน เพื่อบันทึกผลได้ทันทีแม้ผู้ใช้สลับแท็บ)
+export function rollDie() {
+  return secureRandomInt(1, 6);
+}
+
 function secureRandomInt(min, max) {
   const range = max - min + 1;
   if (globalThis.crypto?.getRandomValues) {
@@ -194,8 +199,9 @@ export function createDiceController({
     await raf();
   }
 
-  async function rollWithOverlay(durationMs = 5000) {
-    const finalRoll = secureRandomInt(1, 6);
+  // presetRoll: แต้มที่สุ่ม/บันทึกไว้แล้ว — แอนิเมชันจะหยุดที่หน้านั้น
+  async function rollWithOverlay(durationMs = 5000, presetRoll = null) {
+    const finalRoll = presetRoll ?? secureRandomInt(1, 6);
     if (!diceOverlayEl || !dice3dEl) return finalRoll;
 
     setState("rolling");

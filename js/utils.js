@@ -94,6 +94,12 @@ export function deepClone(obj) {
   }
 }
 
+// หน้าลูกเต๋าตามแต้ม (⚀–⚅); 0 = ข้ามการทอย
+const DICE_FACES = ["☐", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+export function diceFace(n) {
+  return DICE_FACES[Number(n)] ?? "🎲";
+}
+
 export function signedText(n) {
   return n >= 0 ? `+${n}` : `${n}`;
 }
