@@ -682,6 +682,26 @@
   #dice3d .face-5{ transform: rotateY(-90deg) translateZ(var(--dice-half)); }  /* left */
   #dice3d .face-3{ transform: rotateX(-90deg) translateZ(var(--dice-half)); }  /* top */
   #dice3d .face-4{ transform: rotateX(90deg)  translateZ(var(--dice-half)); }  /* bottom */
+
+  /* แกนในลูกเต๋า: ลูกบาศก์สีขาวมุมเหลี่ยม ซ้อนอยู่ใต้หน้ามุมมนทั้ง 6
+     ปิดช่องตรงมุมที่หน้ามุมมนไม่ชนกัน (เดิมมองทะลุเห็นกระดาน) — หดเข้า 0.3×รัศมีมุม มุมแกนในจึงไม่โผล่พ้นขอบมน */
+  #dice3d{ --core-half: calc(var(--dice-half) - 4px); }
+  #dice3d .core{
+    position: absolute;
+    left: calc(var(--dice-half) - var(--core-half));
+    top: calc(var(--dice-half) - var(--core-half));
+    width: calc(var(--core-half) * 2);
+    height: calc(var(--core-half) * 2);
+    background: #f2f2f2;
+    backface-visibility: visible;
+    pointer-events: none;
+  }
+  #dice3d .core-front{ transform: rotateY(0deg)   translateZ(var(--core-half)); }
+  #dice3d .core-right{ transform: rotateY(90deg)  translateZ(var(--core-half)); }
+  #dice3d .core-back{ transform: rotateY(180deg)  translateZ(var(--core-half)); }
+  #dice3d .core-left{ transform: rotateY(-90deg)  translateZ(var(--core-half)); }
+  #dice3d .core-top{ transform: rotateX(90deg)    translateZ(var(--core-half)); }
+  #dice3d .core-bottom{ transform: rotateX(-90deg) translateZ(var(--core-half)); }
   
   #dice3d .pip{
     position: absolute;
