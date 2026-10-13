@@ -3,9 +3,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Quiz Runner</title>
+  <title>Quiz Ladder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'><rect x='2' y='2' width='40' height='40' rx='11' fill='%23FFA240'/><circle cx='19' cy='19' r='10.5' fill='none' stroke='%23fff' stroke-width='3.6'/><g stroke='%23fff' stroke-width='2.6' stroke-linecap='round'><line x1='28' y1='23' x2='38' y2='33'/><line x1='23' y1='28' x2='33' y2='38'/><line x1='29.5' y1='26.5' x2='26.5' y2='29.5'/><line x1='33' y1='30' x2='30' y2='33'/><line x1='36.5' y1='33.5' x2='33.5' y2='36.5'/></g></svg>" />
   <link rel="stylesheet" href="ui.css" />
 </head>
 
@@ -89,13 +90,14 @@
   
   <header class="app-header">
     <div class="header-inner">
-      <div class="brand" aria-label="Quiz Runner">
-        <div class="brand-badge badge-v1" aria-hidden="true">
-          <span class="badge-text">QR</span>
-        </div>
-        
+      <div class="brand" aria-label="Quiz Ladder">
+        <!-- ตัว Q (Quiz) ที่หางเป็นบันได (Ladder) — รูปเดียวกับ favicon ใน <head> -->
+        <svg class="brand-badge" viewBox="0 0 44 44" aria-hidden="true">
+          <rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g>
+        </svg>
+
         <div class="brand-title">
-          <strong>Quiz Runner</strong>
+          <strong>Quiz <span class="brand-accent">Ladder</span></strong>
           <span>Searching Online Databases</span>
         </div>
       </div>

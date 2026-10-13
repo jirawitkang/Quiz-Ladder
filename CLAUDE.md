@@ -1,8 +1,8 @@
-# Quiz Runner
+# Quiz Ladder
 
 เกมบันไดงูตอบคำถามแบบ multiplayer สำหรับเล่นในห้องเรียน (ใช้หลังสอนเสร็จ เกมต้องสั้น)
 Host (ครู) เปิดจอขึ้นโปรเจกเตอร์ ผู้เล่น Join ด้วย Race Code หรือสแกน QR จากมือถือ
-เว็บจริง: https://jirawitkang.github.io/Quiz-Runner/ — GitHub Pages deploy จาก branch `main` (push = deploy ภายใน ~1–2 นาที)
+เว็บจริง: https://jirawitkang.github.io/Quiz-Ladder/ — GitHub Pages deploy จาก branch `main` (push = deploy ภายใน ~1–2 นาที)
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย
 
 ## Stack

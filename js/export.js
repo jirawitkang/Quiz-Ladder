@@ -142,7 +142,7 @@ function buildExportFilename(room, roomCode) {
   const nPlayers = Object.keys(getViewPlayers(room)).length;
   const t = new Date(room.endInfo?.endedAt || Date.now());
   const stamp = `${t.getFullYear()}-${pad2(t.getMonth() + 1)}-${pad2(t.getDate())}_${pad2(t.getHours())}${pad2(t.getMinutes())}`;
-  return `QuizRunner_${stamp}_${qsid}_${nPlayers}players_${roomCode || "ROOM"}.xlsx`;
+  return `QuizLadder_${stamp}_${qsid}_${nPlayers}players_${roomCode || "ROOM"}.xlsx`;
 }
 
 export async function exportRoomToXlsx(room, roomCode) {

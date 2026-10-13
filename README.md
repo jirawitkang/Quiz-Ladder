@@ -1,4 +1,4 @@
-# Quiz Runner
+# Quiz Ladder
 
 เกมบันไดงูตอบคำถามแบบ multiplayer (Firebase Realtime Database) สำหรับเล่นในห้องเรียน
 Host (ครู) เปิดจอขึ้นโปรเจกเตอร์ ผู้เล่น Join ด้วย Race Code จากมือถือ แล้วเลือกตัวหมาก emoji ใน Lobby
