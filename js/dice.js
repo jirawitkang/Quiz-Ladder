@@ -171,9 +171,18 @@ function planThrow(from, to, durationMs, startRot, endRot) {
 
 export { planThrow as _planThrowForTest };
 
-// มุมปลายทาง = ท่าที่ได้แต้มนั้น + หมุนไปข้างหน้าอย่างน้อย turns รอบ
-function forwardTo(start, target, turns) {
-  return target + 360 * Math.ceil((start + 360 * turns - target) / 360);
+// มุมปลายทาง = ท่าที่ได้แต้มนั้น และหมุนอย่างน้อย turns รอบในทิศ dir (+1 = ค่ามุมเพิ่ม, -1 = ค่ามุมลด)
+export function spinTarget(start, target, turns, dir) {
+  return dir >= 0
+    ? target + 360 * Math.ceil((start + 360 * turns - target) / 360)
+    : target + 360 * Math.floor((start - 360 * turns - target) / 360);
+}
+
+// ทิศการหมุนให้สอดคล้องกับทิศที่ลูกเต๋าวิ่ง: ไปทางซ้าย = ทวนเข็มนาฬิกา (มุมลด), ไปทางขวา = ตามเข็มนาฬิกา
+// (rotateZ ติดลบ = ทวนเข็มนาฬิกาบนจอ เพราะกล้อง .dice-cam ยังมองจากด้านบนค่อนหน้า)
+export function spinDirection(from, to) {
+  const dx = to.x - from.x;
+  return dx > 12 ? 1 : -1;
 }
 
 /* ---------- controller ---------- */
@@ -294,10 +303,11 @@ export function createDiceController({
     }
 
     const startRot = { ...rot };
+    const dir = spinDirection(from, to);
     const endRot = {
-      x: forwardTo(startRot.x, pick.x, randInt(5, 7)),
-      y: forwardTo(startRot.y, pick.y, randInt(3, 5)),
-      z: forwardTo(startRot.z, pick.z, randInt(1, 3)),
+      x: spinTarget(startRot.x, pick.x, randInt(5, 7), dir),
+      y: spinTarget(startRot.y, pick.y, randInt(3, 5), dir),
+      z: spinTarget(startRot.z, pick.z, randInt(1, 3), dir),
     };
     const plan = planThrow(from, to, durationMs, startRot, endRot);
 

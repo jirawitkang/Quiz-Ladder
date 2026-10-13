@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 globalThis.matchMedia ??= () => ({ matches: false });
-const { _planThrowForTest: planThrow } = await import("../js/dice.js");
+const { _planThrowForTest: planThrow, spinTarget, spinDirection } = await import("../js/dice.js");
 
 const from = { x: 900, y: 120 };
 const to = { x: 400, y: 380 };
@@ -64,4 +64,35 @@ test("spin slows down and lands exactly on the target orientation", () => {
   const firstSecond = speeds.slice(4, 20).reduce((a, b) => a + b, 0);
   const lastSecond = speeds.slice(-30, -14).reduce((a, b) => a + b, 0);
   assert.ok(firstSecond > lastSecond * 4, "much faster at the start");
+});
+
+test("spin direction follows travel: right-to-left spins counter-clockwise (angles decrease)", () => {
+  assert.equal(spinDirection({ x: 900, y: 100 }, { x: 300, y: 400 }), -1);
+  assert.equal(spinDirection({ x: 100, y: 100 }, { x: 700, y: 400 }), 1);
+  // มือถือ: โยนขึ้นตรง ๆ ใช้ทวนเข็มนาฬิกาเป็นค่าเริ่มต้น
+  assert.equal(spinDirection({ x: 188, y: 560 }, { x: 187, y: 300 }), -1);
+});
+
+test("spin targets land on the face orientation and turn enough in the chosen direction", () => {
+  for (const [start, target, turns] of [[0, 90, 3], [-8, 270, 5], [370, 0, 1], [-725, 180, 2]]) {
+    const ccw = spinTarget(start, target, turns, -1);
+    const cw = spinTarget(start, target, turns, 1);
+    assert.equal(((ccw % 360) + 360) % 360, target);
+    assert.equal(((cw % 360) + 360) % 360, target);
+    assert.ok(ccw <= start - 360 * turns && ccw > start - 360 * (turns + 1));
+    assert.ok(cw >= start + 360 * turns && cw < start + 360 * (turns + 1));
+  }
+});
+
+test("counter-clockwise plan keeps decreasing until it stops", () => {
+  const start = { x: 0, y: 0, z: 0 };
+  const end = { x: spinTarget(0, 90, 6, -1), y: spinTarget(0, 180, 4, -1), z: spinTarget(0, 270, 2, -1) };
+  const plan = planThrow(from, to, 5000, start, end);
+  let prev = Infinity;
+  for (let t = 0; t <= 5000; t += 50) {
+    const z = plan.rotAt(t).z;
+    assert.ok(z <= prev, `rotateZ went back up at ${t}ms`);
+    prev = z;
+  }
+  assert.deepEqual(plan.rotAt(5000), end);
 });
