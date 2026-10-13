@@ -410,7 +410,7 @@ function enterRoom(code, role, playerId = null) {
   playerBoardView.setMe(playerId);
   entryPage = null;
   show(dom.entrySection, false);
-  setHidden(dom.roomView, false);
+  setHidden(dom.roomView, true); // เปิดหลังได้ข้อมูลห้องรอบแรก (กันกระดานกระพริบก่อนเข้าหน้า Lobby)
   setHidden(dom.hostView, role !== ROLE.HOST);
   setHidden(dom.playerView, role !== ROLE.PLAYER);
   setHidden(dom.hostGameControls, role !== ROLE.HOST);
@@ -493,6 +493,7 @@ function renderRoom(room) {
   collectMoveEvents(room);
   renderBoards();
 
+  setHidden(dom.roomView, false);
   setHidden(dom.endGameArea, !ended);
   setHidden(dom.exportXlsxBtn, !(ended && isHost()));
   if (ended) {
