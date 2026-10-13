@@ -313,7 +313,7 @@ export function renderLobbyPlayers(el, players, myPlayerId = null) {
   if (!el) return;
   const list = Object.entries(players || {}).sort(([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0));
   if (!list.length) {
-    el.innerHTML = `<div class="muted">ยังไม่มีผู้เล่นเข้าห้อง แชร์ Race Code ให้ผู้เล่นได้เลย</div>`;
+    el.innerHTML = `<div class="muted">ยังไม่มีผู้เล่นเข้าห้อง แชร์รหัสห้องให้ผู้เล่นได้เลย</div>`;
     return;
   }
   el.innerHTML = list

@@ -1,7 +1,7 @@
 # Quiz Ladder
 
 เกมบันไดงูตอบคำถามแบบ multiplayer สำหรับเล่นในห้องเรียน (ใช้หลังสอนเสร็จ เกมต้องสั้น)
-Host (ครู) เปิดจอขึ้นโปรเจกเตอร์ ผู้เล่น Join ด้วย Race Code หรือสแกน QR จากมือถือ
+Host (ครู) เปิดจอขึ้นโปรเจกเตอร์ ผู้เล่น Join ด้วยรหัสห้อง 6 ตัวหรือสแกน QR จากมือถือ
 เว็บจริง: https://jirawitkang.github.io/Quiz-Ladder/ — GitHub Pages deploy จาก branch `main` (push = deploy ภายใน ~1–2 นาที)
 ผู้ใช้สื่อสารภาษาไทย ตอบเป็นภาษาไทย
 
@@ -12,7 +12,7 @@ Host (ครู) เปิดจอขึ้นโปรเจกเตอร์
 
 ## โครงสร้าง
 ```
-index.html, ui.css        หน้าเว็บ / สไตล์ทั้งหมด (section 15 = บันไดงู)
+index.html, ui.css        หน้าเว็บ / สไตล์ทั้งหมด (section 15 = บันไดงู, 17 = หน้าจอเกมก่อนเข้าห้อง)
 questions.js              ชุดคำถาม + QUESTION_SET_THEMES (ชุดคำถาม → ธีม emoji)
 js/config.js              ค่าคงที่ (BOARD_SIZE=30, เวลา, ROOM_MAX_AGE_MS) + Firebase config + ADMIN_PIN
 js/firebase.js            DB, serverNow() (เวลา server), cleanupOldRooms()
@@ -41,6 +41,9 @@ tests/*.test.mjs          node:test (กติกา, render, emoji, เส้�
 - ห้องอายุเกิน 6 ชม. ถูกลบอัตโนมัติตอน Host สร้างห้องใหม่
 - ฉลอง: อันดับ 1–3 เข้าเส้นชัย → Host พลุ+ป้าย+fanfare, มือถือเจ้าตัวกระดาษสี, คนอื่นป้ายเล็ก; จบเกม → แท่นรับรางวัล 2-1-3 ยกขึ้น
   (ยิงตามจังหวะหมากถึงเส้นชัยบนจอ ผ่าน hooks ของ board-view ไม่ใช่ตอนข้อมูลมาถึง)
+- หน้าก่อนเข้าห้อง (#entrySection) เป็นหน้าจอเกม ไม่ใช่หน้าเว็บ: body.on-entry ซ่อนแถบหัว, 4 หน้า landing / player / pin / admin
+  (showEntryPage), PIN เป็นแป้นตัวเลขในหน้า (ไม่มี overlay), ตั้งค่าห้องหน้าเดียว, ไม่มีคำโปรยใต้โลโก้, ข้อความภาษาไทย
+  ชื่อเกม Quiz Ladder, โลโก้ = ตัว Q หางเป็นบันได (SVG inline ใน index.html ใช้ซ้ำทั้ง favicon/แถบหัว/หน้าแรก)
 - เสียง: จอ Host เล่นเสียงของทุกคน (ไม่มีเสียงก้าวเดิน กันรก), มือถือเล่นเฉพาะเรื่องของตัวเอง
 
 ## รัน / ทดสอบ

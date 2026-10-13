@@ -70,7 +70,7 @@ import {
   renderWaitPanel,
 } from "./render.js";
 import { createBoardView } from "./board-view.js";
-import { THEME_SIZE } from "./emoji-themes.js";
+import { THEME_SIZE, getThemeEmojis } from "./emoji-themes.js";
 import { createDiceController, rollDie } from "./dice.js";
 import { exportRoomToXlsx } from "./export.js";
 import {
@@ -121,8 +121,6 @@ const dom = {
   // header
   roomPill: $("uiRoomPill"),
   rolePill: $("uiRolePill"),
-  adminTopBtn: $("adminTopBtn"),
-  headerHomeBtn: $("headerHomeBtn"),
   headerExitBtn: $("headerExitBtn"),
 
   // entry
@@ -130,13 +128,11 @@ const dom = {
   entryLanding: $("entryLanding"),
   adminEntryPage: $("adminEntryPage"),
   playerEntryPage: $("playerEntryPage"),
-  joinGameBtn: $("joinGameBtn"),
+  adminPinPage: $("adminPinPage"),
 
   // admin entry
   hostNameInput: $("hostNameInput"),
-  createRoomBtn: $("createRoomBtn"),
-  hostGameOptions: $("hostGameOptions"),
-  questionSetSelect: $("questionSetSelect"),
+  questionSetPicker: $("questionSetPicker"),
   maxRoundsInput: $("maxRoundsInput"),
   maxWinnersInput: $("maxWinnersInput"),
   rewardCorrectInput: $("rewardCorrectInput"),
@@ -145,14 +141,12 @@ const dom = {
 
   // player entry
   roomCodeInput: $("roomCodeInput"),
+  roomCodeBoxes: $("roomCodeBoxes"),
   playerNameInput: $("playerNameInput"),
   joinRoomBtn: $("joinRoomBtn"),
 
   // admin PIN
-  adminPwOverlay: $("adminPwOverlay"),
-  adminPwInput: $("adminPwInput"),
-  adminPwError: $("adminPwError"),
-  adminPwCancelBtn: $("adminPwCancelBtn"),
+  pinDots: $("pinDots"),
 
   // room bar
   roomView: $("roomView"),
@@ -244,7 +238,8 @@ const session = {
 let roomUnsub = null;
 let lastRoom = null; // ข้อมูลจริงจาก Firebase (ใช้ตัดสินใจ/ส่ง transaction)
 let lastView = null; // ห้องที่ใช้แสดงผล (ซ่อนผลทอยที่ลูกเต๋าของคนทอยยังกลิ้งอยู่)
-let entryPage = "landing"; // "landing" | "admin" | "player" | null (อยู่ในห้องแล้ว)
+let entryPage = "landing"; // "landing" | "player" | "pin" | "admin" | null (อยู่ในห้องแล้ว)
+let pinValue = "";
 let presenceMode = null; // "remove" | "mark" — สิ่งที่ onDisconnect ถูกตั้งไว้ตอนนี้
 let socketOnline = false; // ค่าจาก .info/connected
 let healingPresence = false;
@@ -418,20 +413,19 @@ onConnectionChange((connected) => {
 ========================= */
 function showEntryPage(page) {
   entryPage = page;
-  show(dom.entrySection, true);
-  show(dom.entryLanding, page === "landing");
-  show(dom.adminEntryPage, page === "admin", "grid");
-  show(dom.playerEntryPage, page === "player", "grid");
+  document.body.classList.add("on-entry"); // หน้าจอเกม: ซ่อนแถบหัวเว็บ
+  setHidden(dom.entrySection, false);
+  setHidden(dom.entryLanding, page !== "landing");
+  setHidden(dom.playerEntryPage, page !== "player");
+  setHidden(dom.adminPinPage, page !== "pin");
+  setHidden(dom.adminEntryPage, page !== "admin");
 
-  if (page === "landing") {
-    dom.hostGameOptions?.classList.remove("is-open");
-    for (const el of [dom.hostNameInput, dom.createRoomBtn, dom.confirmCreateRoomBtn, dom.roomCodeInput, dom.playerNameInput, dom.joinRoomBtn]) {
-      if (el) el.disabled = false;
-    }
+  for (const el of [dom.hostNameInput, dom.confirmCreateRoomBtn, dom.roomCodeInput, dom.playerNameInput, dom.joinRoomBtn]) {
+    if (el) el.disabled = false;
   }
-
-  const target = { landing: dom.entryLanding, admin: dom.adminEntryPage, player: dom.playerEntryPage }[page];
-  target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (page === "pin") resetPin();
+  if (page === "player") drawRoomCode();
+  window.scrollTo(0, 0);
   updateHeader();
 }
 
@@ -443,8 +437,6 @@ function updateHeader() {
   // ผู้เล่นไม่ต้องเห็น Room/Role (ประหยัดพื้นที่แถบบนมือถือ) — Host ยังเห็นเหมือนเดิม
   show(dom.roomPill, !isPlayer(), "inline-flex");
   show(dom.rolePill, !isPlayer(), "inline-flex");
-  show(dom.adminTopBtn, !joined && entryPage === "landing", "inline-flex");
-  show(dom.headerHomeBtn, !joined && (entryPage === "admin" || entryPage === "player"), "inline-flex");
   show(dom.headerExitBtn, joined, "inline-flex");
   if (dom.headerExitBtn) dom.headerExitBtn.textContent = isHost() ? "ยกเลิกห้อง" : "ออกจากห้อง";
 }
@@ -492,7 +484,8 @@ function enterRoom(code, role, playerId = null) {
   resetRoomUi();
   playerBoardView.setMe(playerId);
   entryPage = null;
-  show(dom.entrySection, false);
+  document.body.classList.remove("on-entry");
+  setHidden(dom.entrySection, true);
   setHidden(dom.roomView, true); // เปิดหลังได้ข้อมูลห้องรอบแรก (กันกระดานกระพริบก่อนเข้าหน้า Lobby)
   setHidden(dom.hostView, role !== ROLE.HOST);
   setHidden(dom.playerView, role !== ROLE.PLAYER);
@@ -1166,28 +1159,46 @@ function celebrateEnd() {
 /* =========================
    Host flows
 ========================= */
-function populateQuestionSetSelect() {
-  const sel = dom.questionSetSelect;
-  if (!sel) return;
-  sel.innerHTML = "";
-  for (const id of getQuestionSetIds()) sel.add(new Option(getQuestionSetName(id), id));
-  sel.value = DEFAULT_SETTINGS.questionSetId;
+// การ์ดชุดคำถาม (มี emoji ตัวอย่างจากธีมของชุด) + ค่าเริ่มต้นของกติกา
+function populateHostSetup() {
+  const picker = dom.questionSetPicker;
+  if (picker) {
+    picker.innerHTML = "";
+    for (const id of getQuestionSetIds()) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "es-set";
+      btn.dataset.setId = id;
+      btn.setAttribute("aria-pressed", String(id === DEFAULT_SETTINGS.questionSetId));
+      btn.innerHTML = `<span class="emo" aria-hidden="true"></span><span class="nm"></span>`;
+      btn.querySelector(".emo").textContent = getThemeEmojis(getQuestionSetTheme(id)).slice(0, 3).join("");
+      btn.querySelector(".nm").textContent = getQuestionSetName(id);
+      picker.appendChild(btn);
+    }
+  }
+  if (dom.maxRoundsInput) dom.maxRoundsInput.value = DEFAULT_SETTINGS.maxRounds;
+  if (dom.maxWinnersInput) dom.maxWinnersInput.value = DEFAULT_SETTINGS.maxWinners;
+  if (dom.rewardCorrectInput) dom.rewardCorrectInput.value = Math.abs(DEFAULT_SETTINGS.rewardCorrect);
+  if (dom.penaltyWrongInput) dom.penaltyWrongInput.value = Math.abs(DEFAULT_SETTINGS.penaltyWrong);
 }
 
-function hostOpenGameOptions() {
-  const hostName = normalizeName(dom.hostNameInput?.value);
-  if (!hostName) {
-    alert("กรุณากรอกชื่อของ Host ก่อน");
-    return;
-  }
-  dom.hostNameInput.value = hostName;
-  dom.hostNameInput.disabled = true;
-  dom.createRoomBtn.disabled = true;
-  dom.hostGameOptions?.classList.add("is-open");
+function selectQuestionSet(btn) {
+  for (const b of dom.questionSetPicker.querySelectorAll(".es-set")) b.setAttribute("aria-pressed", String(b === btn));
+}
+
+// ปุ่ม − / + ข้างช่องตัวเลข (ยังพิมพ์ตัวเลขเองได้)
+function stepRuleInput(btn) {
+  const input = btn.closest(".es-stepper")?.querySelector("input");
+  if (!input) return;
+  const min = Number(input.min) || 1;
+  const max = Number(input.max) || 99;
+  const next = parseIntOr(input.value, min) + Number(btn.dataset.step);
+  input.value = Math.min(max, Math.max(min, next));
 }
 
 function readGameSettings() {
-  const questionSetId = dom.questionSetSelect?.value || DEFAULT_SETTINGS.questionSetId;
+  const questionSetId =
+    dom.questionSetPicker?.querySelector('.es-set[aria-pressed="true"]')?.dataset.setId || DEFAULT_SETTINGS.questionSetId;
   return {
     questionSetId,
     emojiTheme: getQuestionSetTheme(questionSetId),
@@ -1235,8 +1246,7 @@ async function hostCreateRoom() {
       return;
     }
 
-    dom.hostGameOptions?.classList.remove("is-open");
-    enterRoom(code, ROLE.HOST); // Race Code แสดงตัวใหญ่ในหน้า Lobby
+    enterRoom(code, ROLE.HOST); // รหัสห้องแสดงตัวใหญ่ในหน้า Lobby
     // ล้างห้องเก่าที่ค้างอยู่ (ทำเบื้องหลัง ไม่ให้ช้าตอนสร้างห้อง)
     cleanupOldRooms(ROOM_MAX_AGE_MS, code)
       .then((removed) => removed.length && console.info(`[cleanup] ลบห้องเก่า ${removed.length} ห้อง`, removed))
@@ -1327,7 +1337,7 @@ async function playerJoin() {
   const code = (dom.roomCodeInput?.value || "").trim().toUpperCase();
   const name = normalizeName(dom.playerNameInput?.value);
   if (!code || !name) {
-    alert("กรุณากรอกทั้ง Race Code และชื่อผู้เล่น");
+    alert("กรุณากรอกทั้งรหัสห้องและชื่อผู้เล่น");
     return;
   }
   dom.playerNameInput.value = name;
@@ -1337,7 +1347,7 @@ async function playerJoin() {
   try {
     const snap = await get(roomRef(code));
     if (!snap.exists()) {
-      alert("ไม่พบห้องนี้ กรุณาตรวจสอบ Race Code");
+      alert("ไม่พบห้องนี้ กรุณาตรวจสอบรหัสห้อง");
       return;
     }
 
@@ -1517,36 +1527,45 @@ async function playerLeave() {
 }
 
 /* =========================
-   Admin PIN overlay
+   รหัสห้อง (กล่อง 6 ช่อง) + PIN ครู
 ========================= */
-function openAdminPwOverlay() {
-  if (!dom.adminPwOverlay || !dom.adminPwInput) return;
-  dom.adminPwInput.value = "";
-  show(dom.adminPwError, false);
-  show(dom.adminPwOverlay, true, "flex");
-  setTimeout(() => dom.adminPwInput.focus(), 0);
+function drawRoomCode() {
+  const input = dom.roomCodeInput;
+  if (!input || !dom.roomCodeBoxes) return;
+  input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+  const focused = document.activeElement === input;
+  [...dom.roomCodeBoxes.children].forEach((box, i) => {
+    box.textContent = input.value[i] || "";
+    box.classList.toggle("active", focused && i === Math.min(input.value.length, 5));
+  });
 }
 
-function closeAdminPwOverlay() {
-  show(dom.adminPwOverlay, false);
-  if (dom.adminPwInput) dom.adminPwInput.value = "";
-  show(dom.adminPwError, false);
+function drawPin() {
+  [...dom.pinDots.children].forEach((dot, i) => dot.classList.toggle("on", i < pinValue.length));
+  dom.pinDots.setAttribute("aria-label", `ใส่แล้ว ${pinValue.length} จาก 4 หลัก`);
 }
 
-function onAdminPwInput() {
-  const v = String(dom.adminPwInput.value || "").replace(/\D/g, "").slice(0, 4);
-  dom.adminPwInput.value = v;
-  show(dom.adminPwError, false);
-  if (v.length < 4) return;
+function resetPin() {
+  pinValue = "";
+  drawPin();
+}
 
-  if (v === ADMIN_PIN) {
-    closeAdminPwOverlay();
-    showEntryPage("admin");
-  } else {
-    show(dom.adminPwError, true);
-    dom.adminPwInput.value = "";
-    dom.adminPwInput.focus();
-  }
+function pressPin(key) {
+  if (key === "del") pinValue = pinValue.slice(0, -1);
+  else if (/^\d$/.test(key) && pinValue.length < 4) pinValue += key;
+  drawPin();
+  if (pinValue.length < 4) return;
+
+  // ค้างให้เห็นจุดครบ 4 แป๊บหนึ่งก่อนเปลี่ยนหน้า/สั่น
+  const entered = pinValue;
+  setTimeout(() => {
+    if (entryPage !== "pin") return;
+    if (entered === ADMIN_PIN) return showEntryPage("admin");
+    dom.pinDots.classList.remove("shake");
+    void dom.pinDots.offsetWidth; // เริ่มแอนิเมชันสั่นใหม่
+    dom.pinDots.classList.add("shake");
+    resetPin();
+  }, 180);
 }
 
 /* =========================
@@ -1555,18 +1574,29 @@ function onAdminPwInput() {
 function bindUIEvents() {
   const on = (el, type, fn) => el?.addEventListener(type, fn);
 
-  on(dom.headerHomeBtn, "click", () => showEntryPage("landing"));
   on(dom.headerExitBtn, "click", () => (isHost() ? hostCancelRoom() : playerLeave()));
-  on(dom.joinGameBtn, "click", () => showEntryPage("player"));
-  on(dom.adminTopBtn, "click", openAdminPwOverlay);
 
-  on(dom.adminPwCancelBtn, "click", closeAdminPwOverlay);
-  on(dom.adminPwOverlay, "click", (e) => e.target === dom.adminPwOverlay && closeAdminPwOverlay());
-  on(dom.adminPwInput, "input", onAdminPwInput);
-  on(dom.adminPwInput, "keydown", (e) => e.key === "Enter" && e.preventDefault());
+  // หน้าจอเกมก่อนเข้าห้อง: ปุ่มเปลี่ยนหน้า, PIN, การ์ดชุดคำถาม, ปุ่ม − / +
+  on(dom.entrySection, "click", (e) => {
+    const nav = e.target.closest("[data-entry]");
+    if (nav) return showEntryPage(nav.dataset.entry);
+    const key = e.target.closest("[data-key]");
+    if (key) return pressPin(key.dataset.key);
+    const set = e.target.closest(".es-set");
+    if (set) return selectQuestionSet(set);
+    const step = e.target.closest("[data-step]");
+    if (step) stepRuleInput(step);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (entryPage !== "pin") return;
+    if (/^\d$/.test(e.key)) pressPin(e.key);
+    else if (e.key === "Backspace") pressPin("del");
+    else if (e.key === "Escape") showEntryPage("landing");
+  });
+  for (const ev of ["input", "focus", "blur"]) on(dom.roomCodeInput, ev, drawRoomCode);
+  on(dom.roomCodeInput, "keydown", (e) => e.key === "Enter" && dom.playerNameInput?.focus());
 
   // host
-  on(dom.createRoomBtn, "click", hostOpenGameOptions);
   on(dom.confirmCreateRoomBtn, "click", hostCreateRoom);
   on(dom.startGameBtn, "click", hostStartGame);
   on(dom.startRoundBtn, "click", hostStartRound);
@@ -1599,7 +1629,6 @@ function bindUIEvents() {
   });
 
   // Enter เพื่อส่งฟอร์ม
-  on(dom.hostNameInput, "keydown", (e) => e.key === "Enter" && hostOpenGameOptions());
   on(dom.playerNameInput, "keydown", (e) => e.key === "Enter" && playerJoin());
 }
 
@@ -1634,7 +1663,7 @@ async function restoreSession() {
 
 async function boot() {
   bindUIEvents();
-  populateQuestionSetSelect();
+  populateHostSetup();
   const roomFromLink = readRoomFromUrl(); // สแกน QR code มา: ?room=XXXXXX
   if (await restoreSession()) {
     clearRoomFromUrl();
@@ -1643,6 +1672,7 @@ async function boot() {
   if (roomFromLink) {
     showEntryPage("player");
     dom.roomCodeInput.value = roomFromLink;
+    drawRoomCode();
     dom.playerNameInput.focus();
     clearRoomFromUrl();
   } else {

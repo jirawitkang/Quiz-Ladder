@@ -130,23 +130,6 @@
     .grid-2{ grid-template-columns: 1fr; }
   }
   
-  /* Section title */
-  .section-title{
-    display:flex;
-    align-items:center;
-    gap: 10px;
-    margin: 18px 0 10px;
-    color: var(--p-800);
-    font-weight: 900;
-    letter-spacing: .2px;
-  }
-  .section-title::before{
-    content:"";
-    width: 8px;
-    height: 22px;
-    border-radius: 999px;
-    background: var(--p-600);
-  }
   
   /* =========================
      5) CARDS / FORMS / BUTTONS
@@ -222,77 +205,6 @@
     opacity: .55;
     cursor: not-allowed;
     box-shadow:none;
-  }
-  
-  /* =========================
-     6) HOST OPTIONS PANEL (no jump)
-     ========================= */
-  #createRoomBtn{ margin-top: 12px; }
-  .card.lock-height{ overflow: hidden; }
-  
-  /* Use height/opacity to hide/show, while allowing JS to toggle class .is-open */
-  #hostGameOptions{
-    display: block !important;     /* keep layout reserved even if inline display:none existed */
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-4px);
-    transition: max-height .25s ease, opacity .2s ease, transform .2s ease;
-  }
-  #hostGameOptions.is-open{
-    max-height: 520px;             /* adjust if panel grows */
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-  
-  /* Dotted split */
-  .card-split{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-  @media (max-width: 900px){
-    .card-split{ grid-template-columns: 1fr; }
-  }
-  .split-col{ padding: 4px 2px; }
-  .split-col + .split-col{
-    border-left: 2px dotted rgba(75,60,140,.25);
-    padding-left: 14px;
-  }
-  @media (max-width: 900px){
-    .split-col + .split-col{
-      border-left: none;
-      border-top: 2px dotted rgba(75,60,140,.25);
-      padding-left: 2px;
-      padding-top: 14px;
-    }
-  }
-  
-  /* =========================
-     7) ENTRY LANDING
-     ========================= */
-  .entry-landing{
-    min-height: calc(100vh - 88px);
-    display: grid;
-    place-items: center;
-  }
-  .entry-landing-inner{
-    width: 100%;
-    text-align: center;
-  }
-  .entry-title{
-    margin: 0 0 6px;
-  }
-  .entry-sub{
-    margin: 0 0 14px;
-  }
-  .entry-join-btn{
-    width: min(520px, 92vw);
-    height: 78px;
-    font-size: 24px;
-    border-radius: 18px;
   }
   
   /* =========================
@@ -703,19 +615,6 @@
     line-height: 1.2;
     color: var(--p-800);
   }
-  .admin-pw-input{
-    margin-top: 12px;
-    text-align: center;
-    font-size: 22px;
-    letter-spacing: 10px;
-    font-weight: 900;
-  }
-  .admin-pw-error{
-    margin-top: 10px;
-    color: #c62828;
-    font-weight: 900;
-  }
-
   /* =========================
      15) SNAKES & LADDERS — ROOM / BOARD / HOST / PLAYER
      ========================= */
@@ -1179,3 +1078,139 @@
   @media (prefers-reduced-motion: reduce){
     .podium.rise *, .celebrate-banner, .celebrate-banner.out{ animation: none !important; }
   }
+
+  /* =========================
+     17) ENTRY SCREENS — หน้าจอเกมก่อนเข้าห้อง (ซ่อนแถบหัวเว็บ, พื้นกระดานม่วงเข้ม, ปุ่มนูนแบบเกม)
+     ========================= */
+  .entry-stage{
+    --es-night:#241c55; --es-cell:rgba(255,255,255,.035);
+    --es-ink:#2f2a66; --es-ink-soft:#6b62a8; --es-paper:#f6f4fb; --es-paper-2:#ede9f7; --es-line:#d9d3ef;
+    --es-orange:#FFA240; --es-orange-deep:#d9761b;
+    --es-display:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
+    --es-body:"Mitr","Noto Sans Thai","Leelawadee UI",system-ui,sans-serif;
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 44px 16px 40px;
+    overflow: hidden;
+    font-family: var(--es-body);
+    color: #fff;
+    background-color: var(--es-night);
+    background-image:
+      linear-gradient(var(--es-cell) 50%, transparent 50%),
+      linear-gradient(90deg, var(--es-cell) 50%, transparent 50%);
+    background-size: 120px 120px;
+  }
+  body.on-entry{ background: #241c55; }
+  body.on-entry .app-header{ display: none; }
+  .es-deco{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.16; }
+  .es-screen{ position:relative; width:100%; display:flex; flex-direction:column; align-items:center; animation: es-pop .35s ease-out; }
+  @keyframes es-pop{ from{ transform:scale(.96); opacity:.4; } to{ transform:none; opacity:1; } }
+
+  /* ปุ่มแบบเกม (ล็อก transform ตอน :active เอง ไม่ใช้กฎ button:active ทั่วไป) */
+  .entry-stage .es-btn{ font-family: var(--es-body); font-weight:600; border:0; border-radius:18px; cursor:pointer; transition: transform .08s, box-shadow .08s; }
+  .entry-stage .es-btn:focus-visible{ outline:3px solid #fff; outline-offset:3px; }
+  .entry-stage .es-play{
+    font-size:24px; padding:16px 40px; min-width:min(260px,100%); color:var(--es-ink); background:var(--es-orange);
+    box-shadow: 0 7px 0 var(--es-orange-deep), 0 14px 24px rgba(0,0,0,.35);
+  }
+  .entry-stage .es-play:active:not(:disabled){ transform: translateY(5px); box-shadow: 0 2px 0 var(--es-orange-deep), 0 6px 12px rgba(0,0,0,.3); }
+  .entry-stage .es-ghost{ font-size:15px; padding:10px 18px; color:#fff; background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.28); }
+  .entry-stage .es-ghost:hover{ background:rgba(255,255,255,.18); }
+  .entry-stage .es-back{
+    position:absolute; top:14px; left:14px; font-family:var(--es-body); font-weight:500; font-size:14px; padding:6px 12px;
+    color:var(--es-ink-soft); background:var(--es-paper-2); border-radius:12px;
+  }
+
+  /* หน้าแรก */
+  .es-logo{ width:min(150px,38vw); height:auto; filter: drop-shadow(0 14px 22px rgba(0,0,0,.4)); animation: es-bob 3s ease-in-out infinite; }
+  @keyframes es-bob{ 50%{ transform: translateY(-8px) rotate(-2deg); } }
+  .es-wordmark{
+    font-family:var(--es-display); font-weight:400; font-size:clamp(52px,13vw,92px); line-height:.9; margin:18px 0 0;
+    text-align:center; letter-spacing:1px; text-shadow: 0 5px 0 rgba(0,0,0,.28);
+  }
+  .es-wordmark span{ display:block; }
+  .es-wordmark .q{ color:#fff; }
+  .es-wordmark .l{ color:var(--es-orange); }
+  .es-course{ margin-top:14px; font-size:13px; padding:4px 12px; border-radius:999px; background:rgba(255,255,255,.1); color:#d8d2f3; }
+  .es-actions{ display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:30px; width:100%; }
+  .es-tokens{ display:flex; gap:8px; margin-top:28px; font-size:26px; }
+  .es-tokens span{ display:inline-block; animation: es-hop 1.6s ease-in-out infinite; }
+  .es-tokens span:nth-child(2){ animation-delay:.2s; } .es-tokens span:nth-child(3){ animation-delay:.4s; }
+  .es-tokens span:nth-child(4){ animation-delay:.6s; } .es-tokens span:nth-child(5){ animation-delay:.8s; }
+  @keyframes es-hop{ 0%,60%,100%{ transform:none; } 30%{ transform: translateY(-12px); } }
+
+  /* หน้าต่างเกม */
+  .es-panel{
+    position:relative; width:min(420px,100%); background:var(--es-paper); color:var(--es-ink); border-radius:28px; padding:56px 24px 26px;
+    box-shadow: 0 10px 0 #cfc7ea, 0 26px 40px rgba(0,0,0,.4);
+  }
+  .es-panel-pin{ width:min(340px,100%); }
+  .es-panel-wide{ width:min(760px,100%); }
+  .es-panel-badge{ position:absolute; top:-34px; left:50%; transform:translateX(-50%); width:68px; height:68px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.25)); }
+  .es-panel h2{ font-family:var(--es-body); font-weight:600; font-size:26px; text-align:center; margin:0 0 4px; color:var(--es-ink); }
+  .es-sub{ text-align:center; color:var(--es-ink-soft); margin:0 0 22px; font-size:15px; }
+  .es-field{ display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+  .entry-stage .es-label{ display:block; margin:0; font-weight:500; font-size:15px; color:var(--es-ink); }
+  .entry-stage .es-input{
+    font-family:var(--es-body); font-size:18px; color:var(--es-ink); background:#fff; border:2px solid var(--es-line); border-radius:14px; padding:12px 14px;
+  }
+  .entry-stage .es-input:focus{ border-color:var(--es-orange); box-shadow: 0 0 0 4px rgba(255,162,64,.25); }
+  .es-panel .es-play{ width:100%; min-width:0; margin-top:6px; font-size:22px; }
+  .es-hint{ display:flex; gap:10px; align-items:center; margin-top:18px; padding:10px 12px; border-radius:14px; background:var(--es-paper-2); font-size:14px; color:var(--es-ink-soft); }
+  .es-hint svg{ flex:none; }
+
+  /* รหัสห้อง: input ตัวเดียวโปร่งใสวางทับกล่อง 6 ช่อง */
+  .es-code{ position:relative; }
+  .es-code-boxes{ display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap:8px; }
+  .es-code-boxes div{
+    aspect-ratio:3/4; display:grid; place-items:center; font-family:var(--es-display); font-size:clamp(24px,7vw,32px);
+    background:#fff; border:2px solid var(--es-line); border-radius:12px; color:var(--es-ink); box-shadow: 0 4px 0 var(--es-line);
+  }
+  .es-code-boxes div.active{ border-color:var(--es-orange); box-shadow: 0 4px 0 var(--es-orange-deep); }
+  .entry-stage .es-code input{ position:absolute; inset:0; width:100%; height:100%; opacity:0; font-size:16px; cursor:text; padding:0; border:0; }
+
+  /* PIN */
+  .es-pin-dots{ display:flex; justify-content:center; gap:14px; margin:4px 0 22px; }
+  .es-pin-dots i{ width:18px; height:18px; border-radius:50%; background:var(--es-paper-2); border:2px solid var(--es-line); }
+  .es-pin-dots i.on{ background:var(--es-orange); border-color:var(--es-orange-deep); }
+  .es-pin-dots.shake{ animation: es-shake .35s; }
+  @keyframes es-shake{ 25%{ transform:translateX(-8px); } 75%{ transform:translateX(8px); } }
+  .es-keypad{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .entry-stage .es-key{ font-family:var(--es-display); font-weight:400; font-size:28px; padding:12px 0; color:var(--es-ink); background:#fff; border-radius:16px; box-shadow: 0 5px 0 var(--es-line); }
+  .entry-stage .es-key:active{ transform:translateY(4px); box-shadow: 0 1px 0 var(--es-line); }
+  .entry-stage .es-key.alt{ font-family:var(--es-body); font-weight:500; font-size:16px; background:var(--es-paper-2); }
+
+  /* ตั้งค่าห้อง */
+  .es-setup{ display:grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap:22px; }
+  @media (max-width:640px){ .es-setup{ grid-template-columns: minmax(0,1fr); } }
+  .es-sets{ display:grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap:10px; max-height:340px; overflow:auto; padding:2px 2px 6px; }
+  .entry-stage .es-set{
+    font-family:var(--es-body); font-weight:400; text-align:left; color:var(--es-ink); background:#fff; border:2px solid var(--es-line); border-radius:16px;
+    padding:10px 12px; box-shadow: 0 4px 0 var(--es-line); display:flex; flex-direction:column; gap:4px; min-width:0;
+  }
+  .es-set .emo{ font-size:20px; letter-spacing:2px; }
+  .es-set .nm{ font-size:14px; line-height:1.3; overflow-wrap:anywhere; }
+  .entry-stage .es-set[aria-pressed="true"]{ border-color:var(--es-orange); box-shadow: 0 4px 0 var(--es-orange-deep); background:#fff6ec; }
+  .es-rules{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; margin:8px 0 22px; }
+  .es-rule{ background:#fff; border:2px solid var(--es-line); border-radius:16px; padding:10px 12px; display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .entry-stage .es-rule label{ margin:0; font-weight:400; font-size:14px; color:var(--es-ink-soft); }
+  .es-stepper{ display:flex; align-items:center; justify-content:space-between; gap:4px; }
+  .entry-stage .es-stepper button{
+    width:38px; height:38px; flex:none; padding:0; font: 600 22px/1 var(--es-body); color:var(--es-ink); background:var(--es-paper-2);
+    border-radius:12px; box-shadow: 0 3px 0 var(--es-line);
+  }
+  .entry-stage .es-stepper button:active{ transform:translateY(2px); box-shadow:none; }
+  .entry-stage .es-stepper input{
+    min-width:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:center;
+    font-family:var(--es-display); font-size:28px; color:var(--es-ink); font-variant-numeric: tabular-nums; -moz-appearance:textfield;
+  }
+  .es-stepper input::-webkit-inner-spin-button, .es-stepper input::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
+  .es-rule.up .es-stepper input{ color:#2E9E5B; }
+  .es-rule.down .es-stepper input{ color:#c2463b; }
+  @media (prefers-reduced-motion: reduce){
+    .es-screen, .es-logo, .es-tokens span, .es-pin-dots.shake{ animation:none; }
+  }
+

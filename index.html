@@ -7,6 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'><rect x='2' y='2' width='40' height='40' rx='11' fill='%23FFA240'/><circle cx='19' cy='19' r='10.5' fill='none' stroke='%23fff' stroke-width='3.6'/><g stroke='%23fff' stroke-width='2.6' stroke-linecap='round'><line x1='28' y1='23' x2='38' y2='33'/><line x1='23' y1='28' x2='33' y2='38'/><line x1='29.5' y1='26.5' x2='26.5' y2='29.5'/><line x1='33' y1='30' x2='30' y2='33'/><line x1='36.5' y1='33.5' x2='33.5' y2='36.5'/></g></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Mitr:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="ui.css" />
 </head>
 
@@ -106,16 +109,6 @@
         <div class="pill" id="uiRoomPill">Room: -</div>
         <div class="pill" id="uiRolePill">Role: -</div>
   
-        <!-- Admin button (top-right) -->
-        <button id="adminTopBtn" class="btn-ghost pill" type="button">
-          Admin
-        </button>
-        
-        <!-- Home button (shows on entry pages) -->
-        <button id="headerHomeBtn" class="btn-ghost pill" type="button" style="display:none;">
-          Home
-        </button>
-        
         <!-- Exit button (shows after start game) -->
         <button id="headerExitBtn" class="btn-ghost pill" type="button" style="display:none;">
           ออกจากห้อง
@@ -124,104 +117,105 @@
     </div>
   </header>
   
-  <main class="container">
-    <!-- ENTRY (Landing + Admin/Player entry) -->
-    <div id="entrySection">
-      <!-- Landing: Everyone sees this -->
-      <div id="entryLanding" class="card entry-landing">
-        <div class="entry-landing-inner">
-          <h2 class="entry-title">Ready to Run?</h2>
-          <p class="muted entry-sub">
-            Join a race and test your speed, strategy, and knowledge.
-          </p>
+  <!-- ENTRY: หน้าจอเกมก่อนเข้าห้อง (หน้าแรก / ผู้เล่นเข้าห้อง / PIN ครู / ตั้งค่าห้อง) -->
+  <section id="entrySection" class="entry-stage">
+    <svg class="es-deco" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g stroke="#FFA240" stroke-width="14" stroke-linecap="round"><line x1="80" y1="760" x2="300" y2="420"/><line x1="140" y1="790" x2="360" y2="450"/><line x1="100" y1="700" x2="158" y2="736"/><line x1="140" y1="638" x2="198" y2="674"/><line x1="180" y1="576" x2="238" y2="612"/><line x1="220" y1="514" x2="278" y2="550"/><line x1="260" y1="452" x2="318" y2="488"/></g>
+      <path d="M1130 90 C990 120 1100 260 980 300 C860 340 960 480 860 520" fill="none" stroke="#2E9E5B" stroke-width="26" stroke-linecap="round"/><circle cx="1130" cy="90" r="22" fill="#2E9E5B"/>
+      <g stroke="#FFA240" stroke-width="12" stroke-linecap="round"><line x1="1000" y1="790" x2="1130" y2="580"/><line x1="1050" y1="800" x2="1180" y2="600"/><line x1="1030" y1="730" x2="1078" y2="760"/><line x1="1066" y1="672" x2="1114" y2="702"/><line x1="1102" y1="614" x2="1150" y2="644"/></g>
+      <path d="M60 60 C200 40 120 180 260 190 C380 200 330 300 420 320" fill="none" stroke="#2E9E5B" stroke-width="20" stroke-linecap="round"/><circle cx="60" cy="60" r="17" fill="#2E9E5B"/>
+    </svg>
 
-          <button id="joinGameBtn" class="btn-primary entry-join-btn" type="button">
-            Join the Race
-          </button>
-  
-        </div>
+    <!-- หน้าแรก -->
+    <div id="entryLanding" class="es-screen">
+      <svg class="es-logo" viewBox="0 0 44 44" role="img" aria-label="โลโก้ Quiz Ladder"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g></svg>
+      <h1 class="es-wordmark"><span class="q">QUIZ</span><span class="l">LADDER</span></h1>
+      <div class="es-course">Searching Online Databases</div>
+      <div class="es-actions">
+        <button id="joinGameBtn" class="es-btn es-play" type="button" data-entry="player">▶ เข้าร่วมเกม</button>
+        <button class="es-btn es-ghost" type="button" data-entry="pin">สำหรับครู · สร้างห้อง</button>
       </div>
-  
-      <!-- Admin Entry Page -->
-      <div id="adminEntryPage" class="grid-2" style="display:none;">
-        <div class="card">
-          <h2>Race Organizer</h2>
-  
-          <label for="hostNameInput">Organizer Name</label>
-          <input id="hostNameInput" placeholder="e.g. Coach P'Fon" maxlength="12" autocomplete="name"
-            spellcheck="false" />
-  
-          <button id="createRoomBtn" class="btn-primary" type="button">
-            Set Up the Race
-          </button>
-  
-          <div id="hostGameOptions" class="mt-14" style="display:none;">
-            <div class="section-title">RACE SETUP</div>
-  
-            <div class="card-split">
-              <div class="split-col">
-                <label for="questionSetSelect">Select Track (Race Theme)</label>
-                <select id="questionSetSelect">
-                  <!-- Options will be populated automatically from questions.js -->
-                </select>
-  
-                <label for="maxRoundsInput">Maximum Laps</label>
-                <input id="maxRoundsInput" type="number" min="1" step="1" value="10" inputmode="numeric" />
-              </div>
-  
-              <div class="split-col">
-                <label for="maxWinnersInput">Number of Winners</label>
-                <input id="maxWinnersInput" type="number" min="1" step="1" value="5" inputmode="numeric" />
-  
-                <label for="rewardCorrectInput">Speed Boost (Correct Answer)</label>
-                <input id="rewardCorrectInput" type="number" step="1" value="2" inputmode="numeric" />
-  
-                <label for="penaltyWrongInput">Slow Down (Wrong / Timeout)</label>
-                <input id="penaltyWrongInput" type="number" step="1" value="-2" inputmode="numeric" />
-              </div>
-            </div>
-  
-            <button id="confirmCreateRoomBtn" class="btn-primary mt-14" type="button">
-              Create Race
-            </button>
+      <div class="es-tokens" aria-hidden="true"><span>🦊</span><span>🐼</span><span>🐸</span><span>🐯</span><span>🐰</span></div>
+    </div>
+
+    <!-- ผู้เล่นเข้าห้อง -->
+    <div id="playerEntryPage" class="es-screen" hidden>
+      <div class="es-panel">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g></svg>
+        <button class="es-back" type="button" data-entry="landing">‹ กลับ</button>
+        <h2>เข้าร่วมเกม</h2>
+        <p class="es-sub">ใส่รหัสห้องจากจอของครู</p>
+        <div class="es-field">
+          <span class="es-label" id="roomCodeLabel">รหัสห้อง</span>
+          <div class="es-code">
+            <div class="es-code-boxes" id="roomCodeBoxes" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <input id="roomCodeInput" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-labelledby="roomCodeLabel" />
           </div>
         </div>
-  
-        <div class="card">
-          <h2>How to play</h2>
-          <p class="muted">
-            Admin สร้างห้องและแชร์ Race Code ให้ผู้เล่น จากนั้นเริ่มเกมใน Lobby
-          </p>
+        <div class="es-field">
+          <label class="es-label" for="playerNameInput">ชื่อของคุณ</label>
+          <input id="playerNameInput" class="es-input" maxlength="12" placeholder="เช่น น้องมิ้นท์" autocomplete="off" spellcheck="false" />
         </div>
-      </div>
-  
-      <!-- Player Entry Page -->
-      <div id="playerEntryPage" class="grid-2" style="display:none;">
-        <div class="card">
-          <h2>Runner Registration</h2>
-  
-          <label for="roomCodeInput">Race Code</label>
-          <input id="roomCodeInput" placeholder="Enter Race Code" maxlength="12" autocapitalize="characters"
-            autocomplete="off" spellcheck="false" />
-  
-          <label for="playerNameInput">Runner name</label>
-          <input id="playerNameInput" placeholder="e.g. Runner A" maxlength="12" autocomplete="name"
-            spellcheck="false" />
-  
-          <button id="joinRoomBtn" class="btn-primary" type="button">
-            Join the Race
-          </button>
-        </div>
-  
-        <div class="card">
-          <h2>Race Tip</h2>
-          <p class="muted">
-            Make sure your race code is correct and your runner name is unique.
-          </p>
+        <button id="joinRoomBtn" class="es-btn es-play" type="button">เข้าห้อง ▶</button>
+        <div class="es-hint">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+          สแกน QR บนจอครูได้เลย รหัสห้องจะใส่ให้เอง
         </div>
       </div>
     </div>
-  
+
+    <!-- ครู: PIN -->
+    <div id="adminPinPage" class="es-screen" hidden>
+      <div class="es-panel es-panel-pin">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#4B3C8C"/><rect x="13" y="20" width="18" height="14" rx="3" fill="#fff"/><path d="M16 20v-4a6 6 0 0 1 12 0v4" fill="none" stroke="#fff" stroke-width="3"/><circle cx="22" cy="27" r="2.2" fill="#4B3C8C"/></svg>
+        <button class="es-back" type="button" data-entry="landing">‹ กลับ</button>
+        <h2>สำหรับครู</h2>
+        <p class="es-sub">ใส่ PIN 4 หลักเพื่อสร้างห้อง</p>
+        <div class="es-pin-dots" id="pinDots" role="status" aria-label="ใส่แล้ว 0 จาก 4 หลัก"><i></i><i></i><i></i><i></i></div>
+        <div class="es-keypad" id="pinKeypad">
+          <button type="button" class="es-key" data-key="1">1</button><button type="button" class="es-key" data-key="2">2</button><button type="button" class="es-key" data-key="3">3</button>
+          <button type="button" class="es-key" data-key="4">4</button><button type="button" class="es-key" data-key="5">5</button><button type="button" class="es-key" data-key="6">6</button>
+          <button type="button" class="es-key" data-key="7">7</button><button type="button" class="es-key" data-key="8">8</button><button type="button" class="es-key" data-key="9">9</button>
+          <button type="button" class="es-key alt" data-key="del">ลบ</button><button type="button" class="es-key" data-key="0">0</button><button type="button" class="es-key alt" data-entry="landing">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ครู: ตั้งค่าห้อง -->
+    <div id="adminEntryPage" class="es-screen" hidden>
+      <div class="es-panel es-panel-wide">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g></svg>
+        <button class="es-back" type="button" data-entry="landing">‹ หน้าแรก</button>
+        <h2>ตั้งค่าห้องเกม</h2>
+        <p class="es-sub">เลือกชุดคำถามและกติกา แล้วสร้างห้องให้ผู้เล่นสแกนเข้ามา</p>
+        <div class="es-setup">
+          <div>
+            <div class="es-field">
+              <label class="es-label" for="hostNameInput">ชื่อครู</label>
+              <input id="hostNameInput" class="es-input" maxlength="12" placeholder="เช่น ครูฝน" autocomplete="name" spellcheck="false" />
+            </div>
+            <div class="es-field">
+              <span class="es-label" id="questionSetLabel">ชุดคำถาม</span>
+              <!-- ปุ่มเลือกชุดคำถาม สร้างจาก questions.js (populateQuestionSetPicker) -->
+              <div class="es-sets" id="questionSetPicker" role="group" aria-labelledby="questionSetLabel"></div>
+            </div>
+          </div>
+          <div>
+            <span class="es-label">กติกา</span>
+            <div class="es-rules">
+              <div class="es-rule"><label for="maxRoundsInput">จำนวนรอบ</label><div class="es-stepper"><button type="button" data-step="-1" aria-label="ลดจำนวนรอบ">−</button><input id="maxRoundsInput" type="number" min="1" max="50" step="1" inputmode="numeric" /><button type="button" data-step="1" aria-label="เพิ่มจำนวนรอบ">+</button></div></div>
+              <div class="es-rule"><label for="maxWinnersInput">จำนวนผู้ชนะ</label><div class="es-stepper"><button type="button" data-step="-1" aria-label="ลดจำนวนผู้ชนะ">−</button><input id="maxWinnersInput" type="number" min="1" max="50" step="1" inputmode="numeric" /><button type="button" data-step="1" aria-label="เพิ่มจำนวนผู้ชนะ">+</button></div></div>
+              <div class="es-rule up"><label for="rewardCorrectInput">ตอบถูก เดินหน้า</label><div class="es-stepper"><button type="button" data-step="-1" aria-label="ลดจำนวนช่องที่เดินหน้า">−</button><input id="rewardCorrectInput" type="number" min="1" max="10" step="1" inputmode="numeric" /><button type="button" data-step="1" aria-label="เพิ่มจำนวนช่องที่เดินหน้า">+</button></div></div>
+              <div class="es-rule down"><label for="penaltyWrongInput">ตอบผิด ถอยหลัง</label><div class="es-stepper"><button type="button" data-step="-1" aria-label="ลดจำนวนช่องที่ถอยหลัง">−</button><input id="penaltyWrongInput" type="number" min="1" max="10" step="1" inputmode="numeric" /><button type="button" data-step="1" aria-label="เพิ่มจำนวนช่องที่ถอยหลัง">+</button></div></div>
+            </div>
+            <button id="confirmCreateRoomBtn" class="es-btn es-play" type="button">สร้างห้อง ▶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
     <!-- ROOM (lobby + game) -->
     <section id="roomView" hidden>
       <div class="room-bar">
@@ -246,7 +240,7 @@
           <div id="hostLobby" class="host-lobby card">
             <div class="lobby-head">
               <div class="lobby-code">
-                <span class="muted">Race Code</span>
+                <span class="muted">รหัสห้อง</span>
                 <span class="race-code" id="raceCode">-</span>
                 <div class="lobby-count">ผู้เล่นในห้อง <b id="lobbyCount">0</b> คน</div>
               </div>
@@ -316,25 +310,6 @@
   </main>
 
   <noscript>เกมนี้ต้องเปิดใช้งาน JavaScript</noscript>
-  <!-- Admin Password Overlay -->
-  <div id="adminPwOverlay" class="overlay" style="display:none;">
-    <div class="overlay-card">
-      <div class="overlay-title">Admin Access</div>
-      <div class="overlay-hint">กรอกรหัส 4 หลักเพื่อเข้าสู่หน้า Admin</div>
-  
-      <input id="adminPwInput" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="4"
-        placeholder="••••" class="admin-pw-input" />
-  
-      <div id="adminPwError" class="admin-pw-error" style="display:none;">
-        รหัสไม่ถูกต้อง
-      </div>
-  
-      <button id="adminPwCancelBtn" class="btn-ghost mt-14" type="button">
-        ยกเลิก
-      </button>
-    </div>
-  </div>
-
   <script type="module" src="js/app.js"></script>
 </body>
 
