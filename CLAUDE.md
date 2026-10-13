@@ -69,7 +69,10 @@ node "../.claude/serve.mjs"                  # static server :8765 (python http.
 - อย่าบันทึกผลหลังแอนิเมชัน: แท็บเบื้องหลังหยุดแอนิเมชัน → บันทึกผลทอยก่อน แล้วค่อยเล่นแอนิเมชัน
   แต่ผลจะไปถึงจออื่นก่อนลูกเต๋าหยุด → ทุกจอแสดงผลผ่าน `maskPendingRolls()` (game-logic) ที่ซ่อนผลทอยของคนอื่น
   จนครบ DICE_ROLL_MS นับจาก timestamp (รวมผู้ชนะ/ประวัติ/การจบเกม) — app.js: `lastRoom` = ข้อมูลจริง, `lastView` = ใช้แสดงผล
-- เขียนข้อมูลผู้เล่นด้วย `runTransaction` ที่ abort ถ้า node เป็น null — `update()` บนห้องที่ถูกลบจะสร้างห้องผีขึ้นมาใหม่
+- เขียนข้อมูลผู้เล่นด้วย `runTransaction` — `update()` บนห้องที่ถูกลบจะสร้างห้องผีขึ้นมาใหม่
+  แต่รอบแรกของ transaction ใช้ cache ในเครื่อง: ถ้ายังไม่ได้ subscribe (เพิ่ง refresh/rejoin) จะได้ null
+  → ต้อง `if (!p) return p;` (ลองใหม่กับ server) ห้าม `return;` (ยกเลิกทันที = เคยทำให้ผู้เล่นค้างสถานะ "หลุด")
+- presence: `healPresence()` mark ออนไลน์กลับถ้าเห็นตัวเอง `connected:false` ขณะยังต่ออยู่ (onDisconnect ของแท็บก่อน refresh มาช้า)
 - `onDisconnect` สะสมคำสั่ง ต้อง `cancel()` ก่อนตั้งใหม่ (lobby = remove, ในเกม = mark disconnected)
 - การ์ด/แผงที่ซ่อนด้วย attribute `hidden` ใช้ได้เพราะมี `[hidden]{display:none!important}`
 - Firebase query ที่ต้องใช้ index จะ error (`Index not defined`) — ใช้ REST `?shallow=true` แทน
