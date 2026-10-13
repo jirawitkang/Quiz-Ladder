@@ -191,6 +191,7 @@
         <div class="es-menu">
           <button type="button" class="es-btn es-play" data-entry="admin"><span class="ico" aria-hidden="true">▶</span><span>สร้างห้องเกม<small>เลือกชุดคำถาม ตั้งกติกา แล้วเปิดห้อง</small></span></button>
           <button type="button" class="es-btn es-soft" data-entry="library"><span class="ico" aria-hidden="true">📚</span><span>ชุดคำถาม<small>สร้าง แก้ไข ทำสำเนา หรือลบชุดคำถาม</small></span></button>
+          <button type="button" class="es-btn es-soft" data-entry="results"><span class="ico" aria-hidden="true">📊</span><span>ผลการเล่นย้อนหลัง<small>ดูสถิติรายข้อ รายคน และ Export Excel</small></span></button>
         </div>
       </div>
     </div>
@@ -245,6 +246,33 @@
           <button type="button" class="es-btn es-soft" data-entry="library">ยกเลิก</button>
           <button type="button" class="es-btn es-play es-save" id="saveSetBtn">บันทึก</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ครู: ผลการเล่นย้อนหลัง (รายการ / เกมเดียว / ภาพรวมชุดคำถาม) — เนื้อหาวาดโดย js/results-view.js -->
+    <div id="resultsPage" class="es-screen" hidden>
+      <div class="es-panel es-panel-xwide">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#4B3C8C"/><text x="22" y="30" text-anchor="middle" font-size="22">📊</text></svg>
+        <button class="es-back" type="button" data-entry="hostMenu">‹ เมนูครู</button>
+        <h2>ผลการเล่นย้อนหลัง</h2>
+        <p class="es-sub">บันทึกอัตโนมัติเมื่อเล่นจบเกม · แตะเพื่อดูรายละเอียดและ Export Excel</p>
+        <div id="resultsList"></div>
+      </div>
+    </div>
+
+    <div id="resultDetailPage" class="es-screen" hidden>
+      <div class="es-panel es-panel-xwide">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#4B3C8C"/><text x="22" y="30" text-anchor="middle" font-size="22">📊</text></svg>
+        <button class="es-back" type="button" data-entry="results">‹ ผลย้อนหลัง</button>
+        <div id="resultDetail"></div>
+      </div>
+    </div>
+
+    <div id="setInsightsPage" class="es-screen" hidden>
+      <div class="es-panel es-panel-xwide">
+        <svg class="es-panel-badge" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#4B3C8C"/><text x="22" y="30" text-anchor="middle" font-size="22">📈</text></svg>
+        <button class="es-back" type="button" data-entry="results">‹ ผลย้อนหลัง</button>
+        <div id="setInsights"></div>
       </div>
     </div>
 
@@ -368,7 +396,6 @@
       <div id="endGameArea" class="card end-game" hidden>
         <div class="end-game-head">
           <h3 id="endGameTitle">สรุปผลเกม</h3>
-          <button id="exportXlsxBtn" class="btn-ghost" type="button" hidden>Export Excel</button>
         </div>
         <div id="podium" class="podium" aria-label="แท่นรับรางวัล 3 อันดับแรก"></div>
         <div id="endGameSummary"></div>

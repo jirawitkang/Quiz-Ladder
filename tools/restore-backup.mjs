@@ -2,17 +2,18 @@
 // รัน (ในโฟลเดอร์ Quiz-Runner):
 //   node tools/restore-backup.mjs question-sets          ดูว่าจะกู้อะไร
 //   node tools/restore-backup.mjs question-sets --write  เขียนทับ questionSets/ ทั้งหมด
-//   node tools/restore-backup.mjs results --write        เขียนทับ results/ ทั้งหมด
+//   node tools/restore-backup.mjs results --write        เขียนทับ results/ ทั้งหมด (กู้คู่กับ results-index)
+//   node tools/restore-backup.mjs results-index --write  เขียนทับ resultsIndex/ (สรุปที่หน้ารายการใช้)
 // ใส่ --at <commit> เพื่อกู้จากรอบสำรองที่เก่ากว่า (ดูรายการ: git log origin/backups --oneline)
 
 import { execFileSync } from "node:child_process";
 import { FIREBASE_CONFIG } from "../js/config.js";
 
-const TARGETS = { "question-sets": "questionSets", results: "results" };
+const TARGETS = { "question-sets": "questionSets", results: "results", "results-index": "resultsIndex" };
 const [what] = process.argv.slice(2);
 const node = TARGETS[what];
 if (!node) {
-  console.log("ระบุสิ่งที่จะกู้: question-sets หรือ results");
+  console.log("ระบุสิ่งที่จะกู้: question-sets, results หรือ results-index");
   process.exit(1);
 }
 const atIndex = process.argv.indexOf("--at");

@@ -37,6 +37,10 @@ export const playerRef = (code, pid) => ref(db, `rooms/${code}/players/${pid}`);
 // ชุดคำถามที่ครูสร้าง/แก้จากหน้าเว็บ (แยกจากห้อง ไม่ถูกลบตอนล้างห้องเก่า)
 export const questionSetsRef = () => ref(db, "questionSets");
 export const questionSetRef = (id) => ref(db, `questionSets/${id}`);
+// ผลการเล่นย้อนหลัง: ผลเต็ม (results) + สรุปสำหรับหน้ารายการ (resultsIndex)
+export const resultRef = (key) => ref(db, `results/${key}`);
+export const resultsIndexRef = () => ref(db, "resultsIndex");
+export const resultIndexRef = (key) => ref(db, `resultsIndex/${key}`);
 
 // ทุกเครื่องใช้เวลาเดียวกัน (เวลา server) — กันนาฬิกาเครื่องผู้เล่นเพี้ยนแล้วตัดเวลาตอบผิด
 let serverTimeOffset = 0;

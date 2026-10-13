@@ -27,7 +27,9 @@ js/dice.js                ลูกเต๋า 3D: วางที่ #diceDock
 js/sound.js               เสียงสังเคราะห์ด้วย Web Audio (ลูกเต๋า, ก้าว, บันได, งู, ถูก/ผิด, นับถอยหลัง, พลุ, fanfare) + ปุ่ม mute
 js/celebrate.js           พลุ/กระดาษสี/ป้ายประกาศ บน canvas (อันดับ 1–3 เข้าเส้นชัย, จบเกม)
 js/qr.js                  QR ลิงก์ ?room=CODE, อ่าน/ลบ param ตอนเปิดหน้า
-js/export.js              Export Excel ตอนจบเกม
+js/results.js             ผลการเล่นย้อนหลัง: สร้าง record ตอนจบเกม + สถิติเกมเดียว/ทั้งชุดคำถาม (pure)
+js/results-view.js        หน้ารายการผล / ผลเกมเดียว (ภาพรวม·รายข้อ·รายคน) / ภาพรวมชุดคำถาม (DOM ล้วน)
+js/export.js              Export Excel (กดจากหน้าผลย้อนหลังเท่านั้น — หน้าจบเกมไม่มีปุ่มแล้ว)
 js/app.js                 session, flow Host/Player, presence, render, timers, event bindings
 tools/check-active-rooms.mjs  เช็กห้องใน Firebase ก่อน deploy
 tools/seed-question-sets.mjs  ย้ายชุดใน questions.js ขึ้น Firebase (เฉพาะที่ยังไม่มี; --write)
@@ -52,7 +54,11 @@ tests/*.test.mjs          node:test (กติกา, render, emoji, เส้�
 - ชุดคำถามเก็บใน Firebase `questionSets/{id}` (ชุดเดิม id = general, love, ... ; ชุดใหม่ id จาก push)
   ครูอ่าน/ทำสำเนา/แก้/ลบได้ทุกชุด (ลบต้องกดยืนยันซ้ำ), ตัวหมาก 30 ตัวเลือกเองจากร้าน emoji (บังคับครบ 30 พอดี)
   ตัวเลือก 2–4 ข้อ, เวลา 15/30/60/120 วิ; ห้องเก็บสำเนา `room.questionSet` {id,name,emojis,questions} ตอนสร้าง → แก้ชุดระหว่างเกมไม่กระทบ
-  flow: PIN → เมนูครู (hostMenu) → สร้างห้องเกม (admin) หรือ ชุดคำถาม (library → setEditor)
+  flow: PIN → เมนูครู (hostMenu) → สร้างห้องเกม (admin) / ชุดคำถาม (library → setEditor) / ผลย้อนหลัง (results → resultDetail, setInsights)
+- ผลการเล่น: Host บันทึกตอนเกมจบ (เฉพาะเกมที่เล่นจบ ไม่บันทึกเกมที่ยกเลิก) → `results/{createdAt_CODE}` (สำเนาห้องเต็ม)
+  + `resultsIndex/{key}` (สรุปสำหรับหน้ารายการ); เก็บตลอดไป ลบจากหน้าเว็บได้ (กดยืนยันซ้ำ) — ลบต้องลบทั้งสองที่
+  สถิติ: ผู้เล่นที่เข้าเส้นชัยแล้วไม่นับในรอบหลังจากนั้น (answer correct=null และไม่ใช่ missed), หลุด/หมดเวลานับเป็นไม่ถูก
+  ง่าย ≥75% / ยาก <45% (EASY_PCT/HARD_PCT), ตัวหลอก = ตัวเลือกผิดที่ถูกเลือก ≥25% ของคนตอบและ ≥2 คน
 - เสียง: จอ Host เล่นเสียงของทุกคน (ไม่มีเสียงก้าวเดิน กันรก), มือถือเล่นเฉพาะเรื่องของตัวเอง
 
 ## รัน / ทดสอบ

@@ -35,6 +35,9 @@ import {
   push,
   questionSetRef,
   questionSetsRef,
+  resultIndexRef,
+  resultRef,
+  resultsIndexRef,
   remove,
   roomRef,
   runTransaction,
@@ -85,6 +88,8 @@ import {
   validateDraft,
 } from "./question-sets.js";
 import { createSetEditor, renderLibrary } from "./question-editor.js";
+import { buildResultIndex, buildResultRecord, computeGameInsights, computeSetInsights, listResults, resultKey } from "./results.js";
+import { renderResultDetail, renderResultsList, renderSetInsights, setKey } from "./results-view.js";
 import { createDiceController, rollDie } from "./dice.js";
 import { exportRoomToXlsx } from "./export.js";
 import {
@@ -141,6 +146,12 @@ const dom = {
   hostMenuPage: $("hostMenuPage"),
   libraryPage: $("libraryPage"),
   setEditorPage: $("setEditorPage"),
+  resultsPage: $("resultsPage"),
+  resultDetailPage: $("resultDetailPage"),
+  setInsightsPage: $("setInsightsPage"),
+  resultsList: $("resultsList"),
+  resultDetail: $("resultDetail"),
+  setInsights: $("setInsights"),
   setLibrary: $("setLibrary"),
   setEditorTitle: $("setEditorTitle"),
   saveSetBtn: $("saveSetBtn"),
@@ -217,7 +228,6 @@ const dom = {
   endGameTitle: $("endGameTitle"),
   endGameSummary: $("endGameSummary"),
   podium: $("podium"),
-  exportXlsxBtn: $("exportXlsxBtn"),
 
   // countdown overlay
   questionCountdownOverlay: $("questionCountdownOverlay"),
@@ -255,6 +265,10 @@ let lastRoom = null; // ข้อมูลจริงจาก Firebase (ใช
 let lastView = null; // ห้องที่ใช้แสดงผล (ซ่อนผลทอยที่ลูกเต๋าของคนทอยยังกลิ้งอยู่)
 let entryPage = "landing"; // "landing" | "player" | "pin" | "hostMenu" | "library" | "setEditor" | "admin" | null (อยู่ในห้องแล้ว)
 const HOST_PAGES = new Set(["hostMenu", "library", "setEditor", "admin"]);
+const RESULT_PAGES = new Set(["results", "resultDetail", "setInsights"]);
+// ผลการเล่นย้อนหลัง: ฟังเฉพาะ resultsIndex (สรุปสั้น) — ผลเต็มโหลดเมื่อเปิดดูทีละเกม
+const results = { list: [], loaded: false, unsub: null, filter: "all", record: null, insights: null, tab: "overview", confirmDelete: false, busy: false };
+const savedResultKeys = new Set();
 // ชุดคำถามจาก Firebase questionSets/ (ฟังเฉพาะตอนครูอยู่หน้าเมนู/คลัง/แก้ไข/ตั้งค่าห้อง)
 const qsets = { list: [], loaded: false, unsub: null, selectedId: null, confirmDeleteId: null, editingId: null, saving: false };
 let pinValue = "";
@@ -439,8 +453,14 @@ function showEntryPage(page) {
   setHidden(dom.hostMenuPage, page !== "hostMenu");
   setHidden(dom.libraryPage, page !== "library");
   setHidden(dom.setEditorPage, page !== "setEditor");
+  setHidden(dom.resultsPage, page !== "results");
+  setHidden(dom.resultDetailPage, page !== "resultDetail");
+  setHidden(dom.setInsightsPage, page !== "setInsights");
+  if (RESULT_PAGES.has(page)) watchResults();
+  else unwatchResults();
+  if (page === "results") renderResultsPage();
   setHidden(dom.adminEntryPage, page !== "admin");
-  if (HOST_PAGES.has(page)) watchQuestionSets();
+  if (HOST_PAGES.has(page) || RESULT_PAGES.has(page)) watchQuestionSets();
   else unwatchQuestionSets();
   if (page === "library") {
     qsets.confirmDeleteId = null;
@@ -513,6 +533,7 @@ function enterRoom(code, role, playerId = null) {
   playerBoardView.setMe(playerId);
   entryPage = null;
   unwatchQuestionSets();
+  unwatchResults();
   document.body.classList.remove("on-entry");
   setHidden(dom.entrySection, true);
   setHidden(dom.roomView, true); // เปิดหลังได้ข้อมูลห้องรอบแรก (กันกระดานกระพริบก่อนเข้าหน้า Lobby)
@@ -609,8 +630,8 @@ function renderRoom(rawRoom) {
 
   setHidden(dom.roomView, false);
   setHidden(dom.endGameArea, !ended);
-  setHidden(dom.exportXlsxBtn, !(ended && isHost()));
   if (ended) {
+    saveResultIfEnded(rawRoom);
     renderEndGameSummary({ titleEl: dom.endGameTitle, summaryEl: dom.endGameSummary }, room, getViewPlayers(room));
     renderPodium(dom.podium, room, getViewPlayers(room), isPlayer() ? session.playerId : null);
   }
@@ -1465,13 +1486,148 @@ async function hostCancelRoom() {
   }
 }
 
-async function hostExport() {
-  if (!lastRoom) return;
+/* ---------- ผลการเล่นย้อนหลัง ---------- */
+
+// Host บันทึกผลเมื่อเกมจบ (ครั้งเดียวต่อห้อง) — transaction เขียนเฉพาะเมื่อยังไม่มี กันหลายแท็บเขียนทับกัน
+async function saveResultIfEnded(room) {
+  if (!isHost() || !isGameEnded(room) || !session.roomCode) return;
+  const key = resultKey(room, session.roomCode);
+  if (savedResultKeys.has(key)) return;
+  savedResultKeys.add(key);
   try {
-    await exportRoomToXlsx(lastRoom, session.roomCode);
+    const record = buildResultRecord(room, session.roomCode, serverNow());
+    await runTransaction(resultRef(key), (cur) => cur || record);
+    await set(resultIndexRef(key), buildResultIndex(record));
   } catch (e) {
-    console.error(e);
-    alert("Export ไม่สำเร็จ (ดู Console)");
+    savedResultKeys.delete(key); // ลองใหม่ตอนห้องอัปเดตครั้งถัดไป
+    console.error("[results] save failed:", e);
+  }
+}
+
+function watchResults() {
+  if (results.unsub) return;
+  results.unsub = onValue(
+    resultsIndexRef(),
+    (snap) => {
+      results.list = listResults(snap.val());
+      results.loaded = true;
+      if (entryPage === "results") renderResultsPage();
+    },
+    (err) => {
+      console.error("[results] load failed:", err);
+      alert("โหลดผลการเล่นไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+    }
+  );
+}
+
+function unwatchResults() {
+  results.unsub?.();
+  results.unsub = null;
+  results.loaded = false;
+}
+
+function renderResultsPage() {
+  if (results.filter !== "all" && !results.list.some((r) => setKey(r) === results.filter)) results.filter = "all";
+  renderResultsList(dom.resultsList, results.list, { filter: results.filter, loading: !results.loaded });
+}
+
+function renderResultDetailPage() {
+  if (!results.record) return;
+  renderResultDetail(dom.resultDetail, results.record, results.insights, { tab: results.tab, confirmDelete: results.confirmDelete });
+}
+
+async function loadResult(key) {
+  const snap = await get(resultRef(key));
+  if (!snap.exists()) throw new Error("ไม่พบผลการเล่นนี้ (อาจถูกลบไปแล้ว)");
+  return { key, ...snap.val() };
+}
+
+async function openResult(key) {
+  if (results.busy) return;
+  results.busy = true;
+  try {
+    results.record = await loadResult(key);
+    results.insights = computeGameInsights(results.record);
+    results.tab = "overview";
+    results.confirmDelete = false;
+    showEntryPage("resultDetail");
+    renderResultDetailPage();
+  } catch (e) {
+    console.error("[results] open failed:", e);
+    alert(e.message || "เปิดผลการเล่นไม่สำเร็จ");
+  } finally {
+    results.busy = false;
+  }
+}
+
+async function openSetInsights(filterKey) {
+  if (results.busy) return;
+  const items = results.list.filter((r) => setKey(r) === filterKey);
+  if (!items.length) return;
+  const name = items[0].setName || "-";
+  results.busy = true;
+  showEntryPage("setInsights");
+  renderSetInsights(dom.setInsights, name, null, { loading: true });
+  try {
+    const records = (await Promise.all(items.map((r) => loadResult(r.key).catch(() => null)))).filter(Boolean);
+    renderSetInsights(dom.setInsights, name, computeSetInsights(records));
+  } catch (e) {
+    console.error("[results] set insights failed:", e);
+    alert("รวมผลไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+  } finally {
+    results.busy = false;
+  }
+}
+
+async function onResultsClick(e) {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const d = b.dataset;
+  if (d.rsFilter) {
+    results.filter = d.rsFilter;
+    return renderResultsPage();
+  }
+  if (d.rsOpen) return openResult(d.rsOpen);
+  if (d.rsSet) return openSetInsights(d.rsSet);
+}
+
+async function onResultDetailClick(e) {
+  const b = e.target.closest("button");
+  if (!b || !results.record) return;
+  const d = b.dataset;
+  if (d.rsExpand != null) {
+    // คำถามยาว (เช่น ชุด Food Quest) ย่อไว้ 4 บรรทัด แตะเพื่อดูเต็ม
+    b.setAttribute("aria-expanded", String(b.getAttribute("aria-expanded") !== "true"));
+    return;
+  }
+  if (d.rsTab) {
+    results.tab = d.rsTab;
+    return renderResultDetailPage();
+  }
+  if (d.rsExport != null) {
+    try {
+      await exportRoomToXlsx(results.record, results.record.roomCode);
+    } catch (err) {
+      console.error(err);
+      alert("Export ไม่สำเร็จ (ดู Console)");
+    }
+    return;
+  }
+  if (d.rsDelete != null) {
+    // กดครั้งแรก = ถาม, ครั้งที่สอง = ลบจริง
+    if (!results.confirmDelete) {
+      results.confirmDelete = true;
+      return renderResultDetailPage();
+    }
+    try {
+      const key = results.record.key;
+      await Promise.all([remove(resultRef(key)), remove(resultIndexRef(key))]);
+      results.record = null;
+      showEntryPage("results");
+    } catch (err) {
+      console.error("[results] delete failed:", err);
+      alert("ลบไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+    }
   }
 }
 
@@ -1743,6 +1899,8 @@ function bindUIEvents() {
   on(dom.roomCodeInput, "keydown", (e) => e.key === "Enter" && dom.playerNameInput?.focus());
 
   on(dom.setLibrary, "click", onLibraryClick);
+  on(dom.resultsList, "click", onResultsClick);
+  on(dom.resultDetail, "click", onResultDetailClick);
   on(dom.saveSetBtn, "click", saveQuestionSet);
 
   // host
@@ -1752,7 +1910,6 @@ function bindUIEvents() {
   on(dom.startQuestionBtn, "click", hostStartQuestion);
   on(dom.toggleQuestionOverlayBtn, "click", hostToggleQuestionPanel);
   on(dom.revealAnswerBtn, "click", hostReveal);
-  on(dom.exportXlsxBtn, "click", hostExport);
   on(dom.detailTable, "toggle", () => {
     if (dom.detailTable.open && lastRoom) renderPlayerList(dom.playerList, lastRoom, lastRoom.players || {});
   });

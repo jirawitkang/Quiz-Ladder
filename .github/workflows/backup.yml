@@ -38,6 +38,7 @@ jobs:
           mkdir -p backups
           curl -sSf "$DB_URL/questionSets.json" | jq --sort-keys . > backups/question-sets.json
           curl -sSf "$DB_URL/results.json" | jq --sort-keys . > backups/results.json
+          curl -sSf "$DB_URL/resultsIndex.json" | jq --sort-keys . > backups/results-index.json
           echo "question sets: $(jq 'if . == null then 0 else length end' backups/question-sets.json)"
           echo "results:       $(jq 'if . == null then 0 else length end' backups/results.json)"
 
