@@ -1,0 +1,1293 @@
+{
+  "food1": {
+    "createdAt": 1791898319252,
+    "emojis": [
+      "🍎",
+      "🍊",
+      "🍋",
+      "🍉",
+      "🍇",
+      "🍓",
+      "🍒",
+      "🍍",
+      "🥭",
+      "🥝",
+      "🍔",
+      "🍕",
+      "🌭",
+      "🌮",
+      "🍣",
+      "🍜",
+      "🍙",
+      "🍤",
+      "🍩",
+      "🍪",
+      "🎂",
+      "🍰",
+      "🧁",
+      "🍫",
+      "🍿",
+      "🥨",
+      "🧀",
+      "🥐",
+      "🍦",
+      "🥟"
+    ],
+    "name": "Food Quest set 1",
+    "questions": [
+      {
+        "choices": {
+          "A": "3.0%",
+          "B": "3.1%",
+          "C": "3.2%"
+        },
+        "correctOption": "B",
+        "text": "Question : In the article “Microbiological safety and quality of ceviche, poke, and sushi dishes sold at retail outlets in Orange County, CA”, at what annual rate has global seafood consumption increased (from 1961 to 2017)?\n\nคำถาม : บทความนี้ ระบุอัตราการบริโภคอาหารทะเลทั่วโลกเพิ่มขึ้นกี่เปอร์เซ็นต์ต่อปี\n\nHint : In the first paragraph of the introduction.\n\nDatabase : ScienceDirect",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "3-5 centimeters",
+          "B": "3-4 centimeters",
+          "C": "2-3 centimeters"
+        },
+        "correctOption": "A",
+        "text": "Question : In the article “Kimchi and its antiobesity and anticancer functions”, what is the recommended cut size (in centimeters) for Matbaechu kimchi when preparing Baechu cabbage kimchi?\n\nคำถาม : บทความนี้ ระบุควรหั่น Matbaechu kimchi (ผักกาดขาว) ให้มีขนาดกี่เซนติเมตร สำหรับเตรียมทำเมนู Baechu cabbage kimchi (กิมจิผักกาดขาวแบบดั้งเดิมของเกาหลี)\n\nHint : In the Fig. 1.\n\nDatabase : SpringerNature Link",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "swamp cabbage",
+          "B": "Chinese kale",
+          "C": "spinach"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “Nutritional quality of organic, conventional, and seasonally grown broccoli using vitamin C as a marker”, which vegetable contains the highest amount of ascorbic acid?\n\nคำถาม : บทความนี้ ผักชนิดใดมีปริมาณกรดแอสคอร์บิกมากที่สุด\n\nHint : In the Figure 4.\n\nDatabase : Taylor & Francis Online",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "rsp@car.chula.ac.th",
+          "B": "rcs@car.chula.ac.th",
+          "C": "rss@car.chula.ac.th"
+        },
+        "correctOption": "C",
+        "text": "Question : Which email address should be used to contact the Research Support Service at the Central Library, Chulalongkorn University?\n\nคำถาม : อีเมลใด เป็นช่องทางสำหรับติดต่อบริการสนับสนุนงานวิจัย ของหอสมุดกลางจุฬาฯ\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "60 - 250 µg/kg",
+          "B": "70 - 260 µg/kg",
+          "C": "80 - 270 µg/kg"
+        },
+        "correctOption": "A",
+        "text": "Question : In the article \"Contribution of black olives and other vegetable toppings to acrylamide formation in pizzas\", what range does the acrylamide content in pizza fall (in µg/kg)?\n\nคำถาม : บทความนี้ ระบุว่าพิซซ่ามีปริมาณอะคริลาไมด์ (acrylamide) กี่ไมโครกรัมต่อกิโลกรัม\n\nHint : In the second paragraph of the introduction.\n\nDatabase : ScienceDirect",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "about 18%",
+          "B": "about 28%",
+          "C": "about 38%"
+        },
+        "correctOption": "A",
+        "text": "Question : In the article “Farmer Business School participation and its impact on cocoa productivity and food security in Ghana”, what percentage of Ghana’s export earnings comes from cocoa?\n\nคำถาม : บทความนี้ รายได้จากการส่งออกของกานามาจากโกโก้กี่ %?\n\nHint : In the first paragraph of the introduction.\n\nDatabase : Emerald Management",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "less than -10°C for more than 24 h.",
+          "B": "less than -15°C for more than 24 h.",
+          "C": "less than -20°C for more than 24 h."
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “Sushi Delights and Parasites: The Risk of Fishborne and Foodborne Parasitic Zoonoses in Asia”, at what temperature and for how long should marine fish for raw consumption be frozen under the European Union–Hazard Analysis and Critical Control Points (HACCP) guidelines?\n\nคำถาม : บทความนี้ ระบุว่า HACCP (กฎหมายสำหรับธุรกิจอาหาร่ในสหภาพยุโรป) กำหนดให้แช่แข็งปลาทะเลเพื่อบริโภคแบบดิบที่อุณหภูมิเท่าไรและเป็นเวลานานเท่าใด\n\nHint : In the first paragraph of the conclusions.\n\nDatabase : Oxford Journals Online",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "AND",
+          "B": "OR",
+          "C": "NOT"
+        },
+        "correctOption": "C",
+        "text": "Question : Which Boolean operator is used to exclude unwanted terms from search results?\n\nคำถาม : Boolean operator ข้อใดที่ใช้ในการตัดคำที่ไม่ต้องการออกจากผลลัพธ์\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "GC-FID",
+          "B": "LC-MS",
+          "C": "HPLC"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “Improving stability of frying oils and food quality with addition of dried olive mill wastewater”, which analytical technique was used to determine the polyphenolic composition of the dried olive mill wastewater?\n\nคำถาม : บทความนี้ ผู้วิจัยใช้เทคนิคใดวิเคราะห์องค์ประกอบของสารโพลีฟีนอลในน้ำเสียจากโรงงานผลิตน้ำมันมะกอกแห้ง\n\nHint : In the first paragraph of the results and discussion.\n\nDatabase : Nature",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Quotation marks หรือเครื่องหมายอัญประกาศ (\"...\")",
+          "B": "Question mark หรือเครื่องหมายคำถาม (?)",
+          "C": "Nesting หรือเครื่องหมายวงเล็บ ((...))"
+        },
+        "correctOption": "A",
+        "text": "Question : Which symbol is used to search for an exact phrase without splitting the words?\n\nคำถาม : เครื่องหมายใดใช้ช่วยค้นหาวลีหรือประโยคแบบตรงตัวโดยไม่แยกคำออกจากกัน\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      }
+    ],
+    "updatedAt": 1791898319252
+  },
+  "food2": {
+    "createdAt": 1791898319251,
+    "emojis": [
+      "🍎",
+      "🍊",
+      "🍋",
+      "🍉",
+      "🍇",
+      "🍓",
+      "🍒",
+      "🍍",
+      "🥭",
+      "🥝",
+      "🍔",
+      "🍕",
+      "🌭",
+      "🌮",
+      "🍣",
+      "🍜",
+      "🍙",
+      "🍤",
+      "🍩",
+      "🍪",
+      "🎂",
+      "🍰",
+      "🧁",
+      "🍫",
+      "🍿",
+      "🥨",
+      "🧀",
+      "🥐",
+      "🍦",
+      "🥟"
+    ],
+    "name": "Food Quest set 2",
+    "questions": [
+      {
+        "choices": {
+          "A": "RefCU",
+          "B": "CURef",
+          "C": "ChulaRef"
+        },
+        "correctOption": "B",
+        "text": "Question : If you can’t find the full text of a research article, which Facebook page should Chulalongkorn University members message for help?\n\nคำถาม : หากชาวจุฬาฯ ค้นหา full text ของบทความวิจัยไม่พบ สามารถติดต่อสอบถามผ่าน Facebook เพจใด\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "AND",
+          "B": "OR",
+          "C": "NOT"
+        },
+        "correctOption": "C",
+        "text": "Question : Which Boolean operator is used to exclude unwanted terms from search results?\n\nคำถาม : Boolean operator ข้อใดที่ใช้ในการตัดคำที่ไม่ต้องการออกจากผลลัพธ์\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Quotation marks หรือเครื่องหมายอัญประกาศ (\"...\")",
+          "B": "Question mark หรือเครื่องหมายคำถาม (?)",
+          "C": "Nesting หรือเครื่องหมายวงเล็บ ((...))"
+        },
+        "correctOption": "A",
+        "text": "Question : Which symbol is used to search for an exact phrase without splitting the words?\n\nคำถาม : เครื่องหมายใดใช้ช่วยค้นหาวลีหรือประโยคแบบตรงตัวโดยไม่แยกคำออกจากกัน\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "AND",
+          "B": "OR",
+          "C": "NOT"
+        },
+        "correctOption": "B",
+        "text": "Question : Which Boolean operator should be used to broaden the search results?\n\nคำถาม : ควรใช้ Boolean operator ใด หากต้องการให้ผลการสืบค้นกว้างขึ้น\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "*",
+          "B": "+",
+          "C": "&"
+        },
+        "correctOption": "A",
+        "text": "Question : Which symbol should be used if you want to search for words with the same root, such as educate, education, educational?\n\nคำถาม : ควรใช้เครื่องหมายใด หากต้องการค้นหาคำที่มีรากศัพท์เดียวกัน เช่น educate, education, educational\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "To increase the number of results (เพิ่มจำนวนผลลัพธ์ให้มากขึ้น)",
+          "B": "To limit results to a specific time period (จำกัดผลลัพธ์ให้เฉพาะช่วงเวลาที่ต้องการ)",
+          "C": "To find similar words (ค้นหาคำที่คล้ายกัน)"
+        },
+        "correctOption": "B",
+        "text": "Question : What is the purpose of using a Year filter in database searching?\n\nคำถาม : การใช้ตัวกรองปี มีประโยชน์อย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "food AND safety",
+          "B": "\"food safety\"",
+          "C": "food-safety"
+        },
+        "correctOption": "B",
+        "text": "Question : If you want the results to show food safety as an exact phrase, how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า food safety แบบติดกัน ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Language filter",
+          "B": "Document type filter",
+          "C": "Publication date filter"
+        },
+        "correctOption": "C",
+        "text": "Question : If you want the results to appear for the years 2019–2024, which filter should you use in the database?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏในช่วงปี 2019–2024 ควรใช้ตัวใดในฐานข้อมูล\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "pizza OR pasta",
+          "B": "pizza or pasta",
+          "C": "pizza Or pasta"
+        },
+        "correctOption": "A",
+        "text": "Question : If you want the results to show pizza or pasta (either one), how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า pizza หรือ pasta (อย่างใดอย่างหนึ่ง) ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "rsp@car.chula.ac.th",
+          "B": "rcs@car.chula.ac.th",
+          "C": "rss@car.chula.ac.th"
+        },
+        "correctOption": "C",
+        "text": "Question : Which email address should be used to contact the Research Support Service at the Central Library, Chulalongkorn University?\n\nคำถาม : อีเมลใด เป็นช่องทางสำหรับติดต่อบริการสนับสนุนงานวิจัย ของหอสมุดกลางจุฬาฯ\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      }
+    ],
+    "updatedAt": 1791898319251
+  },
+  "food3": {
+    "createdAt": 1791898319250,
+    "emojis": [
+      "🍎",
+      "🍊",
+      "🍋",
+      "🍉",
+      "🍇",
+      "🍓",
+      "🍒",
+      "🍍",
+      "🥭",
+      "🥝",
+      "🍔",
+      "🍕",
+      "🌭",
+      "🌮",
+      "🍣",
+      "🍜",
+      "🍙",
+      "🍤",
+      "🍩",
+      "🍪",
+      "🎂",
+      "🍰",
+      "🧁",
+      "🍫",
+      "🍿",
+      "🥨",
+      "🧀",
+      "🥐",
+      "🍦",
+      "🥟"
+    ],
+    "name": "Food Quest set 3",
+    "questions": [
+      {
+        "choices": {
+          "A": "เพราะหัวหอมสะเทือนใจ",
+          "B": "เพราะปล่อยสารระเหยไปทำปฏิกิริยากับน้ำตา",
+          "C": "เพราะมีพริกซ่อนอยู่"
+        },
+        "correctOption": "B",
+        "text": "Question : Why do onions make you cry when cutting them?\n\nคำถาม : ทำไมหั่นหัวหอมแล้วน้ำตาไหลเหมือนโดนเท\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "ชีสสด",
+          "B": "ชีสแข็งอายุสั้น",
+          "C": "ชีสบ่ม/ชีสอายุเยอะ"
+        },
+        "correctOption": "C",
+        "text": "Question : Which type of cheese is generally smellier?\n\nคำถาม : “ชีส” แบบไหนมักมีกลิ่นแรงจนเพื่อนร้องขอชีวิต\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "AND",
+          "B": "OR",
+          "C": "NOT"
+        },
+        "correctOption": "C",
+        "text": "Question : Which Boolean operator is used to exclude unwanted terms from search results?\n\nคำถาม : Boolean operator ข้อใดที่ใช้ในการตัดคำที่ไม่ต้องการออกจากผลลัพธ์\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "pizza OR pasta",
+          "B": "pizza or pasta",
+          "C": "pizza Or pasta"
+        },
+        "correctOption": "A",
+        "text": "Question : If you want the results to show pizza or pasta (either one), how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า pizza หรือ pasta (อย่างใดอย่างหนึ่ง) ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "2 people",
+          "B": "3 people",
+          "C": "4 people"
+        },
+        "correctOption": "B",
+        "text": "Question : How many authors are there in the article “Would offering vegetables to children for breakfast increase their total daily vegetable intake?”?\n\nคำถาม : บทความเรื่องนี้ มีผู้แต่งกี่คน\n\nHint : -\n\nDatabase : Cambridge Journals Online",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Plain cookie",
+          "B": "Cheese ball",
+          "C": "Mango juice"
+        },
+        "correctOption": "B",
+        "text": "Question : In Figure 1 of the article “What We Talk about when We Talk about Food Experiences”, which stimulus was used for the umami taste?\n\nคำถาม : ในภาพที่ 1 ของบทความนี้ อาหารชนิดใดถูกใช้เพื่อกระตุ้นรสอูมามิ\n\nHint : In the Figure 1.\n\nDatabase : ACM",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Language filter",
+          "B": "Document type filter",
+          "C": "Publication date filter"
+        },
+        "correctOption": "C",
+        "text": "Question : If you want the results to appear for the years 2019–2024, which filter should you use in the database?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏในช่วงปี 2019–2024 ควรใช้ตัวใดในฐานข้อมูล\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Aril",
+          "B": "Husk",
+          "C": "Peduncle"
+        },
+        "correctOption": "A",
+        "text": "Question : In the article “Investigation of key chemical species from durian peduncles and their correlations with durian maturity”, which part shown in Figure 1 is the edible portion?\n\nคำถาม : ส่วนของเนื้อทุเรียนที่สามารถรับประทานได้ในภาพที่ 1 ของบทความนี้ เรียกว่าอะไร\n\nHint : -\n\nDatabase : Nature",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Ni",
+          "B": "Cd",
+          "C": "Cu"
+        },
+        "correctOption": "A",
+        "text": "Question : In the article “Contents and Risk Assessment of Heavy Metals in Marine Invertebrates from Korean Coastal Fish Markets”, which heavy metal has the highest recovery (%) in Table 2?\n\nคำถาม : โลหะหนักชนิดใดมีค่า Recovery (%) สูงที่สุดในตารางที่ 2 ของบทความนี้\n\nHint : -\n\nDatabase : ScienceDirect",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "food AND safety",
+          "B": "\"food safety\"",
+          "C": "food-safety"
+        },
+        "correctOption": "B",
+        "text": "Question : If you want the results to show food safety as an exact phrase, how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า food safety แบบติดกัน ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      }
+    ],
+    "updatedAt": 1791898319250
+  },
+  "food4": {
+    "createdAt": 1791898319249,
+    "emojis": [
+      "🍎",
+      "🍊",
+      "🍋",
+      "🍉",
+      "🍇",
+      "🍓",
+      "🍒",
+      "🍍",
+      "🥭",
+      "🥝",
+      "🍔",
+      "🍕",
+      "🌭",
+      "🌮",
+      "🍣",
+      "🍜",
+      "🍙",
+      "🍤",
+      "🍩",
+      "🍪",
+      "🎂",
+      "🍰",
+      "🧁",
+      "🍫",
+      "🍿",
+      "🥨",
+      "🧀",
+      "🥐",
+      "🍦",
+      "🥟"
+    ],
+    "name": "Food Quest set 4",
+    "questions": [
+      {
+        "choices": {
+          "A": "pizza OR pasta",
+          "B": "pizza or pasta",
+          "C": "pizza Or pasta"
+        },
+        "correctOption": "A",
+        "text": "Question : If you want the results to show pizza or pasta (either one), how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า pizza หรือ pasta (อย่างใดอย่างหนึ่ง) ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "4 people",
+          "B": "6 people",
+          "C": "8 people"
+        },
+        "correctOption": "B",
+        "text": "Question : How many authors are there in the article \"Acorn flour and sourdough: an innovative combination to improve gluten free bread characteristics\"?\n\nคำถาม : บทความเรื่องนี้ มีผู้แต่งกี่คน\n\nHint : -\n\nDatabase : SpringerNature Link",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "3-5 centimeters",
+          "B": "3-4 centimeters",
+          "C": "2-3 centimeters"
+        },
+        "correctOption": "A",
+        "text": "Question : In the article “Kimchi and its antiobesity and anticancer functions”, what is the recommended cut size (in centimeters) for Matbaechu kimchi when preparing Baechu cabbage kimchi?\n\nคำถาม : บทความนี้ ระบุควรหั่น Matbaechu kimchi (ผักกาดขาว) ให้มีขนาดกี่เซนติเมตร สำหรับเตรียมทำเมนู Baechu cabbage kimchi (กิมจิผักกาดขาวแบบดั้งเดิมของเกาหลี)\n\nHint : In the Fig. 1.\n\nDatabase : SpringerNature Link",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "3.75 million tons",
+          "B": "4.75 million tons",
+          "C": "5.75 million tons"
+        },
+        "correctOption": "B",
+        "text": "Question : In the article \"Goose meat production and consumption: current knowledge and market challenges\" what is the projected global goose meat production in 2027?\n\nคำถาม : บทความนี้ คาดการณ์การผลิตเนื้อห่านทั่วโลกในปี 2027 อยู่ที่เท่าใด\n\nHint : In the introduction.\n\nDatabase : Taylor & Francis Online",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "*",
+          "B": "+",
+          "C": "&"
+        },
+        "correctOption": "A",
+        "text": "Question : Which symbol should be used if you want to search for words with the same root, such as educate, education, educational?\n\nคำถาม : ควรใช้เครื่องหมายใด หากต้องการค้นหาคำที่มีรากศัพท์เดียวกัน เช่น educate, education, educational\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Boiled food",
+          "B": "Grilled food",
+          "C": "Fried food"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “Effect of a popular Middle Eastern food (Falafel) on rat liver”, which cooking method is used to prepare falafel?\n\nคำถาม : บทความนี้ ระบุว่าฟาลาเฟล (Falafel) เป็นอาหารที่ปรุงด้วยวิธีใด\n\nHint : In the first paragraph of the introduction.\n\nDatabase : Taylor & Francis Online",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Clin Infect Dis, Published in 2024.",
+          "B": "The International Journal of Applied Linguistics, Published in 2024.",
+          "C": "Clinical Infectious Diseases, Published in 2024."
+        },
+        "correctOption": "B",
+        "text": "Question : The article “Teacher, I Don't Know How to Describe ‘Tom Yum Kung’ in English, but I Know ‘Hamburger’ and ‘Pizza’: Will Global Englishes Language Teaching be a Beacon of Hope or a Recipe for Disaster in Thai ELT?” was published in what year and in what journal?\n\nคำถาม : บทความนี้ตีพิมพ์เผยแพร่ในปีใดและในวารสารชื่ออะไร\n\nHint : -\n\nDatabase : Wiley Online Library",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "1950-2000",
+          "B": "1950-2001",
+          "C": "1950-2002"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “The Demand and Allocation of Alaskan and Canadian Snow Crab”, what is the time range shown in Figure 1 for Alaskan crab landings?\n\nคำถาม : กราฟในรูปที่ 1 ในบทความนี้ แสดงข้อมูลการจับปู Alaskan ในช่วงปีใด\n\nHint : In the Figure 1.\n\nDatabase : Wiley Online Library",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "food AND safety",
+          "B": "\"food safety\"",
+          "C": "food-safety"
+        },
+        "correctOption": "B",
+        "text": "Question : If you want the results to show food safety as an exact phrase, how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า food safety แบบติดกัน ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "106.7 million cows",
+          "B": "54.2 million cows",
+          "C": "33.7 million cows"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “A brief nudge or education intervention delivered online can increase willingness to order a beef-mushroom burger”, approximately how many cows were slaughtered in 2018?\n\nคำถาม : บทความนี้ มีวัวถูกฆ่าเพื่อการผลิตเนื้อวัวประมาณกี่ล้านตัว ในปี 2018\n\nHint : In the first paragraph of the introduction.\n\nDatabase : ScienceDirect",
+        "timeLimit": 120
+      }
+    ],
+    "updatedAt": 1791898319249
+  },
+  "food5": {
+    "createdAt": 1791898319248,
+    "emojis": [
+      "🍎",
+      "🍊",
+      "🍋",
+      "🍉",
+      "🍇",
+      "🍓",
+      "🍒",
+      "🍍",
+      "🥭",
+      "🥝",
+      "🍔",
+      "🍕",
+      "🌭",
+      "🌮",
+      "🍣",
+      "🍜",
+      "🍙",
+      "🍤",
+      "🍩",
+      "🍪",
+      "🎂",
+      "🍰",
+      "🧁",
+      "🍫",
+      "🍿",
+      "🥨",
+      "🧀",
+      "🥐",
+      "🍦",
+      "🥟"
+    ],
+    "name": "Food Quest set 5",
+    "questions": [
+      {
+        "choices": {
+          "A": "pizza OR pasta",
+          "B": "pizza or pasta",
+          "C": "pizza Or pasta"
+        },
+        "correctOption": "A",
+        "text": "Question : If you want the results to show pizza or pasta (either one), how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า pizza หรือ pasta (อย่างใดอย่างหนึ่ง) ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "1950-2000",
+          "B": "1950-2001",
+          "C": "1950-2002"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “The Demand and Allocation of Alaskan and Canadian Snow Crab”, what is the time range shown in Figure 1 for Alaskan crab landings?\n\nคำถาม : กราฟในรูปที่ 1 ในบทความนี้ แสดงข้อมูลการจับปู Alaskan ในช่วงปีใด\n\nHint : In the Figure 1.\n\nDatabase : Wiley Online Library",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "2 people",
+          "B": "3 people",
+          "C": "4 people"
+        },
+        "correctOption": "B",
+        "text": "Question : How many authors are there in the article “Would offering vegetables to children for breakfast increase their total daily vegetable intake?”?\n\nคำถาม : บทความเรื่องนี้ มีผู้แต่งกี่คน\n\nHint : -\n\nDatabase : Cambridge Journals Online",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "*",
+          "B": "+",
+          "C": "&"
+        },
+        "correctOption": "A",
+        "text": "Question : Which symbol should be used if you want to search for words with the same root, such as nutrition, nutritional, nutritious?\n\nคำถาม : ควรใช้เครื่องหมายใด หากต้องการค้นหาคำที่มีรากศัพท์เดียวกัน เช่น nutrition, nutritional, nutritious\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "60 - 250 µg/kg",
+          "B": "70 - 260 µg/kg",
+          "C": "80 - 270 µg/kg"
+        },
+        "correctOption": "A",
+        "text": "Question : In the article \"Contribution of black olives and other vegetable toppings to acrylamide formation in pizzas\", what range does the acrylamide content in pizza fall (in µg/kg)?\n\nคำถาม : บทความนี้ ระบุว่าพิซซ่ามีปริมาณอะคริลาไมด์ (acrylamide) กี่ไมโครกรัมต่อกิโลกรัม\n\nHint : In the second paragraph of the introduction.\n\nDatabase : ScienceDirect",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Temperature",
+          "B": "Yeast viability",
+          "C": "Specific volume"
+        },
+        "correctOption": "A",
+        "text": "Question : In the article “Effects of freezing rate and terminal freezing temperature on frozen croissant dough quality”, what variable is shown on the y-axis of Figure 1?\n\nคำถาม : แกน y ของรูปที่ 1 ในบทความนี้ แสดงค่าใด\n\nHint : -\n\nDatabase : ScienceDirect",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "kway teow",
+          "B": "localization of food",
+          "C": "national cuisine"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “Pad Thai: the Thai-ization of Chinese food and the Thai nationalism project by the Phibunsongkhram government”, which of the following is NOT a keyword of the article?\n\nคำถาม : ข้อใดไม่ใช่คำสำคัญของบทความเรื่องนี้\n\nHint : -\n\nDatabase : Taylor & Francis Online",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "food AND safety",
+          "B": "\"food safety\"",
+          "C": "food-safety"
+        },
+        "correctOption": "B",
+        "text": "Question : If you want the results to show food safety as an exact phrase, how should you type the query?\n\nคำถาม : หากต้องการให้ผลลัพธ์ปรากฏคำว่า food safety แบบติดกัน ควรพิมพ์คำค้นอย่างไร\n\nHint : -\n\nDatabase : -",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "Breakfast Cookie Products",
+          "B": "Breakfast Cereals Protein",
+          "C": "Breakfast Cereals Products"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “High-fiber breakfast cereals using only carrot and cereal by-products”, what does the ‘BCP’ stand for?\n\nคำถาม : ‘BCP’ ในบทความนี้ ย่อมาจากคำว่าอะไร\n\nHint : In the first paragraph of the introduction.\n\nDatabase : ScienceDirect",
+        "timeLimit": 120
+      },
+      {
+        "choices": {
+          "A": "swamp cabbage",
+          "B": "Chinese kale",
+          "C": "spinach"
+        },
+        "correctOption": "C",
+        "text": "Question : In the article “Nutritional quality of organic, conventional, and seasonally grown broccoli using vitamin C as a marker”, which vegetable contains the highest amount of ascorbic acid?\n\nคำถาม : บทความนี้ ผักชนิดใดมีปริมาณกรดแอสคอร์บิกมากที่สุด\n\nHint : In the Figure 4.\n\nDatabase : Taylor & Francis Online",
+        "timeLimit": 120
+      }
+    ],
+    "updatedAt": 1791898319248
+  },
+  "friends": {
+    "createdAt": 1791898319254,
+    "emojis": [
+      "🎉",
+      "🎈",
+      "🎊",
+      "🎁",
+      "🎂",
+      "🎮",
+      "🎲",
+      "🎯",
+      "🎳",
+      "🎸",
+      "🎤",
+      "🎧",
+      "🎨",
+      "📸",
+      "🛹",
+      "⚽",
+      "🏀",
+      "🏈",
+      "⚾",
+      "🎾",
+      "🏐",
+      "🏓",
+      "🏸",
+      "🥊",
+      "🚲",
+      "🏄",
+      "🎡",
+      "🎢",
+      "🍕",
+      "🥤"
+    ],
+    "name": "Friends, Fun & Facts",
+    "questions": [
+      {
+        "choices": {
+          "A": "นัดหลายคน",
+          "B": "นัดด่วน",
+          "C": "นัดวันธรรมดา",
+          "D": "นัดที่ทุกคนบอกว่าว่าง"
+        },
+        "correctOption": "D",
+        "text": "นัดเพื่อนแบบไหนที่เลื่อนง่ายที่สุด?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ถามสารทุกข์",
+          "B": "ถามความเห็น",
+          "C": "ถามใครว่าง",
+          "D": "ถามเรื่องเงิน"
+        },
+        "correctOption": "D",
+        "text": "แชทกลุ่มมักเงียบที่สุดตอนไหน?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "เพื่อนยุ่ง",
+          "B": "เพื่อนเงียบ",
+          "C": "เพื่อนหาย",
+          "D": "เพื่อนชวนกิน"
+        },
+        "correctOption": "C",
+        "text": "เพื่อนประเภทไหนที่มักโผล่มาเฉพาะบางเวลา?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "กำลังออกจากบ้าน",
+          "B": "อีกสักพัก",
+          "C": "ยังไม่พร้อม",
+          "D": "ขอดูก่อน"
+        },
+        "correctOption": "B",
+        "text": "คำว่า ‘เดี๋ยวไป’ จากเพื่อน มักหมายถึงอะไร?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "เพื่อนตลก",
+          "B": "เพื่อนจำเก่ง",
+          "C": "เพื่อนชวนคุย",
+          "D": "เพื่อนประสานงาน"
+        },
+        "correctOption": "D",
+        "text": "เพื่อนแบบไหนที่วงขาดไม่ได้?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ชวนกิน",
+          "B": "ชวนเที่ยว",
+          "C": "ชวนทำงาน",
+          "D": "ชวนโอน"
+        },
+        "correctOption": "A",
+        "text": "เวลาที่เพื่อนมักตอบแชทเร็วที่สุดคือเมื่อใด?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ได้หมด",
+          "B": "แล้วแต่",
+          "C": "ขอดูก่อน",
+          "D": "ยังไงก็ได้"
+        },
+        "correctOption": "B",
+        "text": "ประโยคใดทำให้รู้ว่าเพื่อนเริ่มไม่แน่ใจ?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "วันหยุดยาว",
+          "B": "วันเกิด",
+          "C": "วันเงินเดือนออก",
+          "D": "วันว่างตรงกัน"
+        },
+        "correctOption": "C",
+        "text": "เพื่อนมักนัดกันจริงจังในโอกาสใด?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ต่างคนยุ่ง",
+          "B": "คุยกันบ่อยแล้ว",
+          "C": "ไม่มีเรื่องใหม่",
+          "D": "รอคนเริ่ม"
+        },
+        "correctOption": "D",
+        "text": "วงเพื่อนเงียบลงมักเกิดจากอะไร?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ทักมา",
+          "B": "ส่งมีม",
+          "C": "ชวนเจอ",
+          "D": "ยังอยู่ในกลุ่ม"
+        },
+        "correctOption": "B",
+        "text": "สิ่งใดทำให้รู้ว่าเพื่อนยังคิดถึงกัน?",
+        "timeLimit": 30
+      }
+    ],
+    "updatedAt": 1791898319254
+  },
+  "general": {
+    "createdAt": 1791898319256,
+    "emojis": [
+      "💼",
+      "📎",
+      "📌",
+      "✏️",
+      "🖊️",
+      "📏",
+      "📐",
+      "📁",
+      "📅",
+      "📊",
+      "📈",
+      "🖨️",
+      "💻",
+      "⌨️",
+      "🖱️",
+      "☕",
+      "📞",
+      "📦",
+      "🗂️",
+      "📝",
+      "🔖",
+      "🧷",
+      "✂️",
+      "🗃️",
+      "💡",
+      "🔋",
+      "📮",
+      "🧮",
+      "🔍",
+      "⏰"
+    ],
+    "name": "Work ไร้ Balance",
+    "questions": [
+      {
+        "choices": {
+          "A": "เพราะชีวิต",
+          "B": "เพราะน้ำตาลหมด",
+          "C": "เพราะเมล็ดกาแฟ",
+          "D": "เพราะแก้วมันเศร้า"
+        },
+        "correctOption": "C",
+        "text": "ทำไมกาแฟถึงขม? (ตอบผิดไม่ดุ แต่อาจงอนนิดนึง)",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "รีสตาร์ทเราเตอร์",
+          "B": "โทษชะตา",
+          "C": "เดินไปใกล้ ๆ แล้วทำเนียน",
+          "D": "อธิษฐานกับเสาสัญญาณ"
+        },
+        "correctOption": "A",
+        "text": "ถ้า Wi-Fi หลุดบ่อย เราควรทำอะไรก่อน?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "งานที่ต้องเสร็จเมื่อวาน",
+          "B": "งานที่หัวหน้าบอกว่าไม่รีบ",
+          "C": "งานที่ส่งแล้วแต่ยังต้องแก้",
+          "D": "งานที่ยังไม่เริ่มแต่ใกล้เดดไลน์"
+        },
+        "correctOption": "A",
+        "text": "ข้อใดคือ 'งานด่วน' ที่แท้จริง?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "123456",
+          "B": "password",
+          "C": "ForgetMeNot202!",
+          "D": "ชื่อแมว+วันเกิด+OTP"
+        },
+        "correctOption": "C",
+        "text": "ถ้าลืมรหัสผ่านบ่อย ควรตั้งรหัสใหม่ว่าอะไร?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ภายใน 5 นาที",
+          "B": "หลังอาหาร",
+          "C": "พรุ่งนี้แหละ",
+          "D": "เมื่อโลกสงบ"
+        },
+        "correctOption": "C",
+        "text": "เวลาพูดว่า 'เดี๋ยวทำ' โดยเฉลี่ยหมายถึง…",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "final",
+          "B": "final_v7_REALfinal",
+          "C": "final_v7_REALfinal_2",
+          "D": "ไฟล์ที่เปิดล่าสุด"
+        },
+        "correctOption": "D",
+        "text": "ถ้าพบไฟล์ชื่อ final_v7_REALfinal จริง ๆ แล้วไฟล์ไหนคือไฟล์สุดท้าย?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "เดินไปเข้าห้องน้ำ",
+          "B": "ยืดเส้นยืดสาย",
+          "C": "เดินไปหาเครื่องปริ้นท์แล้วเครื่องพัง",
+          "D": "ทั้งหมดที่กล่าวมา"
+        },
+        "correctOption": "D",
+        "text": "ข้อใดคือ 'การออกกำลังกาย' ของสายออฟฟิศ?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "โทรแจ้งตำรวจ",
+          "B": "ทำใจแล้วกินแบบคลีน",
+          "C": "เขียนรายงานสาเหตุราก (RCA)",
+          "D": "เปิดซองอีกอันอย่างสง่างาม"
+        },
+        "correctOption": "D",
+        "text": "ถ้ากำลังจะชงมาม่า แต่หา 'ซองพริก' ไม่เจอ ควรทำยังไง?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ส่งทันที",
+          "B": "ส่งหลังประชุม",
+          "C": "ส่งก่อนเลิกงานถ้านึกได้",
+          "D": "ส่งเมื่อคุณทักมาครั้งที่ 3"
+        },
+        "correctOption": "D",
+        "text": "คำว่า 'เดี๋ยวส่งให้ครับ/ค่ะ' ในแชทงาน หมายถึงข้อใดมากที่สุด?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "นาฬิกาปลุกผิด",
+          "B": "หมอนดูดวิญญาณ",
+          "C": "มือปิดเองแบบอัตโนมัติ (สกิลลับ)",
+          "D": "ทั้ง B และ C"
+        },
+        "correctOption": "D",
+        "text": "ถ้าตั้งนาฬิกาปลุก 10 อัน แต่ยังตื่นสาย สาเหตุคืออะไร?",
+        "timeLimit": 30
+      }
+    ],
+    "updatedAt": 1791898319256
+  },
+  "love": {
+    "createdAt": 1791898319255,
+    "emojis": [
+      "❤️",
+      "🧡",
+      "💛",
+      "💚",
+      "💙",
+      "💜",
+      "🤍",
+      "🖤",
+      "💌",
+      "🌹",
+      "🌷",
+      "🌸",
+      "💐",
+      "🌺",
+      "🌻",
+      "🍫",
+      "🧸",
+      "🎀",
+      "💍",
+      "🕯️",
+      "🎁",
+      "🦢",
+      "🐝",
+      "🍓",
+      "🌈",
+      "⭐",
+      "🌙",
+      "🧁",
+      "🎵",
+      "🦋"
+    ],
+    "name": "ไม่เป็นไร (แต่จำได้หมด)",
+    "questions": [
+      {
+        "choices": {
+          "A": "ไม่เป็นไร…ตอนนี้นะ",
+          "B": "เป็นไร แต่ยังไม่อยากพูด",
+          "C": "เป็นไร แล้วเดี๋ยวค่อยว่ากัน",
+          "D": "เป็นไรนิดหน่อย (แต่จำได้หมด)"
+        },
+        "correctOption": "B",
+        "text": "คำว่า ‘ไม่เป็นไร’ ในเรื่องความรัก มักแปลว่าอะไร?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ยื่นตัวเลือก 3 อย่าง แล้วให้เลือกเอง",
+          "B": "ทำตามใจเรา แล้วภาวนา",
+          "C": "ทำตามที่เคยทำแล้วไม่โดนงอน",
+          "D": "ตอบว่า ‘งั้นกินข้าวก่อน’ เพื่อซื้อเวลา"
+        },
+        "correctOption": "A",
+        "text": "ถ้าแฟนบอกว่า ‘ทำอะไรก็ได้’ ควรทำอย่างไรดีที่สุด?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ไม่ว่างจริง ๆ (แต่ก็แอบอ่านอยู่)",
+          "B": "กำลังคิดคำตอบที่ไม่ทำให้มีภาคต่อ",
+          "C": "เผลอหลับ / มือถือคว่ำหน้า",
+          "D": "อยากให้เราเดาอารมณ์จากอักษรวิญญาณ"
+        },
+        "correctOption": "B",
+        "text": "อ่านข้อความแล้วไม่ตอบ เป็นสัญญาณของอะไร?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "มีประโยค ‘กลับถึงแล้วบอกนะ’",
+          "B": "มีรูปคู่ 1 รูป (ถ่ายไม่ติดหน้าได้)",
+          "C": "มีนัดครั้งต่อไปแบบไม่ต้องฝืน",
+          "D": "มีความรู้สึกว่า ‘วันนี้เวลาหมดไว’"
+        },
+        "correctOption": "C",
+        "text": "เดตแรกที่ดี ควรจบลงด้วยอะไร?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ไม่นะ เหมือนเดิมเลย",
+          "B": "เราว่าดูสุขภาพดีขึ้นนะ",
+          "C": "เรามองว่าเธอน่ารักขึ้นทุกวัน",
+          "D": "คำถามนี้…ให้เราตอบตอนกินข้าวเสร็จได้ไหม"
+        },
+        "correctOption": "C",
+        "text": "ถ้าแฟนถามว่า ‘เราดูอ้วนขึ้นไหม’ คำตอบที่ปลอดภัยที่สุดคือ?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "เงียบใส่กัน แล้วบอกว่าไม่ได้เงียบ",
+          "B": "ทะเลาะเรื่องเดิม แต่ใช้คำใหม่",
+          "C": "ทะเลาะแล้วมีประโยค ‘ช่างมันเถอะ’",
+          "D": "ทะเลาะแล้วดึงเรื่องปี 2017 มาด้วย"
+        },
+        "correctOption": "A",
+        "text": "การทะเลาะที่อันตรายที่สุดในความรักคือแบบไหน?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "สิ่งที่เคยพูดไว้ตอนอารมณ์ดี",
+          "B": "สิ่งที่เราย้ำไป 3 รอบ",
+          "C": "วันสำคัญที่ไม่มีในปฏิทิน",
+          "D": "สิ่งที่ ‘ควรจำ’ พอดี"
+        },
+        "correctOption": "D",
+        "text": "ถ้าแฟนบอกว่า ‘จำไม่ได้’ ส่วนใหญ่จำไม่ได้เรื่องอะไร?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "เมื่อเริ่มคุยกันด้วยคำว่า ‘อืม’ บ่อยขึ้น",
+          "B": "เมื่อเริ่มต้องเดาว่าอีกฝ่ายคิดอะไร",
+          "C": "เมื่อเริ่มขอโทษทั้งที่ยังไม่รู้ว่าผิดอะไร",
+          "D": "เมื่อประโยค ‘ตามใจ’ เริ่มออกเสียงชัดเกินไป"
+        },
+        "correctOption": "B",
+        "text": "ความสัมพันธ์จะเริ่มมีปัญหาเมื่อใด?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "งอนแล้วตอบ ‘ค่ะ/ครับ’ สุภาพจัด",
+          "B": "งอนแล้วโพสต์เพลงเศร้าแบบไม่เกี่ยว",
+          "C": "งอนแล้วบอกว่าไม่งอน พร้อมถอนหายใจ",
+          "D": "งอนแล้วทำเหมือนปกติ…แต่ปกติไม่เหมือนเดิม"
+        },
+        "correctOption": "D",
+        "text": "การงอนที่อันตรายที่สุดคือแบบไหน?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ความเข้าใจ (แบบไม่ต้องแปลภาษา)",
+          "B": "ความไว้ใจ (แบบไม่ต้องสืบสวน)",
+          "C": "การสื่อสาร (แบบไม่ต้องให้ AI แปลความหมาย)",
+          "D": "แบตมือถือที่ไม่หมดตอนกำลังเคลียร์กัน"
+        },
+        "correctOption": "C",
+        "text": "ความรักที่ดีควรมีอะไรเป็นพื้นฐาน?",
+        "timeLimit": 30
+      }
+    ],
+    "updatedAt": 1791898319255
+  },
+  "money": {
+    "createdAt": 1791898319253,
+    "emojis": [
+      "💰",
+      "💵",
+      "💴",
+      "💶",
+      "💷",
+      "💸",
+      "💳",
+      "🪙",
+      "🏦",
+      "💎",
+      "📈",
+      "📉",
+      "🧾",
+      "🏧",
+      "👛",
+      "👜",
+      "🛍️",
+      "🛒",
+      "🎰",
+      "🏷️",
+      "⚖️",
+      "🧮",
+      "🔑",
+      "🏆",
+      "🎁",
+      "🐖",
+      "👑",
+      "⌚",
+      "🚗",
+      "🏠"
+    ],
+    "name": "Money Coach ที่ยังต้องรอเงินเดือน",
+    "questions": [
+      {
+        "choices": {
+          "A": "ตอนเงินเดือนเข้า",
+          "B": "ตอนเปิดแอปดูครั้งแรก",
+          "C": "ตอนยังไม่เช็กยอด",
+          "D": "ตอนคิดว่าเดี๋ยวก็หาใหม่ได้"
+        },
+        "correctOption": "A",
+        "text": "ช่วงเวลาไหนที่รู้สึกว่าเงินในบัญชีดูใจดีที่สุด?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ของมันต้องมี",
+          "B": "ซื้อเถอะ คุ้ม",
+          "C": "ลดวันนี้วันเดียว",
+          "D": "ไม่ซื้อก็ได้ (แต่ซื้อดีกว่า)"
+        },
+        "correctOption": "C",
+        "text": "ประโยคใดมักทำให้รูดบัตรเร็วขึ้น?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ของชิ้นใหญ่",
+          "B": "ของชิ้นเล็กหลายครั้ง",
+          "C": "ค่าเดินทาง",
+          "D": "ของที่เพื่อนชวนซื้อ"
+        },
+        "correctOption": "B",
+        "text": "สิ่งใดทำให้เงินหายแบบไม่รู้ตัวมากที่สุด?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "มาม่า",
+          "B": "ชาบู",
+          "C": "ข้าวไข่เจียว",
+          "D": "อะไรก็ได้ที่ยังจ่ายไหว"
+        },
+        "correctOption": "D",
+        "text": "ปลายเดือน อาหารแบบไหนดูอร่อยเป็นพิเศษ?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ถูกจริง",
+          "B": "แพงแต่ยังรับได้",
+          "C": "ลดจากราคาเดิม",
+          "D": "แพง แต่ทำเป็นไม่คิด"
+        },
+        "correctOption": "B",
+        "text": "คำว่า ‘ไม่แพง’ ในใจเรา มักหมายถึงอะไร?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "เปิดแอปเช็กยอด",
+          "B": "วางแผนเก็บเงิน",
+          "C": "โอนเงินให้ตัวเองในอนาคต",
+          "D": "บอกตัวเองว่าเดือนนี้จะประหยัด"
+        },
+        "correctOption": "A",
+        "text": "สิ่งใดมักเกิดขึ้นทันทีหลังเงินเดือนออก?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ค่าอาหาร",
+          "B": "ค่าเดินทาง",
+          "C": "ค่าอินเทอร์เน็ต",
+          "D": "ค่าสมาชิกที่ลืมไปแล้ว"
+        },
+        "correctOption": "D",
+        "text": "ค่าใช้จ่ายใดที่มักโผล่มาแบบไม่ทันตั้งตัว?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ต้นเดือน",
+          "B": "กลางเดือน",
+          "C": "ปลายเดือน",
+          "D": "ก่อนเงินเข้า"
+        },
+        "correctOption": "C",
+        "text": "ช่วงไหนที่คำว่า ‘ประหยัด’ ดังที่สุดในใจ?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ซื้อของตามอารมณ์",
+          "B": "จดรายจ่าย",
+          "C": "รอของลด",
+          "D": "คิดก่อนซื้อ"
+        },
+        "correctOption": "A",
+        "text": "พฤติกรรมใดทำให้เงินอยู่ไม่นาน?",
+        "timeLimit": 30
+      },
+      {
+        "choices": {
+          "A": "ยังมีเงินสดติดกระเป๋า",
+          "B": "ยังรูดบัตรผ่าน",
+          "C": "ยังมีเพื่อนเลี้ยง",
+          "D": "ยังไม่ต้องยืมใคร"
+        },
+        "correctOption": "B",
+        "text": "สิ่งใดช่วยให้รู้สึกว่าตัวเองยังไม่จนเกินไป?",
+        "timeLimit": 30
+      }
+    ],
+    "updatedAt": 1791898319253
+  }
+}
