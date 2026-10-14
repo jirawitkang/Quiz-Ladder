@@ -193,6 +193,25 @@ const dom = {
   lobbyCount: $("lobbyCount"),
   lobbyBadges: $("lobbyBadges"),
   lobbyPlayers: $("lobbyPlayers"),
+  joinUrl: $("joinUrl"),
+  lobbyMeter: $("lobbyMeter"),
+  lobbyMeterText: $("lobbyMeterText"),
+  lobbyStartBtn: $("lobbyStartBtn"),
+  lobbyStartHint: $("lobbyStartHint"),
+  lobbyCancelBtn: $("lobbyCancelBtn"),
+  lobbySoundBtn: $("lobbySoundBtn"),
+  playerLobby: $("playerLobby"),
+  plName: $("plName"),
+  plRoom: $("plRoom"),
+  plMe: $("plMe"),
+  plAv: $("plAv"),
+  plTitle: $("plTitle"),
+  plSub: $("plSub"),
+  plFree: $("plFree"),
+  plWait: $("plWait"),
+  plSoundBtn: $("plSoundBtn"),
+  plExitBtn: $("plExitBtn"),
+  pickGrid: $("pickGrid"),
   hostBoardArea: $("hostBoardArea"),
   hostBoard: $("hostBoard"),
   waitPanel: $("waitPanel"),
@@ -272,6 +291,8 @@ const savedResultKeys = new Set();
 // ชุดคำถามจาก Firebase questionSets/ (ฟังเฉพาะตอนครูอยู่หน้าเมนู/คลัง/แก้ไข/ตั้งค่าห้อง)
 const qsets = { list: [], loaded: false, unsub: null, selectedId: null, confirmDeleteId: null, editingId: null, saving: false };
 let pinValue = "";
+const SAFE_COLOR = /^#[0-9a-f]{3,8}$/i; // สีผู้เล่นมาจาก Firebase → ตรวจก่อนใส่ใน style
+let lastPickedEmoji = null; // ตัวหมากของฉันที่แสดงล่าสุด (เด้งเมื่อเปลี่ยน)
 let presenceMode = null; // "remove" | "mark" — สิ่งที่ onDisconnect ถูกตั้งไว้ตอนนี้
 let socketOnline = false; // ค่าจาก .info/connected
 let healingPresence = false;
@@ -505,6 +526,11 @@ function resetRoomUi() {
   setHidden(dom.meChip, true);
   resetJoinQr(dom.joinQr);
   setHidden(dom.soundToggle, true);
+  setHidden(dom.hostLobby, true);
+  setHidden(dom.playerLobby, true);
+  document.body.classList.remove("on-lobby");
+  if (dom.lobbyPlayers) dom.lobbyPlayers.dataset.html = "";
+  lastPickedEmoji = null;
   setHidden(dom.diceDock, true);
   dom.playerAction.innerHTML = "";
   dom.playerAction.dataset.mode = "";
@@ -628,7 +654,11 @@ function renderRoom(rawRoom) {
   collectMoveEvents(room);
   renderBoards();
 
-  setHidden(dom.roomView, false);
+  // Lobby เป็นหน้าจอเกมแยก (ซ่อนแถบหัวเว็บ + แถบห้อง); เริ่มเกมแล้วกลับไปหน้ากระดาน
+  document.body.classList.toggle("on-lobby", inLobby);
+  setHidden(dom.roomView, inLobby);
+  setHidden(dom.hostLobby, !(inLobby && isHost()));
+  setHidden(dom.playerLobby, !(inLobby && isPlayer()));
   setHidden(dom.endGameArea, !ended);
   if (ended) {
     saveResultIfEnded(rawRoom);
@@ -646,7 +676,6 @@ function renderHostView(room) {
   const inLobby = room.status === STATUS.LOBBY;
   const players = room.players || {};
 
-  setHidden(dom.hostLobby, !inLobby);
   setHidden(dom.hostBoardArea, inLobby);
   setHidden(dom.leaderboardPanel, inLobby);
   setHidden(dom.feedPanel, inLobby);
@@ -654,11 +683,7 @@ function renderHostView(room) {
 
   renderWaitPanel(dom.waitPanel, room);
   if (inLobby) {
-    if (dom.raceCode) dom.raceCode.textContent = session.roomCode || "-";
-    renderJoinQr(dom.joinQr, session.roomCode);
-    if (dom.lobbyCount) dom.lobbyCount.textContent = String(Object.keys(players).length);
-    renderLobbyBadges(dom.lobbyBadges, room, session.roomCode);
-    renderLobbyPlayers(dom.lobbyPlayers, players);
+    renderHostLobby(room, players);
   } else {
     renderLeaderboard(dom.leaderboard, room, getViewPlayers(room));
     renderFeed(dom.feed, room);
@@ -668,6 +693,30 @@ function renderHostView(room) {
   updateSoundToggle();
   updateHostQuestionPanel(room); // ก่อน controls เพราะปุ่มสลับใช้สถานะแผงเฉลย
   updateHostControls(room);
+}
+
+function renderHostLobby(room, players) {
+  const code = session.roomCode || "";
+  if (dom.raceCode && dom.raceCode.dataset.code !== code) {
+    dom.raceCode.dataset.code = code;
+    dom.raceCode.innerHTML = [...code].map((c) => `<span>${escapeHtml(c)}</span>`).join("");
+  }
+  renderJoinQr(dom.joinQr, code);
+  if (dom.joinUrl) dom.joinUrl.textContent = `${location.host}${location.pathname}`.replace(/\/(index\.html)?$/, "");
+  const list = Object.values(players);
+  const picked = list.filter((p) => p.emoji).length;
+  dom.lobbyCount.textContent = String(list.length);
+  dom.lobbyMeter.style.width = list.length ? `${(picked / list.length) * 100}%` : "0%";
+  dom.lobbyMeterText.textContent =
+    list.length && picked === list.length ? "ทุกคนเลือกตัวหมากแล้ว ✓" : `เลือกตัวหมากแล้ว ${picked} จาก ${list.length} คน`;
+  dom.lobbyStartBtn.disabled = busy.host || !list.length;
+  dom.lobbyStartHint.textContent = !list.length
+    ? "รอนักเรียนเข้าห้องอย่างน้อย 1 คน"
+    : picked < list.length
+      ? "คนที่ยังไม่เลือก ระบบจะสุ่มตัวหมากให้ตอนเริ่ม"
+      : "พร้อมแล้ว!";
+  renderLobbyBadges(dom.lobbyBadges, room);
+  renderLobbyPlayers(dom.lobbyPlayers, players);
 }
 
 function updateHostControls(room) {
@@ -804,7 +853,6 @@ function renderPlayerView(room) {
   const color = me.color || "#9e9e9e";
 
   setHidden(dom.playerBoard, inLobby);
-  dom.playerView.classList.toggle("in-lobby", inLobby);
 
   // ตัวหมาก + ตำแหน่งของตัวเอง อยู่ในแถบเดียวกับ "รอบที่"
   const av = `<span class="me-av${me.emoji ? "" : " waiting"}" style="--c:${escapeHtml(color)}">${escapeHtml(me.emoji || "❔")}</span>`;
@@ -815,7 +863,7 @@ function renderPlayerView(room) {
     ? `${av}<span>${escapeHtml(me.name || "")}</span>`
     : `${av}<span>ช่อง <b>${clampPos(shownPos)}</b>${isPlayerDone(me) && !isRollRevealPending(room, me) ? " · 🏁" : ""}</span>`;
 
-  if (inLobby) renderPickerAction(room);
+  if (inLobby) renderPlayerLobby(room, me);
   else renderGameAction(room, me);
 
   updateSoundToggle();
@@ -846,6 +894,13 @@ function updateSoundToggle() {
   dom.soundToggle.title = isMuted() ? "เปิดเสียง" : "ปิดเสียง";
   dom.soundToggle.setAttribute("aria-label", isMuted() ? "เปิดเสียง" : "ปิดเสียง");
   dom.soundToggle.setAttribute("aria-pressed", String(!isMuted()));
+  for (const btn of [dom.lobbySoundBtn, dom.plSoundBtn]) {
+    if (!btn) continue;
+    btn.textContent = isMuted() ? "🔇" : "🔊";
+    btn.title = isMuted() ? "เปิดเสียง" : "ปิดเสียง";
+    btn.setAttribute("aria-label", btn.title);
+    btn.setAttribute("aria-pressed", String(!isMuted()));
+  }
 }
 
 function setActionMode(mode) {
@@ -855,17 +910,31 @@ function setActionMode(mode) {
   return true;
 }
 
-function renderPickerAction(room) {
-  if (setActionMode("picker")) {
-    dom.playerAction.innerHTML = `
-      <div class="pick-head"><strong>เลือกตัวหมากของคุณ</strong><button type="button" class="btn-ghost" data-action="random-emoji">🎲 สุ่มให้</button></div>
-      <div class="pick-grid" id="pickGrid"></div>
-      <div class="pick-note">ตัวสีเทามีคนเลือกแล้ว · เปลี่ยนได้จนกว่าครูจะเริ่มเกม</div>`;
+function renderPlayerLobby(room, me) {
+  const players = room.players || {};
+  dom.plName.textContent = me.name || "";
+  dom.plRoom.textContent = `ห้อง ${session.roomCode || "-"}`;
+  dom.plAv.textContent = me.emoji || "❔";
+  dom.plAv.classList.toggle("none", !me.emoji);
+  dom.plAv.style.setProperty("--c", SAFE_COLOR.test(me.color || "") ? me.color : "#FFA240");
+  dom.plTitle.textContent = me.emoji ? "ตัวหมากของคุณ" : "เลือกตัวหมากของคุณ";
+  dom.plSub.textContent = me.emoji ? "แตะตัวอื่นเพื่อเปลี่ยนได้" : "ตัวหมากนี้จะเดินบนกระดานแทนคุณ";
+  if (me.emoji && me.emoji !== lastPickedEmoji && lastPickedEmoji !== null) {
+    dom.plMe.classList.remove("picked");
+    void dom.plMe.offsetWidth; // เล่นแอนิเมชันเด้งใหม่
+    dom.plMe.classList.add("picked");
   }
-  renderEmojiPicker($("pickGrid"), {
-    choices: getRoomEmojiChoices(room),
-    taken: getTakenEmojis(room),
-    players: room.players || {},
+  lastPickedEmoji = me.emoji || "";
+
+  const choices = getRoomEmojiChoices(room);
+  const taken = getTakenEmojis(room);
+  const free = choices.filter((e) => !taken.has(e) || taken.get(e) === session.playerId).length;
+  dom.plFree.textContent = `ว่าง ${free} จาก ${choices.length}`;
+  dom.plWait.textContent = `รอครูเริ่มเกม · ในห้องตอนนี้ ${Object.keys(players).length} คน`;
+  renderEmojiPicker(dom.pickGrid, {
+    choices,
+    taken,
+    players,
     myPlayerId: session.playerId,
     themeSize: THEME_SIZE,
   });
@@ -1906,6 +1975,9 @@ function bindUIEvents() {
   // host
   on(dom.confirmCreateRoomBtn, "click", hostCreateRoom);
   on(dom.startGameBtn, "click", hostStartGame);
+  on(dom.lobbyStartBtn, "click", hostStartGame);
+  on(dom.lobbyCancelBtn, "click", hostCancelRoom);
+  on(dom.plExitBtn, "click", playerLeave);
   on(dom.startRoundBtn, "click", hostStartRound);
   on(dom.startQuestionBtn, "click", hostStartQuestion);
   on(dom.toggleQuestionOverlayBtn, "click", hostToggleQuestionPanel);
@@ -1920,16 +1992,18 @@ function bindUIEvents() {
   document.addEventListener("pointerdown", () => !isMuted() && unlockAudio(), { passive: true });
   on(dom.rollDiceBtn, "click", playerRollDice); // แตะที่ลูกเต๋า 3D
   on(dom.diceDock, "click", () => dice.getState() === "waiting" && playerRollDice()); // แตะตรงไหนในกล่องลูกเต๋าก็ได้
-  on(dom.soundToggle, "click", () => {
+  const toggleSound = () => {
     setMuted(!isMuted());
     if (!isMuted()) unlockAudio();
     updateSoundToggle();
-  });
-  on(dom.playerAction, "click", (e) => {
+  };
+  for (const btn of [dom.soundToggle, dom.lobbySoundBtn, dom.plSoundBtn]) on(btn, "click", toggleSound);
+  on(dom.playerLobby, "click", (e) => {
     const tile = e.target.closest(".pick-tile");
     if (tile && !tile.disabled) return playerClaimEmoji(tile.dataset.emoji);
-    const action = e.target.closest("[data-action]")?.dataset.action;
-    if (action === "random-emoji") return playerRandomEmoji();
+    if (e.target.closest('[data-action="random-emoji"]')) playerRandomEmoji();
+  });
+  on(dom.playerAction, "click", (e) => {
     const choice = e.target.closest("button[data-key]");
     if (choice && !choice.disabled) playerSubmitAnswer(choice.dataset.key);
   });

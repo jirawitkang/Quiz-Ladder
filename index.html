@@ -310,6 +310,58 @@
     </div>
   </section>
 
+  <!-- LOBBY: หน้าจอเกมก่อนเริ่ม (ครู = จอโปรเจกเตอร์ / นักเรียน = เลือกตัวหมาก) — ซ่อนแถบหัวเว็บด้วย body.on-lobby -->
+  <section id="hostLobby" class="lobby-stage" hidden>
+    <div class="lb-top">
+      <div class="lb-brand"><svg viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g></svg><b>QUIZ <span>LADDER</span></b></div>
+      <span class="lb-spacer"></span>
+      <button type="button" class="lb-ghost" id="lobbySoundBtn" aria-pressed="true">🔊</button>
+      <button type="button" class="lb-ghost" id="lobbyCancelBtn">ยกเลิกห้อง</button>
+    </div>
+    <div class="lb-grid">
+      <div class="lb-join">
+        <div class="lb-label">รหัสห้อง</div>
+        <div class="lb-code" id="raceCode" aria-label="รหัสห้อง"></div>
+        <div id="joinQr" class="lb-qr" role="img" aria-label="QR code สำหรับเข้าร่วมห้อง"></div>
+        <small>สแกนด้วยมือถือ หรือเปิดเว็บแล้วใส่รหัสห้อง</small>
+        <div class="lb-url" id="joinUrl"></div>
+      </div>
+      <div class="lb-side">
+        <div class="lb-count">
+          <div class="lb-big" id="lobbyCount">0</div><div class="lb-count-label">คนในห้อง</div>
+          <div class="lb-meter"><div class="bar"><i id="lobbyMeter"></i></div><small id="lobbyMeterText"></small></div>
+        </div>
+        <div id="lobbyPlayers" class="lb-tokens" aria-label="ผู้เล่นในห้อง"></div>
+        <div id="lobbyBadges" class="lb-chips" aria-label="การตั้งค่าห้อง"></div>
+        <div class="lb-start">
+          <button type="button" class="lb-play" id="lobbyStartBtn">▶ เริ่มเกม</button>
+          <span class="lb-hint" id="lobbyStartHint"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="playerLobby" class="lobby-stage pl-stage" hidden>
+    <div class="pl-top">
+      <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g></svg>
+      <div class="pl-who"><b id="plName"></b><span id="plRoom"></span></div>
+      <span class="lb-spacer"></span>
+      <button type="button" class="pl-icon" id="plSoundBtn" aria-pressed="true">🔊</button>
+      <button type="button" class="pl-icon" id="plExitBtn" aria-label="ออกจากห้อง" title="ออกจากห้อง">🚪</button>
+    </div>
+    <div class="pl-me" id="plMe">
+      <div class="pl-av" id="plAv">❔</div>
+      <h2 id="plTitle">เลือกตัวหมากของคุณ</h2>
+      <p id="plSub">ตัวหมากนี้จะเดินบนกระดานแทนคุณ</p>
+    </div>
+    <div class="pl-sheet">
+      <div class="pl-sheet-head"><b>ตัวหมาก</b><span id="plFree"></span><span class="lb-spacer"></span><button type="button" class="pl-rand" data-action="random-emoji">🎲 สุ่มให้</button></div>
+      <div class="pl-grid" id="pickGrid"></div>
+      <p class="pl-note">ตัวสีเทามีคนเลือกแล้ว · เปลี่ยนได้จนกว่าครูจะเริ่มเกม</p>
+    </div>
+    <div class="pl-wait"><span class="pl-dots" aria-hidden="true"><i></i><i></i><i></i></span><span id="plWait"></span></div>
+  </section>
+
   <main class="container">
     <!-- ROOM (lobby + game) -->
     <section id="roomView" hidden>
@@ -332,23 +384,6 @@
       <!-- HOST: ขึ้นโปรเจกเตอร์หน้าห้อง -->
       <div id="hostView" class="host-layout" hidden>
         <div class="host-stage">
-          <div id="hostLobby" class="host-lobby card">
-            <div class="lobby-head">
-              <div class="lobby-code">
-                <span class="muted">รหัสห้อง</span>
-                <span class="race-code" id="raceCode">-</span>
-                <div class="lobby-count">ผู้เล่นในห้อง <b id="lobbyCount">0</b> คน</div>
-              </div>
-              <figure class="join-qr-box">
-                <div id="joinQr" class="join-qr" role="img" aria-label="QR code สำหรับเข้าร่วมห้อง"></div>
-                <figcaption>สแกนด้วยมือถือเพื่อเข้าร่วม</figcaption>
-              </figure>
-            </div>
-            <div id="lobbyBadges" class="lobby-badges" aria-label="การตั้งค่าห้อง"></div>
-            <div class="lobby-legend">❔ เส้นประ = ยังไม่เลือกตัวหมาก</div>
-            <div id="lobbyPlayers" class="lobby-players" aria-label="ผู้เล่นในห้อง"></div>
-          </div>
-
           <div id="hostBoardArea" class="board-area">
             <div id="hostBoard"></div>
             <div id="hostQuestion" class="hq" hidden>

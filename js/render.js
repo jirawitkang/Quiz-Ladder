@@ -66,19 +66,19 @@ function buildRoundSymbols(pid, finish, history, roundsToShow) {
 
 /* ---------- Lobby badges ---------- */
 
-export function renderLobbyBadges(el, room, roomCode) {
+// ป้ายการตั้งค่าห้องใน Lobby ของครู (รหัสห้องแสดงตัวใหญ่แยกอยู่แล้ว)
+export function renderLobbyBadges(el, room) {
   if (!el) return;
   const s = getSettings(room);
   const items = [
-    `Room: ${roomCode || "-"}`,
-    `Host: ${room.hostName || "-"}`,
-    `ชุดคำถาม: ${getRoomQuestionSetName(room)}`,
-    `รอบสูงสุด: ${s.maxRounds}`,
-    `เข้าเส้นชัย: ${s.maxWinners} คน`,
-    `ถูก: ${signedText(s.rewardCorrect)}`,
-    `ผิด/ไม่ทัน: ${signedText(s.penaltyWrong)}`,
+    ["ชุดคำถาม", getRoomQuestionSetName(room)],
+    ["ครู", room.hostName || "-"],
+    ["รอบสูงสุด", s.maxRounds],
+    ["ผู้ชนะ", `${s.maxWinners} คน`],
+    ["ตอบถูก", signedText(s.rewardCorrect)],
+    ["ตอบผิด", signedText(s.penaltyWrong)],
   ];
-  el.innerHTML = items.map((t) => `<div class="lobby-badge">${escapeHtml(t)}</div>`).join("");
+  el.innerHTML = items.map(([k, v]) => `<span class="lb-chip">${escapeHtml(k)} <b>${escapeHtml(String(v))}</b></span>`).join("");
 }
 
 /* ---------- Player list (lobby / in-game) ---------- */
@@ -309,23 +309,30 @@ export function renderEndGameSummary({ titleEl, summaryEl }, room, players) {
 
 /* ---------- Lobby: player chips ---------- */
 
+// การ์ดแนวนอน: ตัวหมาก (วงสีประจำตัว) + ชื่อ, ยังไม่เลือก = วงเส้นประ — เรียงตามลำดับที่เข้าห้อง
 export function renderLobbyPlayers(el, players, myPlayerId = null) {
   if (!el) return;
   const list = Object.entries(players || {}).sort(([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0));
   if (!list.length) {
-    el.innerHTML = `<div class="muted">ยังไม่มีผู้เล่นเข้าห้อง แชร์รหัสห้องให้ผู้เล่นได้เลย</div>`;
+    el.innerHTML = `<div class="lb-empty">ยังไม่มีนักเรียนเข้าห้อง<br>ให้นักเรียนสแกน QR ทางซ้ายได้เลย</div>`;
     return;
   }
-  el.innerHTML = list
+  const html = list
     .map(([pid, p]) => {
-      const cls = ["pchip", !p.emoji && "waiting", pid === myPlayerId && "me"].filter(Boolean).join(" ");
+      const cls = ["lb-tok", !p.emoji && "waiting", pid === myPlayerId && "me"].filter(Boolean).join(" ");
       const color = SAFE_COLOR.test(p.color || "") ? p.color : "#9e9e9e";
       const title = `${p.name}${p.emoji ? "" : " · ยังไม่เลือกตัวหมาก"}`;
-      return `<div class="${cls}" title="${escapeHtml(title)}"><span class="pchip-av" style="--c:${color}">${
-        escapeHtml(p.emoji || "❔")
-      }</span><span class="pchip-name">${escapeHtml(p.name)}</span></div>`;
+      return `<div class="${cls}" data-pid="${escapeHtml(pid)}" title="${escapeHtml(title)}"><span class="av" style="--c:${color}">${escapeHtml(
+        p.emoji || "❔"
+      )}</span><span class="nm">${escapeHtml(p.name)}</span></div>`;
     })
     .join("");
+  // แทนที่ทั้งก้อนเฉพาะตอนเนื้อหาเปลี่ยน — แอนิเมชัน "เด้งเข้าห้อง" จะได้เล่นเฉพาะคนที่เพิ่งเข้า
+  if (el.dataset.html === html) return;
+  const known = new Set([...el.querySelectorAll(".lb-tok")].map((n) => n.dataset.pid));
+  el.dataset.html = html;
+  el.innerHTML = html;
+  if (known.size) for (const n of el.querySelectorAll(".lb-tok")) if (known.has(n.dataset.pid)) n.classList.add("seen");
 }
 
 /* ---------- Lobby: emoji picker ---------- */
