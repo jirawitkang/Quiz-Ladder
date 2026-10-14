@@ -3,6 +3,7 @@
 
 import { BOARD_SIZE } from "./config.js";
 import { getSettings, getViewPlayers, isPlayerDone } from "./game-logic.js";
+import { isDrop } from "./board-config.js";
 import { pad2, roundKey, sortedRoundNumbers } from "./utils.js";
 
 const XLSX_URL = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
@@ -78,7 +79,7 @@ export function buildExportTables(room, roomCode) {
         fromPosition: dm.fromPosition ?? null,
         landingPosition: dm.landingPosition ?? null,
         toPosition: dm.toPosition ?? null,
-        snakeOrLadder: dm.special ?? null,
+        ladderOrDrop: isDrop(dm.special) ? "drop" : dm.special ?? null,
         autoSkipped: dm.missed === true,
         timestamp: dm.timestamp ?? null,
       });
@@ -105,7 +106,7 @@ export function buildExportTables(room, roomCode) {
         basePosition: ar.basePosition ?? null,
         landingPosition: ar.landingPosition ?? null,
         finalPosition: ar.finalPosition ?? null,
-        snakeOrLadder: ar.special ?? null,
+        ladderOrDrop: isDrop(ar.special) ? "drop" : ar.special ?? null,
         blockedByRule: ar.blocked ?? null,
         positionDelta: ar.actualDelta ?? null,
         rewardOrPenalty: ar.configuredMove ?? null,

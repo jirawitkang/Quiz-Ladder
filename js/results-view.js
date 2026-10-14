@@ -130,7 +130,7 @@ function overviewTab({ overview: o, questions, players, highlights }) {
       ${stat("เวลาตอบเฉลี่ย", sec(o.avgMs), "เฉพาะคนที่ตอบ")}
       ${stat("ตอบทันเวลา", pctText(o.answerRate), "ที่เหลือหมดเวลา/หลุด")}
       ${stat("ตอบถูกเร็วที่สุด", sec(o.fastest?.ms), o.fastest ? `${escapeHtml(o.fastest.name)} · ข้อ ${o.fastest.questionIndex + 1}` : "-")}
-      ${stat("บันได / งู", `🪜${o.ladders} 🐍${o.snakes}`, "ทั้งเกม")}
+      ${stat("ปีน / ร่วงบันได", `🟠${o.ladders} 🟣${o.drops}`, "ทั้งเกม")}
     </div>
     <div class="rs-grid2">
       <div class="rs-card"><h3>ความยากแต่ละข้อ</h3><p class="es-muted">% คนที่ตอบถูก เรียงตามลำดับที่ถาม</p>
@@ -215,12 +215,12 @@ function playersTab({ players }) {
         <td class="n">${sec(p.avgMs)}</td>
         <td class="n">${sec(p.fastestMs)}</td>
         <td class="n">${p.ladders}</td>
-        <td class="n">${p.snakes}</td>
+        <td class="n">${p.drops}</td>
       </tr>`
     )
     .join("");
   return `<div class="rs-table"><table>
-      <thead><tr><th>#</th><th>ผู้เล่น</th><th>ผลแต่ละรอบ</th><th class="n">ถูก</th><th class="n">%</th><th class="n">เวลาเฉลี่ย</th><th class="n">เร็วสุด</th><th class="n">🪜</th><th class="n">🐍</th></tr></thead>
+      <thead><tr><th>#</th><th>ผู้เล่น</th><th>ผลแต่ละรอบ</th><th class="n">ถูก</th><th class="n">%</th><th class="n">เวลาเฉลี่ย</th><th class="n">เร็วสุด</th><th class="n" title="ปีนบันไดส้ม">🟠</th><th class="n" title="ร่วงบันไดม่วง">🟣</th></tr></thead>
       <tbody>${rows}</tbody></table></div>
     <div class="rs-legend"><span><i class="good"></i>ถูก</span><span><i class="bad"></i>ผิด/ไม่ทัน</span><span><i class="miss"></i>หลุด</span><span><i class="done"></i>เข้าเส้นชัยแล้ว</span></div>`;
 }

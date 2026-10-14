@@ -125,8 +125,8 @@ export function playLadder() {
   [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6].forEach((f, i) => tone(f, { delay: i * 0.08, dur: 0.14, gain: 0.2 }));
 }
 
-// ตกงู: เสียงไถลลง
-export function playSnake() {
+// ร่วงบันไดม่วง: เสียงไถลลง
+export function playDrop() {
   if (!ready()) return;
   tone(700, { dur: 0.7, type: "sawtooth", gain: 0.08, slideTo: 120 });
   tone(350, { dur: 0.7, type: "sine", gain: 0.12, slideTo: 70 });

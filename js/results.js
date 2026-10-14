@@ -9,6 +9,7 @@ import { getRoomQuestions, getRoomQuestionSetName } from "../questions.js";
 import { getSettings, getViewPlayers } from "./game-logic.js";
 import { computeStandings } from "./render.js";
 import { roundKey, sortedRoundNumbers } from "./utils.js";
+import { isDrop } from "./board-config.js";
 
 const RECORD_FIELDS = [
   "createdAt",
@@ -102,17 +103,17 @@ export function computeGameInsights(record) {
   const pMap = new Map();
   const ensureP = (pid, name) => {
     if (!pMap.has(pid)) {
-      pMap.set(pid, { id: pid, name: nameOf(pid, name), emoji: players[pid]?.emoji || "", correct: 0, eligible: 0, answered: 0, times: [], ladders: 0, snakes: 0, byRound: [] });
+      pMap.set(pid, { id: pid, name: nameOf(pid, name), emoji: players[pid]?.emoji || "", correct: 0, eligible: 0, answered: 0, times: [], ladders: 0, drops: 0, byRound: [] });
     }
     return pMap.get(pid);
   };
   for (const pid of Object.keys(players)) ensureP(pid);
 
   let ladders = 0;
-  let snakes = 0;
+  let drops = 0;
   const countSpecial = (p, special) => {
     if (special === "ladder") (ladders++, p.ladders++);
-    else if (special === "snake") (snakes++, p.snakes++);
+    else if (isDrop(special)) (drops++, p.drops++);
   };
 
   for (const rn of rounds) {
@@ -210,7 +211,7 @@ export function computeGameInsights(record) {
       avgMs: avg(p.times),
       fastestMs: p.times.length ? Math.min(...p.times) : null,
       ladders: p.ladders,
-      snakes: p.snakes,
+      drops: p.drops,
       byRound: p.byRound,
       finished: !!players[p.id]?.finished,
       position: players[p.id]?.position ?? null,
@@ -235,7 +236,7 @@ export function computeGameInsights(record) {
     avgMs: avg(allTimes),
     fastest: fastestQ ? { ...fastestQ.fastest, questionIndex: fastestQ.index } : null,
     ladders,
-    snakes,
+    drops,
     endReason: record.endInfo?.endReason || null,
     endedAt: record.endInfo?.endedAt || record.savedAt || null,
   };

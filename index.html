@@ -365,20 +365,20 @@
   <main class="container">
     <!-- ROOM (lobby + game) -->
     <section id="roomView" hidden>
-      <div class="room-bar">
-        <div class="room-status">
-          <span class="room-chip" id="roundInfo">Lobby</span>
-          <span class="room-chip phase" id="phaseInfo">รอผู้เล่น</span>
-          <span class="room-chip me-chip" id="meChip" hidden></span>
-          <button type="button" class="room-chip sound-toggle" id="soundToggle" hidden aria-pressed="true">🔊 เสียง</button>
+      <!-- แถบบนของหน้าเล่นเกม (แถวเดียว): ครู = ขั้นของรอบ + ปุ่มขั้นถัดไป, นักเรียน = ตัวหมาก + ช่องของฉัน -->
+      <div class="game-top">
+        <div class="gt-brand"><svg viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g></svg><b>QUIZ <span>LADDER</span></b></div>
+        <span class="gt-round" id="roundInfo">Lobby</span>
+        <div class="gt-steps" id="phaseSteps" aria-label="ขั้นของรอบนี้" hidden></div>
+        <span class="gt-phase" id="phaseInfo" hidden>รอผู้เล่น</span>
+        <span class="gt-me" id="meChip" hidden></span>
+        <span class="gt-spacer"></span>
+        <div id="hostGameControls" class="gt-actions" hidden>
+          <button id="toggleQuestionOverlayBtn" class="gt-ghost" type="button">ซ่อนคำถาม</button>
+          <button id="hostNextBtn" class="gt-next" type="button"><span class="gt-next-label"></span><small class="gt-next-sub"></small></button>
         </div>
-        <div id="hostGameControls" class="room-actions" hidden>
-          <button id="startGameBtn" class="btn-primary" type="button">▶️ เริ่มเกม</button>
-          <button id="startRoundBtn" class="btn-primary" type="button">🎲 เริ่มรอบใหม่</button>
-          <button id="startQuestionBtn" class="btn-primary" type="button">❓ เริ่มคำถาม</button>
-          <button id="toggleQuestionOverlayBtn" class="btn-ghost" type="button">ซ่อนคำถาม</button>
-          <button id="revealAnswerBtn" class="btn-primary" type="button">✅ เฉลยคำตอบ</button>
-        </div>
+        <button type="button" class="gt-ghost gt-icon" id="soundToggle" hidden aria-pressed="true">🔊</button>
+        <button type="button" class="gt-ghost" id="gameExitBtn">✕ ยกเลิกห้อง</button>
       </div>
 
       <!-- HOST: ขึ้นโปรเจกเตอร์หน้าห้อง -->
@@ -386,6 +386,22 @@
         <div class="host-stage">
           <div id="hostBoardArea" class="board-area">
             <div id="hostBoard"></div>
+            <!-- ตารางละเอียด: ลอยทับกระดาน (ปุ่ม 📋 ในแถบขวา) -->
+            <div id="detailTable" class="dt-over" hidden>
+              <div class="dt-card" role="dialog" aria-labelledby="detailTitle">
+                <div class="dt-head">
+                  <h3 id="detailTitle">ตารางละเอียด</h3>
+                  <div class="dt-sort" role="group" aria-label="เรียงตาม">
+                    <button type="button" data-sort="rank" aria-pressed="true">เรียงตามอันดับ</button>
+                    <button type="button" data-sort="name" aria-pressed="false">เรียงตามชื่อ</button>
+                  </div>
+                  <span class="gt-spacer"></span>
+                  <button type="button" class="dt-close" id="detailCloseBtn">✕ ปิด</button>
+                </div>
+                <div id="playerList" class="dt-scroll" aria-label="ตารางผู้เล่น"></div>
+                <div class="dt-legend"><span>ตัวเลข = แต้มทอย</span><span><i class="ok"></i>ตอบถูก</span><span><i class="no"></i>ตอบผิด/ไม่ทัน</span><span><i class="miss"></i>หลุด</span><span>🟠 ปีนบันได · 🟣 ร่วงบันได</span></div>
+              </div>
+            </div>
             <div id="hostQuestion" class="hq" hidden>
               <div class="hq-head"><span id="hqLabel">คำถาม</span><span id="hqSetName"></span></div>
               <div class="hq-text" id="hqText"></div>
@@ -412,12 +428,8 @@
             <h2>เกิดอะไรขึ้นบ้าง</h2>
             <ul id="feed" class="feed"></ul>
           </div>
+          <button type="button" class="gt-ghost side-detail-btn" id="detailBtn">📋 ตารางละเอียด</button>
         </aside>
-
-        <details id="detailTable" class="card detail-table">
-          <summary>ตารางผลทอยและผลคำตอบแบบละเอียด</summary>
-          <div id="playerList" aria-label="ตารางผู้เล่น"></div>
-        </details>
       </div>
 
       <!-- PLAYER: มือถือ -->

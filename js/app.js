@@ -4,7 +4,7 @@
 // โครงสร้างไฟล์:
 //   config.js        ค่าคงที่ + Firebase config
 //   firebase.js      เชื่อมต่อ DB + เวลา server
-//   board-config.js  กระดาน 6×5, บันได/งู และกติกาการขึ้นบันได/ตกงู
+//   board-config.js  กระดาน 6×5, บันไดส้ม (ปีน)/บันไดม่วง (ร่วง) และกติกา
 //   emoji-themes.js  ธีมตัวหมาก emoji + ตัวสำรอง
 //   game-logic.js    กติกาเกม (pure function ใช้ใน transaction, มี unit test)
 //   board-view.js    วาดกระดาน + แอนิเมชันหมากเดิน
@@ -77,6 +77,7 @@ import {
   renderWaitPanel,
 } from "./render.js";
 import { createBoardView } from "./board-view.js";
+import { isDrop } from "./board-config.js";
 import { THEME_SIZE } from "./emoji-themes.js";
 import {
   copySet,
@@ -104,7 +105,7 @@ import {
   playHop,
   playLadder,
   playReveal,
-  playSnake,
+  playDrop,
   playWrong,
   setMuted,
   unlockAudio,
@@ -179,11 +180,12 @@ const dom = {
   roundInfo: $("roundInfo"),
   phaseInfo: $("phaseInfo"),
   hostGameControls: $("hostGameControls"),
-  startGameBtn: $("startGameBtn"),
-  startRoundBtn: $("startRoundBtn"),
-  startQuestionBtn: $("startQuestionBtn"),
+  phaseSteps: $("phaseSteps"),
+  hostNextBtn: $("hostNextBtn"),
+  gameExitBtn: $("gameExitBtn"),
+  detailBtn: $("detailBtn"),
+  detailCloseBtn: $("detailCloseBtn"),
   toggleQuestionOverlayBtn: $("toggleQuestionOverlayBtn"),
-  revealAnswerBtn: $("revealAnswerBtn"),
 
   // host view
   hostView: $("hostView"),
@@ -220,6 +222,7 @@ const dom = {
   feedPanel: $("feedPanel"),
   feed: $("feed"),
   detailTable: $("detailTable"),
+  detailTitle: $("detailTitle"),
   playerList: $("playerList"),
 
   // host question panel
@@ -292,7 +295,9 @@ const savedResultKeys = new Set();
 const qsets = { list: [], loaded: false, unsub: null, selectedId: null, confirmDeleteId: null, editingId: null, saving: false };
 let pinValue = "";
 const SAFE_COLOR = /^#[0-9a-f]{3,8}$/i; // สีผู้เล่นมาจาก Firebase → ตรวจก่อนใส่ใน style
-let lastPickedEmoji = null; // ตัวหมากของฉันที่แสดงล่าสุด (เด้งเมื่อเปลี่ยน)
+let lastPickedEmoji = null;
+let hostNext = null; // ฟังก์ชันของปุ่ม "ขั้นถัดไป" ตามขั้นปัจจุบัน
+const detail = { open: false, sort: "rank" }; // ตารางละเอียดบนจอครู // ตัวหมากของฉันที่แสดงล่าสุด (เด้งเมื่อเปลี่ยน)
 let presenceMode = null; // "remove" | "mark" — สิ่งที่ onDisconnect ถูกตั้งไว้ตอนนี้
 let socketOnline = false; // ค่าจาก .info/connected
 let healingPresence = false;
@@ -318,10 +323,10 @@ const inRoom = () => !!session.roomCode && !!session.role;
 const isHost = () => session.role === ROLE.HOST;
 const isPlayer = () => session.role === ROLE.PLAYER;
 
-// จอ Host = ลำโพงหลักของห้อง: เสียงบันได/งู/เข้าเส้นชัยของทุกคน (ไม่เล่นเสียงก้าวเดิน กันเสียงรก)
+// จอ Host = ลำโพงหลักของห้อง: เสียงปีน/ร่วงบันได/เข้าเส้นชัยของทุกคน (ไม่เล่นเสียงก้าวเดิน กันเสียงรก)
 const hostBoardView = createBoardView(dom.hostBoard, {
   hooks: {
-    onSpecial: (_pid, kind) => throttled(kind, kind === "ladder" ? playLadder : playSnake),
+    onSpecial: (_pid, kind) => throttled(kind, kind === "ladder" ? playLadder : playDrop),
     onFinish: (pid) => celebrateFinish(pid),
   },
 });
@@ -330,7 +335,7 @@ const playerBoardView = createBoardView(dom.playerBoard, {
   floatsOnlyForMe: true,
   hooks: {
     onStep: (pid) => pid === session.playerId && playHop(),
-    onSpecial: (pid, kind) => pid === session.playerId && (kind === "ladder" ? playLadder() : playSnake()),
+    onSpecial: (pid, kind) => pid === session.playerId && (kind === "ladder" ? playLadder() : playDrop()),
     onFinish: (pid) => celebrateFinish(pid),
   },
 });
@@ -508,6 +513,11 @@ function updateHeader() {
   show(dom.rolePill, !isPlayer(), "inline-flex");
   show(dom.headerExitBtn, joined, "inline-flex");
   if (dom.headerExitBtn) dom.headerExitBtn.textContent = isHost() ? "ยกเลิกห้อง" : "ออกจากห้อง";
+  if (dom.gameExitBtn) {
+    dom.gameExitBtn.textContent = isHost() ? "✕ ยกเลิกห้อง" : "🚪";
+    dom.gameExitBtn.title = isHost() ? "ยกเลิกห้อง" : "ออกจากห้อง";
+    dom.gameExitBtn.setAttribute("aria-label", dom.gameExitBtn.title);
+  }
 }
 
 function resetRoomUi() {
@@ -644,7 +654,7 @@ function renderRoom(rawRoom) {
   const { maxRounds } = getSettings(room);
 
   updateHeader();
-  if (dom.roundInfo) dom.roundInfo.textContent = inLobby ? "Lobby" : `รอบที่ ${room.currentRound || 0} / ${maxRounds}`;
+  if (dom.roundInfo) dom.roundInfo.innerHTML = inLobby ? "Lobby" : `<small>รอบ</small>${room.currentRound || 0}/${maxRounds}`;
   if (dom.phaseInfo) dom.phaseInfo.textContent = inLobby ? "รอผู้เล่น" : PHASE_TEXT[room.phase] || PHASE_TEXT[PHASE.IDLE];
 
   if (isHost()) renderHostView(room);
@@ -656,6 +666,7 @@ function renderRoom(rawRoom) {
 
   // Lobby เป็นหน้าจอเกมแยก (ซ่อนแถบหัวเว็บ + แถบห้อง); เริ่มเกมแล้วกลับไปหน้ากระดาน
   document.body.classList.toggle("on-lobby", inLobby);
+  document.body.classList.toggle("on-game", !inLobby);
   setHidden(dom.roomView, inLobby);
   setHidden(dom.hostLobby, !(inLobby && isHost()));
   setHidden(dom.playerLobby, !(inLobby && isPlayer()));
@@ -679,15 +690,18 @@ function renderHostView(room) {
   setHidden(dom.hostBoardArea, inLobby);
   setHidden(dom.leaderboardPanel, inLobby);
   setHidden(dom.feedPanel, inLobby);
-  setHidden(dom.detailTable, inLobby);
+  if (inLobby) detail.open = false;
+  setHidden(dom.detailTable, !detail.open);
+  dom.hostBoardArea?.classList.toggle("detail-open", detail.open);
+  if (dom.detailBtn) dom.detailBtn.textContent = detail.open ? "✕ ปิดตาราง" : "📋 ตารางละเอียด";
 
   renderWaitPanel(dom.waitPanel, room);
   if (inLobby) {
     renderHostLobby(room, players);
   } else {
-    renderLeaderboard(dom.leaderboard, room, getViewPlayers(room));
+    renderLeaderboard(dom.leaderboard, room, getViewPlayers(room), { limit: 5 });
     renderFeed(dom.feed, room);
-    if (dom.detailTable?.open) renderPlayerList(dom.playerList, room, players);
+    if (detail.open) renderDetailTable(room);
   }
 
   updateSoundToggle();
@@ -719,37 +733,74 @@ function renderHostLobby(room, players) {
   renderLobbyPlayers(dom.lobbyPlayers, players);
 }
 
+// ขั้นของรอบ (ตัวบอกสถานะ ไม่ใช่ปุ่ม) + ปุ่ม "ขั้นถัดไป" ปุ่มเดียวที่เปลี่ยนตามขั้น
+const STEP_LABELS = ["🎲 ทอยลูกเต๋า", "❓ คำถาม", "✅ เฉลย"];
+
+function hostNextAction(room) {
+  const phase = room.phase || PHASE.IDLE;
+  const round = room.currentRound || 0;
+  const maxRounds = getSettings(room).maxRounds;
+  const players = Object.values(room.players || {});
+  if (phase === PHASE.ROLLING) {
+    // ผู้เล่นที่ยังออนไลน์และยังเล่นอยู่ต้องทอยครบก่อนเริ่มคำถาม (คนที่หลุดจะถูกนับเป็นทอย 0)
+    const left = players.filter((p) => !isPlayerDone(p) && p.connected !== false && !p.hasRolled).length;
+    return { label: "❓ เริ่มคำถาม", sub: left ? `รอทอยอีก ${left} คน` : "ทอยครบแล้ว", run: hostStartQuestion, enabled: left === 0 };
+  }
+  if (phase === PHASE.QUESTION_COUNTDOWN) return { label: "❓ กำลังเริ่มคำถาม…", sub: "", run: null, enabled: false };
+  if (phase === PHASE.ANSWERING) {
+    const active = players.filter((p) => !isPlayerDone(p) && p.connected !== false);
+    const answered = active.filter((p) => p.answered).length;
+    return { label: "✅ เฉลยคำตอบ", sub: `ตอบแล้ว ${answered}/${active.length}`, run: hostReveal, enabled: true };
+  }
+  const next = round + 1;
+  return { label: `🎲 เริ่มรอบที่ ${next}`, sub: round ? `จาก ${maxRounds} รอบ` : "รอบแรก", run: hostStartRound, enabled: true };
+}
+
 function updateHostControls(room) {
   const phase = room.phase || PHASE.IDLE;
   const inLobby = room.status === STATUS.LOBBY;
   const ended = isGameEnded(room);
-  const players = room.players || {};
   const inGame = !inLobby && !ended;
-
-  // ผู้เล่นที่ยังออนไลน์และยังเล่นอยู่ต้องทอยครบก่อนเริ่มคำถาม (คนที่หลุดจะถูกนับเป็นทอย 0)
-  const waitingFor = Object.values(players).filter((p) => !isPlayerDone(p) && p.connected !== false);
-  const allRolled = waitingFor.every((p) => p.hasRolled);
   const showToggle = phase === PHASE.QUESTION_COUNTDOWN || phase === PHASE.ANSWERING || isRevealPhase(room);
 
-  setHidden(dom.startGameBtn, !inLobby);
-  if (dom.startGameBtn) dom.startGameBtn.disabled = busy.host || !Object.keys(players).length;
+  const step = phase === PHASE.ROLLING ? 0 : phase === PHASE.QUESTION_COUNTDOWN || phase === PHASE.ANSWERING ? 1 : phase === PHASE.RESULT ? 2 : -1;
+  setHidden(dom.phaseSteps, !inGame);
+  if (dom.phaseSteps) {
+    dom.phaseSteps.innerHTML = STEP_LABELS.map((t, i) => {
+      const [icon, ...words] = t.split(" ");
+      const cls = i === step ? "on" : i < step ? "done" : "";
+      return `<span class="${cls}">${i < step ? "✓" : icon}<span class="t"> ${words.join(" ")}</span></span>`;
+    }).join('<i aria-hidden="true">›</i>');
+  }
 
-  setHidden(dom.startRoundBtn, !inGame);
-  if (dom.startRoundBtn) dom.startRoundBtn.disabled = busy.host || (phase !== PHASE.IDLE && phase !== PHASE.RESULT);
-
-  setHidden(dom.startQuestionBtn, !inGame);
-  if (dom.startQuestionBtn) dom.startQuestionBtn.disabled = busy.host || !(phase === PHASE.ROLLING && allRolled);
-
-  setHidden(dom.revealAnswerBtn, !inGame);
-  if (dom.revealAnswerBtn) dom.revealAnswerBtn.disabled = busy.host || phase !== PHASE.ANSWERING;
+  const next = inGame ? hostNextAction(room) : null;
+  setHidden(dom.hostNextBtn, !next);
+  if (next) {
+    dom.hostNextBtn.querySelector(".gt-next-label").textContent = next.label;
+    dom.hostNextBtn.querySelector(".gt-next-sub").textContent = next.sub;
+    dom.hostNextBtn.title = next.sub;
+    dom.hostNextBtn.disabled = busy.host || !next.enabled;
+    hostNext = next.run;
+  }
 
   setHidden(dom.toggleQuestionOverlayBtn, !showToggle);
   if (dom.toggleQuestionOverlayBtn) {
     dom.toggleQuestionOverlayBtn.disabled = phase === PHASE.QUESTION_COUNTDOWN;
     dom.toggleQuestionOverlayBtn.textContent = isRevealPhase(room)
-      ? hq.revealOpen ? "ซ่อนเฉลย ดูกระดาน" : "แสดงเฉลย"
-      : hq.questionHidden ? "แสดงคำถาม" : "ซ่อนคำถาม ดูกระดาน";
+      ? hq.revealOpen ? "🙈 ซ่อนเฉลย" : "👁 แสดงเฉลย"
+      : hq.questionHidden ? "👁 แสดงคำถาม" : "🙈 ซ่อนคำถาม";
   }
+}
+
+function renderDetailTable(room) {
+  renderPlayerList(dom.playerList, room, getViewPlayers(room), { sort: detail.sort });
+  dom.detailTitle && (dom.detailTitle.textContent = `ตารางละเอียด · รอบ ${room.currentRound || 0}/${getSettings(room).maxRounds}`);
+  for (const b of dom.detailTable.querySelectorAll("[data-sort]")) b.setAttribute("aria-pressed", String(b.dataset.sort === detail.sort));
+}
+
+function toggleDetail(open = !detail.open) {
+  detail.open = open;
+  if (lastView && isHost()) renderHostView(lastView);
 }
 
 const isRevealPhase = (room) =>
@@ -827,7 +878,7 @@ function fillHostQuestion(room, question, { round, reveal }) {
     .map(([k, v]) => {
       const cls = reveal ? (k === question.correctOption ? " correct" : " dim") : "";
       const cnt = reveal ? `<span class="cnt">${counts[k] || 0} คน</span>` : "";
-      return `<div class="hq-choice${cls}"><span>${escapeHtml(k)}. ${escapeHtml(v)}</span>${cnt}</div>`;
+      return `<div class="hq-choice k-${escapeHtml(k.toLowerCase())}${cls}"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span>${cnt}</div>`;
     })
     .join("");
   if (!reveal) updateHostClock(room);
@@ -973,7 +1024,7 @@ function renderGameAction(room, me) {
       }
       const dm = room.history?.[roundKey(round)]?.diceMoves?.[session.playerId];
       const extra =
-        dm?.special === "ladder" ? `🪜 ขึ้นบันไดไปช่อง ${dm.toPosition}!` : dm?.special === "snake" ? `🐍 โดนงูกัด ลงไปช่อง ${dm.toPosition}` : "";
+        dm?.special === "ladder" ? `🟠 ปีนบันไดส้มไปช่อง ${dm.toPosition}!` : isDrop(dm?.special) ? `🟣 ร่วงบันไดม่วงลงไปช่อง ${dm.toPosition}` : "";
       html(`<div class="dice-face-big" aria-label="ทอยได้ ${me.lastRoll ?? "-"} แต้ม">${diceFace(me.lastRoll)}</div>
         <div><b>ทอยได้ ${me.lastRoll ?? "-"} แต้ม</b></div>${extra ? `<div><b>${extra}</b></div>` : ""}<div class="sub">รอครูเริ่มคำถาม</div>`);
       return;
@@ -1016,13 +1067,16 @@ function resultMessage(rec) {
   else if (rec.answered) head = `<div class="big">❌</div><div><b>ตอบผิด ถอยหลัง ${move} ช่อง</b></div>`;
   else head = `<div class="big">⌛</div><div><b>ไม่ได้ตอบ ถอยหลัง ${move} ช่อง</b></div>`;
 
-  const extra = {
-    ladder: `🪜 แล้วขึ้นบันไดไปช่อง ${rec.finalPosition}!`,
-    snake: `🐍 แล้วโดนงูกัด ลงไปช่อง ${rec.finalPosition}`,
-  }[rec.special] || {
-    snake: "🛡️ ตอบถูกจึงไม่ตกงู",
-    ladder: "ตอบผิดจึงขึ้นบันไดไม่ได้",
-  }[rec.blocked] || "";
+  const extra =
+    rec.special === "ladder"
+      ? `🟠 แล้วปีนบันไดส้มไปช่อง ${rec.finalPosition}!`
+      : isDrop(rec.special)
+        ? `🟣 แล้วร่วงบันไดม่วงลงไปช่อง ${rec.finalPosition}`
+        : isDrop(rec.blocked)
+          ? "🛡️ ตอบถูกจึงไม่ร่วงบันไดม่วง"
+          : rec.blocked === "ladder"
+            ? "ตอบผิดจึงปีนบันไดส้มไม่ได้"
+            : "";
   return `${head}${extra ? `<div class="sub">${extra}</div>` : ""}`;
 }
 
@@ -1974,17 +2028,20 @@ function bindUIEvents() {
 
   // host
   on(dom.confirmCreateRoomBtn, "click", hostCreateRoom);
-  on(dom.startGameBtn, "click", hostStartGame);
   on(dom.lobbyStartBtn, "click", hostStartGame);
   on(dom.lobbyCancelBtn, "click", hostCancelRoom);
   on(dom.plExitBtn, "click", playerLeave);
-  on(dom.startRoundBtn, "click", hostStartRound);
-  on(dom.startQuestionBtn, "click", hostStartQuestion);
+  on(dom.hostNextBtn, "click", () => hostNext?.());
   on(dom.toggleQuestionOverlayBtn, "click", hostToggleQuestionPanel);
-  on(dom.revealAnswerBtn, "click", hostReveal);
-  on(dom.detailTable, "toggle", () => {
-    if (dom.detailTable.open && lastRoom) renderPlayerList(dom.playerList, lastRoom, lastRoom.players || {});
+  on(dom.detailBtn, "click", () => toggleDetail());
+  on(dom.detailCloseBtn, "click", () => toggleDetail(false));
+  on(dom.detailTable, "click", (e) => {
+    const b = e.target.closest("[data-sort]");
+    if (!b) return;
+    detail.sort = b.dataset.sort;
+    if (lastView) renderDetailTable(lastView);
   });
+  on(dom.gameExitBtn, "click", () => (isHost() ? hostCancelRoom() : playerLeave()));
 
   // player
   on(dom.joinRoomBtn, "click", playerJoin);

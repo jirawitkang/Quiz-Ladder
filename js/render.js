@@ -4,6 +4,7 @@
 import { BOARD_SIZE, PHASE, STATUS } from "./config.js";
 import { getSettings, isPlayerDone } from "./game-logic.js";
 import { getRoomQuestionSetName } from "../questions.js";
+import { isDrop } from "./board-config.js";
 import { clampPos, diceFace, escapeHtml, normalizeName, roundKey, signedText, sortedRoundNumbers } from "./utils.js";
 
 const DICE_GLYPHS = ["☐", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
@@ -83,65 +84,70 @@ export function renderLobbyBadges(el, room) {
 
 /* ---------- Player list (lobby / in-game) ---------- */
 
-export function renderPlayerList(el, room, players) {
+// ตารางละเอียดบนจอครู: อันดับ/ชื่อ, ช่อง, สถานะรอบนี้, แต้มทอย + ผลตอบทีละรอบ, จำนวนตอบถูก
+export function renderPlayerList(el, room, players, { sort = "rank" } = {}) {
   if (!el) return;
-
   const entries = Object.entries(players || {});
-  if (entries.length === 0) {
+  if (!entries.length) {
     el.innerHTML = `<div class="muted">ยังไม่มีผู้เล่นเข้าห้อง</div>`;
     return;
   }
-
   const history = room.history || {};
+  const phase = room.phase || PHASE.IDLE;
   const currentRound = Number(room.currentRound || 0);
-  const curr = history[roundKey(currentRound)] || {};
+  const standings = computeStandings(room, players);
+  const rankOf = new Map(standings.map((st, i) => [st.id, i + 1]));
+  const stats = new Map(standings.map((st) => [st.id, st]));
+  const ordered = entries
+    .map(([pid, p]) => ({ pid, p, name: normalizeName(p.name || pid), rank: rankOf.get(pid) ?? 999 }))
+    .sort(sort === "name" ? byName : (a, b) => a.rank - b.rank);
 
-  const rows = entries
-    .map(([pid, p]) => ({ pid, p, name: normalizeName(p.name || pid) }))
-    .sort(byName)
-    .map(({ pid, p, name }, index) => {
-      const connected = p.connected !== false;
-      const dm = curr.diceMoves?.[pid];
-      const ar = curr.answers?.[pid];
+  const rows = ordered
+    .map(({ pid, p, name, rank }) => {
+      const done = isPlayerDone(p);
+      const offline = p.connected === false && !done;
+      const color = SAFE_COLOR.test(p.color || "") ? p.color : "#9e9e9e";
+      const pos = clampPos(p.position);
+      const finish = resolveFinishInfo(pid, p, history);
+      const st = stats.get(pid);
 
-      // ทอยเองจริง = มีแต้ม > 0 และไม่ได้ถูก auto-skip
-      const rolledThisRound = !!dm && dm.missed !== true && Number(dm.diceRoll) > 0;
-      // ถ้า host เฉลยแล้ว ใช้ record ใน history ไม่งั้นใช้สถานะ realtime
-      const answeredThisRound = ar ? ar.answered === true && ar.selectedOption != null : !!p.answered;
+      let now = "—";
+      if (!done && phase === PHASE.ROLLING) now = `<span class="${p.hasRolled ? "ok" : ""}">🎲 ${p.hasRolled ? "ทอยแล้ว" : "ยังไม่ทอย"}</span>`;
+      else if (!done && (phase === PHASE.ANSWERING || phase === PHASE.QUESTION_COUNTDOWN)) {
+        now = `<span class="ok">🎲 ✓</span><span class="${p.answered ? "ok" : ""}">❓ ${p.answered ? "ตอบแล้ว" : "ยังไม่ตอบ"}</span>`;
+      }
 
-      const offlineMark = connected ? "-" : "⚠️";
-      const sym = buildRoundSymbols(pid, resolveFinishInfo(pid, p, history), history, currentRound);
+      let chips = "";
+      for (let rn = 1; rn <= currentRound; rn++) {
+        if (finish.finishRound != null && rn > finish.finishRound) break;
+        const rd = history[roundKey(rn)] || {};
+        const dm = rd.diceMoves?.[pid];
+        const ar = rd.answers?.[pid];
+        const roll = dm && !dm.missed && Number(dm.diceRoll) > 0 ? dm.diceRoll : rn === currentRound && p.hasRolled ? p.lastRoll ?? "·" : "·";
+        const res = !ar || (ar.correct == null && !ar.missedAnswer) ? "none" : ar.missedAnswer ? "miss" : ar.correct ? "ok" : "no";
+        const special = [dm?.special, ar?.special].find(Boolean);
+        const mark = special === "ladder" ? "🟠" : isDrop(special) ? "🟣" : "";
+        const title = `รอบ ${rn}: ทอย ${roll}${res === "ok" ? " · ตอบถูก" : res === "no" ? " · ตอบผิด/ไม่ทัน" : res === "miss" ? " · หลุด" : ""}${
+          mark === "🟠" ? " · ปีนบันไดส้ม" : mark === "🟣" ? " · ร่วงบันไดม่วง" : ""
+        }`;
+        chips += `<span class="rd" title="${escapeHtml(title)}">${escapeHtml(String(roll))}${mark ? `<sup>${mark}</sup>` : ""}<i class="${res}"></i></span>`;
+      }
 
-      return `
-        <tr>
-          <td>${index + 1}</td>
-          <td class="name-col">${escapeHtml(name)}</td>
-          <td>${clampPos(p.position)}</td>
-          <td>${rolledThisRound ? "🎲" : offlineMark}</td>
-          <td>${answeredThisRound ? "✔️" : offlineMark}</td>
-          <td class="rolls-col"><span class="rolls-text">${sym.rolls}</span></td>
-          <td>${sym.answers}</td>
-          <td>${isPlayerDone(p) ? "🏁 เข้าเส้นชัย" : "-"}</td>
-        </tr>`;
+      const tags = `${done ? ` <span class="tag fin">เข้าเส้นชัย</span>` : ""}${offline ? ` <span class="tag off">หลุด</span>` : ""}`;
+      return `<tr class="${done ? "fin" : ""}${offline ? " off" : ""}">
+        <td class="num">${done && rank <= MEDALS.length ? MEDALS[rank - 1] : rank}</td>
+        <td><span class="who"><span class="av" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span>${escapeHtml(name)}${tags}</span></td>
+        <td><span class="cellbar"><b>${pos}</b><span class="bar"><i style="width:${(pos / BOARD_SIZE) * 100}%"></i></span></span></td>
+        <td><span class="now">${now}</span></td>
+        <td><span class="rounds">${chips || "—"}</span></td>
+        <td class="num">${st ? `${st.correct}/${st.answeredTotal}` : "-"}</td>
+      </tr>`;
     })
     .join("");
 
-  el.innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th class="name-col">รายชื่อผู้เล่น</th>
-          <th>ตำแหน่ง</th>
-          <th>ทอยแล้ว</th>
-          <th>ตอบแล้ว</th>
-          <th>ผลทอย</th>
-          <th>ผลคำตอบ</th>
-          <th>สถานะผู้เล่น</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+  el.innerHTML = `<table class="dt">
+      <thead><tr><th>#</th><th>ผู้เล่น</th><th>ช่อง</th><th>รอบนี้</th><th>แต้มทอย + ผลตอบ แต่ละรอบ</th><th class="num">ตอบถูก</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
 }
 
 /* ---------- Question choices ---------- */
@@ -155,7 +161,7 @@ export function renderChoices(el, question, { selected = null, showResult = fals
 
   el.innerHTML = Object.entries(question.choices)
     .map(([key, text]) => {
-      const cls = ["choice-btn"];
+      const cls = ["choice-btn", `k-${String(key).toLowerCase()}`];
       if (showResult) {
         if (key === question.correctOption) cls.push("correct");
         else if (key === selected) cls.push("wrong");
@@ -165,7 +171,7 @@ export function renderChoices(el, question, { selected = null, showResult = fals
       const isDisabled = showResult || disabled;
       return `<button type="button" class="${cls.join(" ")}" data-key="${escapeHtml(key)}"${
         isDisabled ? " disabled" : ""
-      }>${escapeHtml(key)}. ${escapeHtml(text)}</button>`;
+      }><b>${escapeHtml(key)}</b><span>${escapeHtml(text)}</span></button>`;
     })
     .join("");
 }
@@ -441,7 +447,8 @@ function leaderboardRow(p, i) {
 }
 
 // คนที่เข้าเส้นชัยแล้วอยู่ในกล่องสีเขียวด้านบน เรียงตามอันดับเข้าเส้นชัย
-export function renderLeaderboard(el, room, players) {
+// limit = จำนวนแถวที่แสดง (ที่เหลือบอกเป็น "+ อีก N คน" ให้ดูในตารางละเอียด)
+export function renderLeaderboard(el, room, players, { limit = Infinity } = {}) {
   if (!el) return;
   const phase = room.phase || PHASE.IDLE;
   const rank = new Map((room.winners || []).map((w) => [w.playerId, w.rank ?? Infinity]));
@@ -449,22 +456,26 @@ export function renderLeaderboard(el, room, players) {
     .map(([pid, p]) => ({ pid, ...p, pos: clampPos(p.position), statusIcon: statusIcon(p, phase) }))
     .sort((a, b) => (rank.get(a.pid) ?? Infinity) - (rank.get(b.pid) ?? Infinity) || b.pos - a.pos || byName(a, b));
 
-  const finished = rows.filter((p) => isPlayerDone(p));
-  const racing = rows.filter((p) => !isPlayerDone(p));
+  const shown = rows.slice(0, limit);
+  const finished = shown.filter((p) => isPlayerDone(p));
+  const racing = shown.filter((p) => !isPlayerDone(p));
+  const allFinished = rows.filter((p) => isPlayerDone(p)).length;
+  const hiddenCount = rows.length - shown.length;
   const top = el.scrollTop;
   el.innerHTML =
     (finished.length
-      ? `<div class="lb-finish"><div class="lb-finish-head">🏁 เข้าเส้นชัยแล้ว · ${finished.length} คน</div>
+      ? `<div class="lb-finish"><div class="lb-finish-head">🏁 เข้าเส้นชัยแล้ว · ${allFinished} คน</div>
          <ol class="lb-list">${finished.map((p, i) => leaderboardRow(p, i)).join("")}</ol></div>`
       : "") +
-    `<ol class="lb-list">${racing.map((p, i) => leaderboardRow(p, finished.length + i)).join("")}</ol>`;
+    (racing.length ? `<ol class="lb-list">${racing.map((p, i) => leaderboardRow(p, finished.length + i)).join("")}</ol>` : "") +
+    (hiddenCount > 0 ? `<div class="lb-more">+ อีก ${hiddenCount} คน · ดูทั้งหมดใน "ตารางละเอียด"</div>` : "");
   el.scrollTop = top;
 }
 
 /* ---------- Host: event feed ---------- */
 
-// เหตุการณ์เด่นจาก history (บันได/งู/เข้าเส้นชัย/หลุด) ใหม่สุดอยู่บน
-export function buildFeedItems(room, limit = 8) {
+// เหตุการณ์เด่นจาก history (ปีน/ร่วงบันได/เข้าเส้นชัย/หลุด) ใหม่สุดอยู่บน
+export function buildFeedItems(room, limit = 12) {
   const history = room.history || {};
   const players = room.players || {};
   const items = [];
@@ -476,17 +487,17 @@ export function buildFeedItems(room, limit = 8) {
       const t = dm.timestamp ?? 0;
       const land = dm.landingPosition ?? dm.toPosition;
       if (dm.missed) items.push({ t, kind: "block", text: `📴 ${who(pid, dm)} หลุดการเชื่อมต่อ ถูกข้ามการทอย` });
-      if (dm.special === "ladder") items.push({ t, kind: "ladder", text: `🪜 ${who(pid, dm)} ขึ้นบันได ${land} → ${dm.toPosition}` });
-      if (dm.special === "snake") items.push({ t, kind: "snake", text: `🐍 ${who(pid, dm)} โดนงูกัด ${land} → ${dm.toPosition}` });
+      if (dm.special === "ladder") items.push({ t, kind: "ladder", text: `🟠 ${who(pid, dm)} ปีนบันไดส้ม ${land} → ${dm.toPosition}` });
+      if (isDrop(dm.special)) items.push({ t, kind: "drop", text: `🟣 ${who(pid, dm)} ร่วงบันไดม่วง ${land} → ${dm.toPosition}` });
       if ((dm.toPosition ?? 0) >= BOARD_SIZE) items.push({ t: t + 1, kind: "finish", text: `🏁 ${who(pid, dm)} เข้าเส้นชัย!` });
     }
     for (const [pid, ar] of Object.entries(rd.answers || {})) {
       const t = ar.timestamp ?? 0;
       const land = ar.landingPosition ?? ar.finalPosition;
-      if (ar.special === "ladder") items.push({ t, kind: "ladder", text: `🪜 ${who(pid, ar)} ตอบถูกแล้วขึ้นบันได ${land} → ${ar.finalPosition}` });
-      if (ar.special === "snake") items.push({ t, kind: "snake", text: `🐍 ${who(pid, ar)} ตอบผิดแล้วโดนงูกัด ${land} → ${ar.finalPosition}` });
-      if (ar.blocked === "snake") items.push({ t, kind: "shield", text: `🛡️ ${who(pid, ar)} ตอบถูก จึงรอดจากงูที่ช่อง ${land}` });
-      if (ar.blocked === "ladder") items.push({ t, kind: "block", text: `🚫 ${who(pid, ar)} ตอบผิด จึงขึ้นบันไดที่ช่อง ${land} ไม่ได้` });
+      if (ar.special === "ladder") items.push({ t, kind: "ladder", text: `🟠 ${who(pid, ar)} ตอบถูกแล้วปีนบันไดส้ม ${land} → ${ar.finalPosition}` });
+      if (isDrop(ar.special)) items.push({ t, kind: "drop", text: `🟣 ${who(pid, ar)} ตอบผิดแล้วร่วงบันไดม่วง ${land} → ${ar.finalPosition}` });
+      if (isDrop(ar.blocked)) items.push({ t, kind: "shield", text: `🛡️ ${who(pid, ar)} ตอบถูก จึงไม่ร่วงบันไดม่วงที่ช่อง ${land}` });
+      if (ar.blocked === "ladder") items.push({ t, kind: "block", text: `🚫 ${who(pid, ar)} ตอบผิด จึงปีนบันไดส้มที่ช่อง ${land} ไม่ได้` });
       if ((ar.finalPosition ?? 0) >= BOARD_SIZE && (ar.basePosition ?? 0) < BOARD_SIZE) {
         items.push({ t: t + 1, kind: "finish", text: `🏁 ${who(pid, ar)} เข้าเส้นชัย!` });
       }
@@ -500,5 +511,5 @@ export function renderFeed(el, room) {
   const items = buildFeedItems(room);
   el.innerHTML = items.length
     ? items.map((it) => `<li class="${it.kind}">${escapeHtml(it.text)}</li>`).join("")
-    : `<li class="feed-empty">บันได งู และการเข้าเส้นชัยจะแสดงที่นี่</li>`;
+    : `<li class="feed-empty">การปีน/ร่วงบันได และการเข้าเส้นชัยจะแสดงที่นี่</li>`;
 }

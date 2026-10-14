@@ -1,9 +1,9 @@
 // board-view.js
-// กระดานบันไดงูบนหน้าจอ: วาดช่อง/บันได/งู, วางตัวหมาก (รองรับหลายคนซ้อนช่อง) และเล่นแอนิเมชันการเดิน
-// app.js ส่ง "เหตุการณ์การเดิน" (ทอย/เฉลย) เข้ามา แล้ว view จะพาหมากเดินทีละช่อง → ขึ้นบันได/ไถลตามงู
+// กระดานบนหน้าจอ: วาดช่อง/บันไดส้ม (ปีน)/บันไดม่วง (ร่วง), วางตัวหมาก (รองรับหลายคนซ้อนช่อง) และเล่นแอนิเมชันการเดิน
+// app.js ส่ง "เหตุการณ์การเดิน" (ทอย/เฉลย) เข้ามา แล้ว view จะพาหมากเดินทีละช่อง → ปีนบันไดส้ม/ร่วงบันไดม่วง
 
 import { BOARD_SIZE } from "./config.js";
-import { BOARD_COLS, BOARD_ROWS, LADDERS, SNAKES, cellNumberAt, cellPosition } from "./board-config.js";
+import { BOARD_COLS, BOARD_ROWS, DROPS, LADDERS, cellNumberAt, cellPosition, isDrop } from "./board-config.js";
 import { diceFace, escapeHtml } from "./utils.js";
 
 const REDUCED_MOTION = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -35,9 +35,11 @@ const cellCenterSvg = (n) => {
 
 /* ---------- static drawing ---------- */
 
-function ladderSvg(foot, top) {
-  const p = cellCenterSvg(foot);
-  const q = cellCenterSvg(top);
+// บันได 1 อัน: from = ช่องทางเข้า (ต้องหยุดที่นี่ถึงจะปีน/ร่วง), to = ช่องปลายทาง
+// วงลูกศรวางฝั่งที่ไม่มีบันไดพาด: ส้ม (ปีน) อยู่ล่างกลางช่อง, ม่วง (ร่วง) อยู่บนกลางช่อง
+function ladderSvg(from, to, kind) {
+  const p = cellCenterSvg(from);
+  const q = cellCenterSvg(to);
   const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy);
   const nx = (-dy / len) * 13, ny = (dx / len) * 13;
   let rungs = "";
@@ -45,39 +47,19 @@ function ladderSvg(foot, top) {
     const x = p.x + (dx * d) / len, y = p.y + (dy * d) / len;
     rungs += `<line x1="${x + nx}" y1="${y + ny}" x2="${x - nx}" y2="${y - ny}"/>`;
   }
-  return `<g class="ladder" stroke-linecap="round" fill="none">
-    <g stroke-width="7"><line x1="${p.x + nx}" y1="${p.y + ny}" x2="${q.x + nx}" y2="${q.y + ny}"/><line x1="${p.x - nx}" y1="${p.y - ny}" x2="${q.x - nx}" y2="${q.y - ny}"/></g>
-    <g stroke-width="5">${rungs}</g></g>`;
-}
-
-function snakeSvg(head, tail) {
-  const p = cellCenterSvg(head);
-  const q = cellCenterSvg(tail);
-  const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy);
-  const ux = -dy / len, uy = dx / len;
-  const waves = Math.max(1.5, len / 110);
-  let d = "";
-  for (let i = 0; i <= 60; i++) {
-    const t = i / 60;
-    const w = Math.sin(t * Math.PI * 2 * waves) * (20 * Math.sin(Math.PI * t) + 4);
-    d += `${i ? "L" : "M"}${(p.x + dx * t + ux * w).toFixed(1)} ${(p.y + dy * t + uy * w).toFixed(1)}`;
-  }
-  const angle = (Math.atan2(dy, dx) * 180) / Math.PI + 180;
-  return `<g class="snake" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="${d}" class="snake-outline" stroke-width="15"/>
-    <path d="${d}" class="snake-body" stroke-width="10"/>
-    <path d="${d}" class="snake-spots" stroke-width="10" stroke-dasharray="2 14"/>
-    <g transform="translate(${p.x} ${p.y}) rotate(${angle})">
-      <path d="M-14 0 L-24 -3 M-24 -3 L-27 -6 M-24 -3 L-27 0" class="snake-tongue" stroke-width="2.5"/>
-      <ellipse rx="15" ry="11" class="snake-head"/>
-      <circle cx="-5" cy="-5" r="3.2" fill="#fff"/><circle cx="-5" cy="5" r="3.2" fill="#fff"/>
-      <circle cx="-6" cy="-5" r="1.5" fill="#111"/><circle cx="-6" cy="5" r="1.5" fill="#111"/>
-    </g></g>`;
+  const up = kind === "ladder";
+  const my = p.y + (up ? 31 : -31);
+  return `<g class="ladder ${up ? "up" : "down"}" stroke-linecap="round" fill="none">
+    <g class="rails" stroke-width="7"><line x1="${p.x + nx}" y1="${p.y + ny}" x2="${q.x + nx}" y2="${q.y + ny}"/><line x1="${p.x - nx}" y1="${p.y - ny}" x2="${q.x - nx}" y2="${q.y - ny}"/></g>
+    <g class="rungs" stroke-width="5">${rungs}</g>
+    <g class="mark"><circle cx="${p.x}" cy="${my}" r="13" stroke="#fff" stroke-width="3"/><path d="${
+      up ? `M${p.x - 6} ${my + 4} L${p.x} ${my - 5} L${p.x + 6} ${my + 4} Z` : `M${p.x - 6} ${my - 4} L${p.x} ${my + 5} L${p.x + 6} ${my - 4} Z`
+    }" fill="#fff" stroke="none"/></g></g>`;
 }
 
 /* ---------- component ---------- */
 
-// hooks: { onStep(pid), onSpecial(pid, "ladder"|"snake"), onFinish(pid) } — เรียกตามจังหวะแอนิเมชันจริงบนจอ
+// hooks: { onStep(pid), onSpecial(pid, "ladder"|"drop"), onFinish(pid) } — เรียกตามจังหวะแอนิเมชันจริงบนจอ
 export function createBoardView(root, { meId = null, floatsOnlyForMe = false, hooks = {} } = {}) {
   root.classList.add("board");
   root.innerHTML = "";
@@ -88,7 +70,8 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false, ho
     for (let col = 0; col < BOARD_COLS; col++) {
       const n = cellNumberAt(col, row);
       const cell = document.createElement("div");
-      cell.className = `board-cell ${(col + row) % 2 ? "alt" : ""}${n === 1 ? " start" : ""}${n === BOARD_SIZE ? " finish" : ""}`;
+      // สลับสีทีละแถว (แนวนอน) ให้มองตามทางเดินซิกแซกได้ง่าย
+      cell.className = `board-cell ${row % 2 ? "alt" : ""}${n === 1 ? " start" : ""}${n === BOARD_SIZE ? " finish" : ""}`;
       cell.dataset.n = String(n);
       cell.innerHTML =
         `<span class="cell-num">${n}</span>` +
@@ -102,8 +85,8 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false, ho
   svg.setAttribute("viewBox", `0 0 ${BOARD_COLS * 100} ${BOARD_ROWS * 100}`);
   svg.setAttribute("aria-hidden", "true");
   svg.innerHTML =
-    Object.entries(LADDERS).map(([f, t]) => ladderSvg(Number(f), t)).join("") +
-    Object.entries(SNAKES).map(([h, t]) => snakeSvg(Number(h), t)).join("");
+    Object.entries(LADDERS).map(([f, t]) => ladderSvg(Number(f), t, "ladder")).join("") +
+    Object.entries(DROPS).map(([f, t]) => ladderSvg(Number(f), t, "drop")).join("");
 
   const layer = document.createElement("div");
   layer.className = "board-layer";
@@ -269,19 +252,19 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false, ho
     await hop(pid, ev.landing);
 
     if (ev.special === "ladder") {
-      float(pid, "🪜 ขึ้นบันได!", "ladder");
+      float(pid, "🟠 ปีนบันได!", "ladder");
       hooks.onSpecial?.(pid, "ladder");
       await sleep(PAUSE_MS);
       await glide(pid, ev.to);
-    } else if (ev.special === "snake") {
-      float(pid, "🐍 โดนงูกัด!", "snake");
-      hooks.onSpecial?.(pid, "snake");
+    } else if (isDrop(ev.special)) {
+      float(pid, "🟣 ร่วงบันได!", "drop");
+      hooks.onSpecial?.(pid, "drop");
       await sleep(PAUSE_MS);
       await glide(pid, ev.to);
-    } else if (ev.blocked === "snake") {
-      float(pid, "🛡️ ตอบถูก ไม่ตกงู", "good");
+    } else if (isDrop(ev.blocked)) {
+      float(pid, "🛡️ ตอบถูก ไม่ร่วง", "good");
     } else if (ev.blocked === "ladder") {
-      float(pid, "ตอบผิด ขึ้นบันไดไม่ได้", "info");
+      float(pid, "ตอบผิด ปีนบันไดไม่ได้", "info");
     }
     if (ev.to >= BOARD_SIZE) {
       float(pid, "🏁 เข้าเส้นชัย!", "finish");

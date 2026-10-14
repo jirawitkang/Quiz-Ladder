@@ -212,22 +212,12 @@
      ========================= */
   
   /* ---- wrappers (scroll container) ---- */
-  #playerList,
   #endGameSummary{
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
   
-  /* playerList wrapper: ให้เลื่อนในแนวตั้งได้ถ้าผู้เล่นเยอะ */
-  #playerList{
-    padding: 0 !important;
-    margin: 0 !important;
-    max-height: 52vh;
-    overflow: auto; /* x+y */
-  }
-  
   /* ---- base table ---- */
-  #playerList table,
   #endGameSummary table{
     width: 100%;
     margin: 0 !important;
@@ -242,7 +232,6 @@
   }
   
   @media (max-width: 520px){
-    #playerList table,
     #endGameSummary table{
       min-width: 560px;
     }
@@ -255,7 +244,6 @@
     --tbl-pad-x: 4px;     /* padding ซ้าย/ขวา */
   }
   
-  #playerList th, #playerList td,
   #endGameSummary th, #endGameSummary td{
     border: 1px solid var(--line);
     padding: 0 var(--tbl-pad-x);
@@ -271,7 +259,6 @@
   }
   
   /* header look */
-  #playerList th,
   #endGameSummary th{
     background: var(--p-100);
     color: var(--p-800);
@@ -279,49 +266,14 @@
   }
   
   /* name column shared */
-  #playerList th.name-col, #playerList td.name-col,
   #endGameSummary th.name-col, #endGameSummary td.name-col{
     width: var(--name-col-ch);
     max-width: var(--name-col-ch);
   }
   
   /* name cell weight (ตาม PATCH เดิม) */
-  #playerList td.name-col, #endGameSummary td.name-col{
+  #endGameSummary td.name-col{
     font-weight: 800;
-  }
-  
-  /* =========================
-     PlayerList: 8 columns
-     ========================= */
-  
-  /* 1) # */
-  #playerList th:nth-child(1),
-  #playerList td:nth-child(1){ width: 3ch; }
-  
-  /* 3) ตำแหน่ง */
-  #playerList th:nth-child(3),
-  #playerList td:nth-child(3){ width: 6ch; }
-  
-  /* 4) ทอยแล้ว */
-  #playerList th:nth-child(4),
-  #playerList td:nth-child(4){ width: 7ch; }
-  
-  /* 5) ตอบแล้ว */
-  #playerList th:nth-child(5),
-  #playerList td:nth-child(5){ width: 7ch; }
-  
-  /* 6-7) ผลทอย + ผลคำตอบ ให้กว้างเท่ากัน */
-  #playerList th:nth-child(6),
-  #playerList td:nth-child(6),
-  #playerList th:nth-child(7),
-  #playerList td:nth-child(7){
-    width: 16ch;
-  }
-  
-  /* 8) สถานะผู้เล่น */
-  #playerList th:nth-child(8),
-  #playerList td:nth-child(8){
-    width: 9ch;
   }
   
   /* =========================
@@ -1442,3 +1394,214 @@
   .pl-dots i:nth-child(2){ animation-delay:.2s; } .pl-dots i:nth-child(3){ animation-delay:.4s; }
   @keyframes pl-dot{ 0%,60%,100%{ opacity:.3; transform:none; } 30%{ opacity:1; transform:translateY(-4px); } }
   @media (prefers-reduced-motion: reduce){ .lb-tok, .pl-me.picked .pl-av, .pl-dots i{ animation:none; } }
+
+  /* =========================
+     19) GAME — หน้าเล่นเกม (ธีมเดียวกับหน้าแรก): แถบบนแถวเดียว, กระดานซ้าย + แถบข้างขวา (ครู),
+         กระดาน + แผ่นการกระทำ (นักเรียน), บันไดส้ม = ปีน / บันไดม่วง = ร่วง
+     ========================= */
+  body.on-game{ background:#241c55; }
+  body.on-game .app-header{ display:none; }
+  body.on-game main.container{ max-width:none; margin:0; padding:0; }
+  body.on-game #roomView{
+    --g-ink:#2f2a66; --g-ink-soft:#6b62a8; --g-paper:#f6f4fb; --g-paper-2:#ede9f7; --g-line:#d9d3ef;
+    --g-orange:#FFA240; --g-orange-deep:#d9761b; --g-purple:#7b5cd6; --g-purple-deep:#5b3fb8;
+    --g-display:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
+    --g-body:"Mitr","Noto Sans Thai","Leelawadee UI",system-ui,sans-serif;
+    --cA:#FF7A59; --cB:#4F8DF5; --cC:#2EAD6B; --cD:#B05BD8;
+    min-height:100vh; min-height:100dvh; padding:10px 18px 16px; color:#fff; font-family:var(--g-body);
+    background-color:#241c55;
+    background-image:linear-gradient(rgba(255,255,255,.035) 50%, transparent 50%), linear-gradient(90deg, rgba(255,255,255,.035) 50%, transparent 50%);
+    background-size:120px 120px;
+  }
+  body.on-game #roomView button{ font-family:var(--g-body); }
+
+  /* แถบบน: แถวเดียวเสมอ จอแคบลงจะย่อข้อความแทนการขึ้นบรรทัดใหม่ */
+  .game-top{ display:flex; align-items:center; gap:10px; flex-wrap:nowrap; min-width:0; margin-bottom:10px; }
+  .game-top > *{ flex:none; }
+  .gt-spacer{ flex:1 1 auto !important; }
+  .gt-brand{ display:flex; align-items:center; gap:8px; }
+  .gt-brand svg{ width:36px; height:36px; }
+  .gt-brand b{ font:400 22px/1 var(--g-display); letter-spacing:.5px; }
+  .gt-brand b span{ color:var(--g-orange); }
+  .gt-round{ font:400 20px var(--g-display); padding:5px 14px; border-radius:999px; background:rgba(255,255,255,.1); white-space:nowrap; }
+  .gt-round small{ font:500 13px var(--g-body); opacity:.75; margin-right:4px; }
+  .gt-steps{ display:flex; align-items:center; gap:6px; font-size:14px; flex:0 1 auto !important; min-width:0; overflow:hidden; }
+  .gt-steps span{ opacity:.45; white-space:nowrap; }
+  .gt-steps span .t{ opacity:1; }
+  .gt-steps > span.on{ opacity:1; color:var(--g-orange); font-weight:600; border-bottom:3px solid var(--g-orange); padding-bottom:2px; }
+  .gt-steps > span.done{ opacity:.75; }
+  .gt-steps i{ opacity:.35; font-style:normal; }
+  .gt-actions{ display:flex; align-items:center; gap:8px; }
+  body.on-game .gt-ghost{
+    width:auto; margin:0; font-weight:500; font-size:14px; padding:8px 14px; border-radius:14px; white-space:nowrap;
+    color:#fff; background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.28); box-shadow:none;
+  }
+  body.on-game .gt-ghost:hover{ background:rgba(255,255,255,.18); transform:none; }
+  body.on-game .gt-ghost:disabled{ opacity:.45; }
+  body.on-game .gt-next{
+    display:flex; align-items:center; gap:10px; width:auto; margin:0; white-space:nowrap;
+    font-weight:600; font-size:18px; padding:8px 20px; border-radius:16px; color:var(--g-ink); background:var(--g-orange);
+    box-shadow:0 6px 0 var(--g-orange-deep), 0 10px 18px rgba(0,0,0,.3); transition:transform .08s, box-shadow .08s;
+  }
+  body.on-game .gt-next:active:not(:disabled){ transform:translateY(5px); box-shadow:0 1px 0 var(--g-orange-deep); }
+  body.on-game .gt-next:disabled{ opacity:.55; }
+  .gt-next small{ font-weight:400; font-size:13px; opacity:.75; }
+  .gt-next small:empty{ display:none; }
+  /* นักเรียน: ตัวหมาก + ช่องของฉัน */
+  .gt-me{ display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:500; min-width:0; }
+  .gt-me .me-av{ width:34px; height:34px; border-radius:50%; background:#fff; border:none; display:grid; place-items:center; font-size:20px; box-shadow:0 0 0 3px var(--c); }
+  .gt-me .me-av.waiting{ background:transparent; box-shadow:none; border:2px dashed rgba(255,255,255,.5); }
+  .gt-me b{ font:400 24px var(--g-display); color:var(--g-orange); }
+  @media (max-width:1180px){ .gt-next small{ display:none; } }
+  @media (max-width:1040px){ .gt-steps > span:not(.on) .t{ display:none; } .gt-brand b{ display:none; } }
+  @media (max-width:860px){ .gt-steps{ display:none !important; } }
+  @media (max-width:600px){
+    body.on-game #roomView{ padding:8px 10px 14px; }
+    .game-top{ gap:6px; }
+    .gt-brand svg{ width:30px; height:30px; }
+    .gt-round{ font-size:16px; padding:4px 10px; }
+    body.on-game .gt-ghost{ padding:7px 10px; }
+    body.on-game .gt-next{ font-size:15px; padding:8px 12px; }
+  }
+
+  /* ครู: กระดานซ้าย + แถบข้างขวาเสมอ (ย่อแถบตามจอ) */
+  body.on-game .host-layout{ display:grid; grid-template-columns:minmax(0,1fr) clamp(220px,27vw,330px); gap:clamp(10px,1.5vw,18px); align-items:start; }
+  @media (max-width:640px){ body.on-game .host-layout{ grid-template-columns:minmax(0,1fr); } }
+  body.on-game .board-area{ max-width:max(360px, calc((100vh - 110px) * 6 / 5)); }
+  body.on-game .host-side{ gap:10px; }
+  body.on-game .side-panel, body.on-game .wait{
+    background:rgba(255,255,255,.07); border:1.5px solid rgba(255,255,255,.13); border-radius:20px; padding:12px 14px; color:#fff;
+  }
+  body.on-game .side-panel h2{ font-size:15px; font-weight:600; color:#fff; opacity:.9; margin:0 0 8px; }
+  body.on-game .wait-head{ font-weight:600; }
+  body.on-game .wait-head b{ font:400 24px var(--g-display); color:#fff; }
+  body.on-game .meter{ background:rgba(255,255,255,.12); height:10px; }
+  body.on-game .meter i{ background:var(--g-orange); }
+  body.on-game .meter.complete i{ background:#2E9E5B; }
+  body.on-game .wait-who span{ background:rgba(255,255,255,.1); border:none; color:#fff; }
+  body.on-game .wait-who .wait-label, body.on-game .wait-note{ color:rgba(255,255,255,.7); background:none; }
+  body.on-game .wait-who .wait-done{ color:#7be0a3; background:none; }
+  body.on-game .lb{ max-height:none; overflow:visible; gap:4px; }
+  body.on-game .lb li{ background:transparent !important; padding:2px 6px; border-radius:10px; font-size:13px; color:#fff; }
+  body.on-game .lb-av{ width:24px; height:24px; font-size:14px; border:none; box-shadow:0 0 0 2px var(--c); }
+  body.on-game .lb-rank{ font:400 14px var(--g-display); color:rgba(255,255,255,.8); }
+  body.on-game .lb-name{ font-weight:500; }
+  body.on-game .lb-meta, body.on-game .lb-meta b{ color:rgba(255,255,255,.8); }
+  body.on-game .dice-face{ color:#fff; }
+  body.on-game .lb-finish{ background:rgba(46,158,91,.22); border:none; border-radius:12px; padding:4px; }
+  body.on-game .lb-finish-head{ color:#7be0a3; }
+  body.on-game .lb-finish .lb-list li{ background:transparent !important; }
+  body.on-game .lb-finish .lb-rank, body.on-game .lb-finish .lb-meta{ color:#7be0a3; }
+  .lb-more{ font-size:12px; opacity:.65; padding:4px 6px 0; }
+  body.on-game #feedPanel .feed{ max-height:min(34vh, 320px); overflow:auto; gap:6px; }
+  body.on-game .feed li{ border:none; border-radius:12px; padding:6px 10px; background:rgba(255,255,255,.06); color:#fff; }
+  body.on-game .feed li.feed-empty{ background:none; color:rgba(255,255,255,.6); }
+  body.on-game .side-detail-btn{ width:100%; }
+
+  /* กระดาน: แผ่นกระดาษวางบนโต๊ะ + บันไดส้ม/ม่วง */
+  /* กรอบกระดาษทำด้วย box-shadow (ไม่ใช้ padding) — ให้ตารางช่อง, SVG บันได และตัวหมากซ้อนกันพอดีเหมือนเดิม */
+  body.on-game .board{ border-radius:14px; box-shadow:0 0 0 8px #fbf8ef, 0 16px 0 8px #cfc7ea, 0 30px 40px 8px rgba(0,0,0,.45); }
+  body.on-game .board-area, body.on-game #playerBoard{ padding:8px; }
+  body.on-game .board-grid{ border:none; border-radius:14px; }
+  .board-cell{ background:#f8f6fd; border-color:#ddd6f1; }
+  .board-cell.alt{ background:#ece8f8; }
+  .board-cell.start{ background:#ffe2bf; }
+  .board-cell.finish{ background:#cdeed8; }
+  .cell-num{ font-family:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif; font-weight:400; color:#8b80c4; }
+  .board .ladder.up .rails{ stroke:#d9761b; } .board .ladder.up .rungs{ stroke:#f0a24e; } .board .ladder.up .mark circle{ fill:#FFA240; }
+  .board .ladder.down .rails{ stroke:#6a4fc4; } .board .ladder.down .rungs{ stroke:#9b84e6; } .board .ladder.down .mark circle{ fill:#7b5cd6; }
+  .board-float.ladder{ background:#FFA240; color:#2b1b00; }
+  .board-float.drop{ background:#7b5cd6; color:#fff; }
+  .feed li.drop{ border-color:#7b5cd6; }
+  .feed li.ladder{ border-color:#FFA240; }
+
+  /* คำถามบนจอครู: การ์ดกระดาษลอยทับกระดาน ตัวเลือก 4 สี */
+  body.on-game .hq{
+    inset:3%; border-radius:24px; display:grid; grid-template-columns:minmax(0,1fr) 22%; grid-template-rows:auto minmax(0,1fr) auto auto;
+    align-content:center; gap:12px 18px; padding:clamp(14px,2.2vw,26px);
+    background:var(--g-paper); color:var(--g-ink); box-shadow:0 10px 0 #cfc7ea, 0 26px 40px rgba(0,0,0,.45);
+  }
+  body.on-game .hq.no-ring{ grid-template-columns:minmax(0,1fr); }
+  body.on-game .hq-head{ opacity:1; }
+  body.on-game .hq-head span{ font-size:14px; padding:4px 12px; border-radius:999px; background:var(--g-paper-2); color:var(--g-ink-soft); font-weight:500; }
+  body.on-game .hq-text{ font-weight:600; color:var(--g-ink); }
+  body.on-game .hq-track{ stroke:var(--g-paper-2); }
+  body.on-game .hq-bar{ stroke:var(--g-orange); }
+  body.on-game .hq-num{ color:var(--g-ink); font-family:var(--g-display); font-weight:400; }
+  body.on-game .hq-choice{
+    border:none; color:#fff; font-weight:500; justify-content:flex-start; border-radius:18px; box-shadow:0 6px 0 rgba(0,0,0,.18);
+  }
+  body.on-game .hq-choice b{ flex:none; width:clamp(30px,3vw,44px); height:clamp(30px,3vw,44px); border-radius:12px; display:grid; place-items:center; font:400 clamp(18px,2vw,26px) var(--g-display); background:rgba(255,255,255,.25); }
+  body.on-game .hq-choice .cnt{ margin-left:auto; font:400 clamp(16px,1.6vw,22px) var(--g-display); opacity:.95; }
+  .hq-choice.k-a, .choice-btn.k-a{ background:var(--cA, #FF7A59); }
+  .hq-choice.k-b, .choice-btn.k-b{ background:var(--cB, #4F8DF5); }
+  .hq-choice.k-c, .choice-btn.k-c{ background:var(--cC, #2EAD6B); }
+  .hq-choice.k-d, .choice-btn.k-d{ background:var(--cD, #B05BD8); }
+  body.on-game .hq-choice.correct{ outline:4px solid #fff; outline-offset:-4px; box-shadow:0 0 0 4px #2E9E5B, 0 6px 0 rgba(0,0,0,.18); }
+  body.on-game .hq-choice.dim{ filter:saturate(.25) brightness(.95); opacity:.55; }
+  body.on-game .hq-progress{ color:var(--g-ink-soft); font-size:14px; }
+  body.on-game .hq-progress .meter{ background:var(--g-paper-2); }
+
+  /* ตารางละเอียด: ลอยทับกระดาน */
+  .dt-over{ position:absolute; inset:0; z-index:35; display:flex; align-items:flex-start; justify-content:center; padding:2%; background:rgba(36,28,85,.6); border-radius:20px; }
+  .dt-card{ width:100%; max-height:100%; display:flex; flex-direction:column; background:#f6f4fb; color:#2f2a66; border-radius:22px; padding:14px 16px; box-shadow:0 10px 0 #cfc7ea, 0 26px 40px rgba(0,0,0,.45); }
+  .dt-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .dt-head h3{ margin:0; font-size:19px; font-weight:600; color:#2f2a66; }
+  .dt-sort{ display:flex; gap:4px; padding:3px; border-radius:12px; background:#ede9f7; }
+  body.on-game .dt-sort button{ width:auto; margin:0; font-weight:500; font-size:13px; padding:5px 10px; border-radius:10px; background:transparent; color:#6b62a8; box-shadow:none; }
+  body.on-game .dt-sort button[aria-pressed="true"]{ background:#fff; color:#2f2a66; box-shadow:0 2px 0 #d9d3ef; }
+  body.on-game .dt-close{ width:auto; margin:0; font-weight:600; font-size:14px; padding:6px 12px; border-radius:12px; border:2px solid #d9d3ef; background:#fff; color:#2f2a66; box-shadow:0 3px 0 #d9d3ef; }
+  .dt-scroll{ overflow:auto; border:2px solid #d9d3ef; border-radius:16px; background:#fff; min-height:0; }
+  .dt{ border-collapse:collapse; width:100%; font-size:14px; min-width:620px; color:#2f2a66; }
+  .dt th{ position:sticky; top:0; z-index:1; background:#f6f4fb; color:#6b62a8; font-weight:500; font-size:12px; text-align:left; padding:8px; border-bottom:2px solid #d9d3ef; white-space:nowrap; }
+  .dt td{ padding:6px 8px; border-bottom:1px solid #ede9f7; white-space:nowrap; vertical-align:middle; }
+  .dt tr.fin td{ background:#effaf3; }
+  .dt tr.off td{ opacity:.6; }
+  .dt .num{ font-variant-numeric:tabular-nums; text-align:right; }
+  .dt .who{ display:flex; align-items:center; gap:8px; font-weight:500; }
+  .dt .who .av{ flex:none; width:28px; height:28px; border-radius:50%; background:#fff; display:grid; place-items:center; font-size:16px; box-shadow:0 0 0 2.5px var(--c); }
+  .dt .tag{ font-size:11px; padding:1px 7px; border-radius:999px; font-weight:500; }
+  .dt .tag.off{ background:#fbe4e1; color:#c2463b; } .dt .tag.fin{ background:#d6f1df; color:#1f7a43; }
+  .dt .cellbar{ display:flex; align-items:center; gap:8px; }
+  .dt .cellbar b{ font:400 20px "Lilita One","Arial Rounded MT Bold",system-ui,sans-serif; min-width:24px; text-align:right; }
+  .dt .cellbar .bar{ width:56px; height:8px; border-radius:999px; background:#ede9f7; overflow:hidden; }
+  .dt .cellbar .bar i{ display:block; height:100%; background:#FFA240; }
+  .dt .now{ display:flex; gap:4px; }
+  .dt .now span{ font-size:12px; padding:2px 7px; border-radius:8px; background:#ede9f7; color:#6b62a8; }
+  .dt .now span.ok{ background:#d6f1df; color:#1f7a43; }
+  .dt .rounds{ display:flex; gap:4px; }
+  .dt .rd{ position:relative; width:30px; border-radius:8px; overflow:hidden; border:1.5px solid #d9d3ef; text-align:center; font:400 14px/20px "Lilita One","Arial Rounded MT Bold",system-ui,sans-serif; }
+  .dt .rd i{ display:block; height:6px; }
+  .dt .rd sup{ position:absolute; top:-6px; right:-5px; font-size:10px; }
+  .dt .rd i.ok, .dt-legend i.ok{ background:#2E9E5B; } .dt .rd i.no, .dt-legend i.no{ background:#d64545; }
+  .dt .rd i.miss, .dt-legend i.miss{ background:#cfc7ea; } .dt .rd i.none{ background:#ede9f7; }
+  .dt-legend{ display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:#6b62a8; margin-top:8px; }
+  .dt-legend i{ display:inline-block; width:12px; height:6px; border-radius:3px; margin-right:4px; vertical-align:middle; }
+
+  /* นักเรียน: กระดาน + แผ่นการกระทำ (กระดาษ) */
+  body.on-game .player-layout{ gap:10px; }
+  body.on-game .action{
+    background:var(--g-paper); color:var(--g-ink); border:none; border-radius:24px; padding:16px; box-shadow:0 8px 0 #cfc7ea;
+  }
+  body.on-game .action .big{ color:var(--g-ink); }
+  body.on-game .action .sub{ color:var(--g-ink-soft); }
+  body.on-game .dice-face-big{ color:var(--g-ink); }
+  body.on-game .dice-dock{ background:rgba(255,255,255,.06); border:2px dashed rgba(255,255,255,.25); border-radius:24px; }
+  body.on-game .q-time{ color:var(--g-ink-soft); }
+  body.on-game .q-time b{ color:var(--g-ink); font-family:var(--g-display); font-weight:400; font-size:22px; }
+  body.on-game .q-text{ color:var(--g-ink); font-weight:600; text-align:center; }
+  body.on-game .choices{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  body.on-game .choice-btn{
+    display:flex; flex-direction:column; align-items:flex-start; gap:4px; min-height:84px; padding:10px 12px;
+    border:none; border-radius:18px; color:#fff; font-weight:500; text-align:left; box-shadow:0 5px 0 rgba(0,0,0,.2);
+  }
+  body.on-game .choice-btn b{ font:400 22px var(--g-display); }
+  body.on-game .choice-btn:active:not(:disabled){ transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.2); }
+  body.on-game .choice-btn.selected{ outline:4px solid var(--g-ink); outline-offset:2px; color:#fff; }
+  body.on-game .choice-btn.k-a.selected{ background:var(--cA); } body.on-game .choice-btn.k-b.selected{ background:var(--cB); }
+  body.on-game .choice-btn.k-c.selected{ background:var(--cC); } body.on-game .choice-btn.k-d.selected{ background:var(--cD); }
+  body.on-game .choice-btn.correct{ outline:4px solid #2E9E5B; outline-offset:2px; }
+  body.on-game .choice-btn:disabled:not(.correct):not(.selected):not(.wrong){ opacity:.45; }
+  body.on-game .choice-btn.correct:disabled{ opacity:1; }
+  body.on-game .choice-btn.wrong{ outline:4px solid #d64545; outline-offset:2px; opacity:1; }
+  body.on-game .end-game{ background:var(--g-paper); color:var(--g-ink); border-radius:24px; box-shadow:0 10px 0 #cfc7ea; }

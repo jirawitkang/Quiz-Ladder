@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { PHASE, STATUS } from "../js/config.js";
-import { LADDERS, MOVE, SNAKES, cellNumberAt, cellPosition, resolveLanding } from "../js/board-config.js";
+import { DROPS, LADDERS, MOVE, cellNumberAt, cellPosition, isDrop, resolveLanding } from "../js/board-config.js";
 import { getEmojiPool, getThemeEmojis, visibleEmojiCount, EMOJI_THEMES, RESERVE_EMOJIS } from "../js/emoji-themes.js";
 import {
   applyAnswer,
@@ -19,7 +19,7 @@ import {
 import { getQuestionFromRoom } from "../questions.js";
 
 const [LADDER_FOOT, LADDER_TOP] = Object.entries(LADDERS)[0].map(Number);
-const [SNAKE_HEAD, SNAKE_TAIL] = Object.entries(SNAKES)[0].map(Number);
+const [DROP_TOP, DROP_BOTTOM] = Object.entries(DROPS)[0].map(Number);
 
 function room(players, extra = {}) {
   return {
@@ -63,10 +63,10 @@ test("serpentine numbering: 1 bottom-left, rows alternate direction", () => {
 
 test("resolveLanding applies the agreed rules", () => {
   assert.deepEqual(resolveLanding(LADDER_FOOT, MOVE.DICE), { to: LADDER_TOP, special: "ladder", blocked: null });
-  assert.deepEqual(resolveLanding(SNAKE_HEAD, MOVE.DICE), { to: SNAKE_TAIL, special: "snake", blocked: null });
+  assert.deepEqual(resolveLanding(DROP_TOP, MOVE.DICE), { to: DROP_BOTTOM, special: "drop", blocked: null });
   assert.deepEqual(resolveLanding(LADDER_FOOT, MOVE.CORRECT).to, LADDER_TOP);
-  assert.deepEqual(resolveLanding(SNAKE_HEAD, MOVE.CORRECT), { to: SNAKE_HEAD, special: null, blocked: "snake" });
-  assert.deepEqual(resolveLanding(SNAKE_HEAD, MOVE.WRONG).to, SNAKE_TAIL);
+  assert.deepEqual(resolveLanding(DROP_TOP, MOVE.CORRECT), { to: DROP_TOP, special: null, blocked: "drop" });
+  assert.deepEqual(resolveLanding(DROP_TOP, MOVE.WRONG).to, DROP_BOTTOM);
   assert.deepEqual(resolveLanding(LADDER_FOOT, MOVE.WRONG), { to: LADDER_FOOT, special: null, blocked: "ladder" });
 });
 
@@ -82,12 +82,12 @@ test("dice landing on a ladder climbs, recorded in history", () => {
   assert.equal(dm.special, "ladder");
 });
 
-test("dice landing on a snake slides down", () => {
-  const r = room({ a: p("A", { position: SNAKE_HEAD - 3 }) });
+test("dice landing on a purple ladder drops down", () => {
+  const r = room({ a: p("A", { position: DROP_TOP - 3 }) });
   applyStartRound(r);
   applyRoll(r, "a", 3, 1);
-  assert.equal(r.players.a.position, SNAKE_TAIL);
-  assert.equal(r.history.round_1.diceMoves.a.special, "snake");
+  assert.equal(r.players.a.position, DROP_BOTTOM);
+  assert.equal(r.history.round_1.diceMoves.a.special, "drop");
 });
 
 test("overshooting the last cell finishes", () => {
@@ -106,18 +106,18 @@ test("correct answer can climb a ladder", () => {
   assert.equal(r.history.round_1.answers.a.special, "ladder");
 });
 
-test("correct answer never falls down a snake", () => {
-  const r = room({ a: p("A", { position: SNAKE_HEAD - 2 }) });
+test("correct answer never drops down a purple ladder", () => {
+  const r = room({ a: p("A", { position: DROP_TOP - 2 }) });
   answerRound(r, { a: true });
-  assert.equal(r.players.a.position, SNAKE_HEAD);
-  assert.equal(r.history.round_1.answers.a.blocked, "snake");
+  assert.equal(r.players.a.position, DROP_TOP);
+  assert.equal(r.history.round_1.answers.a.blocked, "drop");
 });
 
-test("wrong answer falls down a snake", () => {
-  const r = room({ a: p("A", { position: SNAKE_HEAD + 2 }) });
+test("wrong answer drops down a purple ladder", () => {
+  const r = room({ a: p("A", { position: DROP_TOP + 2 }) });
   answerRound(r, { a: false });
-  assert.equal(r.players.a.position, SNAKE_TAIL);
-  assert.equal(r.history.round_1.answers.a.special, "snake");
+  assert.equal(r.players.a.position, DROP_BOTTOM);
+  assert.equal(r.history.round_1.answers.a.special, "drop");
 });
 
 test("wrong answer never climbs a ladder", () => {
@@ -127,10 +127,10 @@ test("wrong answer never climbs a ladder", () => {
   assert.equal(r.history.round_1.answers.a.blocked, "ladder");
 });
 
-test("no answer from an online player counts as wrong and can hit a snake", () => {
-  const r = room({ a: p("A", { position: SNAKE_HEAD + 2 }) });
+test("no answer from an online player counts as wrong and can drop", () => {
+  const r = room({ a: p("A", { position: DROP_TOP + 2 }) });
   answerRound(r, {});
-  assert.equal(r.players.a.position, SNAKE_TAIL);
+  assert.equal(r.players.a.position, DROP_BOTTOM);
 });
 
 /* ---------- emoji ---------- */
@@ -237,4 +237,18 @@ test("maskPendingRolls hides a winning roll and the game end it caused", async (
   assert.equal(v.players.a.position, 28);
   assert.deepEqual(v.winners, []);
   assert.equal(v.finalPlayers, undefined);
+});
+
+test("board layout: short vertical ladders, no shared cells, old 'snake' history still reads as a drop", () => {
+  const ends = [...Object.entries(LADDERS), ...Object.entries(DROPS)].flat().map(Number);
+  assert.equal(new Set(ends).size, ends.length);
+  for (const [a, b] of Object.entries(LADDERS)) {
+    assert.ok(b > a && b - a <= 5);
+    assert.equal(cellPosition(+a).col, cellPosition(b).col);
+  }
+  for (const [a, b] of Object.entries(DROPS)) {
+    assert.ok(b < a && a - b <= 5);
+    assert.equal(cellPosition(+a).col, cellPosition(b).col);
+  }
+  assert.ok(isDrop("snake") && isDrop("drop") && !isDrop("ladder"));
 });

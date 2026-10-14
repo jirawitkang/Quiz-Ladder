@@ -58,7 +58,7 @@ test("overview: accuracy excludes players who already finished; missed and timeo
   assert.equal(overview.answerRate, Math.round((9 / 11) * 100));
   assert.equal(overview.roundsPlayed, 3);
   assert.equal(overview.playerCount, 4);
-  assert.deepEqual([overview.ladders, overview.snakes], [1, 2]);
+  assert.deepEqual([overview.ladders, overview.drops], [1, 2]);
   assert.equal(overview.fastest.ms, 1500);
   assert.equal(overview.fastest.name, "B");
 });
@@ -79,12 +79,12 @@ test("questions: repeated question merges rounds; option spread, fastest, trap",
   assert.equal(q2.avgMs, (3000 + 6000 + 7000) / 3);
 });
 
-test("players: ranked by finish, per-round status, ladders and snakes", () => {
+test("players: ranked by finish, per-round status, ladders and drops (old 'snake' counts)", () => {
   const { players } = computeGameInsights(makeRecord());
   assert.equal(players[0].id, "a");
   const a = players[0];
   assert.deepEqual(a.byRound.map((r) => r.status), ["correct", "correct", "done"]);
-  assert.deepEqual([a.correct, a.eligible, a.ladders, a.snakes], [2, 2, 1, 1]);
+  assert.deepEqual([a.correct, a.eligible, a.ladders, a.drops], [2, 2, 1, 1]);
   const d = players.find((p) => p.id === "d");
   assert.deepEqual(d.byRound.map((r) => r.status), ["timeout", "missed", "wrong"]);
   assert.equal(d.percent, 0);
