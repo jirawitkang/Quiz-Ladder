@@ -4,6 +4,7 @@
 import { EMOJI_CATALOG, EMOJI_THEMES } from "./emoji-themes.js";
 import { CHOICE_KEYS, MIN_CHOICES, SET_EMOJI_COUNT, TIME_OPTIONS, emptyQuestion } from "./question-sets.js";
 import { escapeHtml } from "./utils.js";
+import { fileToBoardImage } from "./board-image.js";
 
 /* ---------- คลังชุดคำถาม ---------- */
 
@@ -38,8 +39,10 @@ export function renderLibrary(el, sets, { confirmDeleteId = null, loading = fals
 
 /* ---------- หน้าแก้ชุดคำถาม ---------- */
 
-// els: { name, count, tray, themes, tabs, shop, questions, addQuestion, error }
-export function createSetEditor(els) {
+// els: { name, count, tray, themes, tabs, shop, questions, addQuestion, error, bgPreview, bgInput, bgRemove, bgNote }
+// loadImage(id) → Promise<data URL> ของรูปพื้นหลังที่บันทึกไว้แล้ว (app.js โหลดจาก Firebase)
+// รูปใหม่ที่เลือกเก็บใน draft.pendingImage (data URL) — app.js อัปโหลดตอนกดบันทึก
+export function createSetEditor(els, { loadImage } = {}) {
   let draft = null;
   let openIndex = 0;
   let tab = Object.keys(EMOJI_CATALOG)[0];
@@ -112,10 +115,48 @@ export function createSetEditor(els) {
       .join("");
   }
 
+  function renderBackground() {
+    const show = (url) => {
+      els.bgPreview.style.backgroundImage = url ? `url("${url}")` : "";
+      els.bgPreview.classList.toggle("has-img", !!url);
+    };
+    els.bgRemove.hidden = !draft.pendingImage && !draft.boardImageId;
+    if (draft.pendingImage) return show(draft.pendingImage);
+    if (!draft.boardImageId) return show(null);
+    const id = draft.boardImageId;
+    show(null);
+    loadImage?.(id)
+      .then((url) => draft.boardImageId === id && !draft.pendingImage && show(url))
+      .catch(() => (els.bgNote.textContent = "โหลดรูปเดิมไม่สำเร็จ"));
+  }
+
   function render() {
+    renderBackground();
     renderEmojis();
     renderQuestions();
   }
+
+  els.bgInput.addEventListener("change", async () => {
+    const file = els.bgInput.files?.[0];
+    els.bgInput.value = "";
+    if (!file) return;
+    els.bgNote.textContent = "กำลังย่อรูป…";
+    try {
+      const img = await fileToBoardImage(file);
+      draft.pendingImage = img.dataUrl;
+      els.bgNote.textContent = `พร้อมบันทึก · ${Math.round(img.bytes / 1024)} KB (กด "บันทึก" เพื่อใช้รูปนี้)`;
+      clearError();
+      renderBackground();
+    } catch (e) {
+      els.bgNote.textContent = e.message || "ใช้รูปนี้ไม่ได้";
+    }
+  });
+  els.bgRemove.addEventListener("click", () => {
+    draft.pendingImage = null;
+    draft.boardImageId = null;
+    els.bgNote.textContent = "ลบรูปแล้ว (กด \"บันทึก\" เพื่อยืนยัน)";
+    renderBackground();
+  });
 
   // พิมพ์: แก้ draft อย่างเดียว ไม่ render ใหม่ (กันเคอร์เซอร์หลุด)
   els.name.addEventListener("input", () => {
@@ -185,6 +226,7 @@ export function createSetEditor(els) {
       draft = nextDraft;
       openIndex = draft.questions.length === 1 && !draft.questions[0].text ? 0 : -1;
       els.name.value = draft.name;
+      els.bgNote.textContent = "ระบบย่อรูปเป็น 1200×1000 ให้เอง (ครอปตรงกลางให้พอดีกระดาน)";
       clearError();
       render();
     },

@@ -2,7 +2,8 @@
 // ชุดคำถามที่ครูสร้าง/แก้จากหน้าเว็บ (เก็บใน Firebase: questionSets/{id}) — pure functions ล้วน ไม่แตะ DOM/Firebase
 //
 // รูปแบบที่เก็บ (เหมือนคำถามใน questions.js เดิม เพื่อให้ game-logic ใช้ได้ทันที):
-//   { name, emojis: [30 ตัว], questions: [{ text, choices: {A,B,C?,D?}, correctOption, timeLimit }], createdAt, updatedAt }
+//   { name, emojis: [30 ตัว], questions: [{ text, choices: {A,B,C?,D?}, correctOption, timeLimit }], boardImageId, createdAt, updatedAt }
+// boardImageId = รูปพื้นหลังกระดานใน boardImages/{id} (ไม่มี = กระดานปกติ) — รูปแยกเก็บ ไม่ฝังในชุดคำถามเพราะใหญ่
 // ร่างในหน้าแก้ไข (draft) ใช้ array ให้แก้ง่าย: choices = ["..", ".."], correct = index
 
 import { QUESTION_SETS, QUESTION_SET_NAMES, getQuestionSetTheme } from "../questions.js";
@@ -38,6 +39,7 @@ export function normalizeSet(raw) {
     name: String(raw?.name ?? "").trim() || "ชุดคำถามไม่มีชื่อ",
     emojis: toArray(raw?.emojis).map(String),
     questions: toArray(raw?.questions).map(normalizeQuestion),
+    boardImageId: raw?.boardImageId ? String(raw.boardImageId) : null,
     createdAt: Number(raw?.createdAt) || 0,
     updatedAt: Number(raw?.updatedAt) || 0,
   };
@@ -55,7 +57,7 @@ export function emptyQuestion() {
 }
 
 export function newDraft() {
-  return { name: "", emojis: [...getThemeEmojis("animals")], questions: [emptyQuestion()] };
+  return { name: "", emojis: [...getThemeEmojis("animals")], questions: [emptyQuestion()], boardImageId: null };
 }
 
 export function toDraft(set) {
@@ -72,6 +74,7 @@ export function toDraft(set) {
         timeLimit: q.timeLimit,
       };
     }),
+    boardImageId: s.boardImageId,
   };
 }
 
@@ -108,6 +111,7 @@ export function fromDraft(draft, now, createdAt = now) {
         timeLimit: TIME_OPTIONS.includes(q.timeLimit) ? q.timeLimit : DEFAULT_TIME_LIMIT,
       };
     }),
+    boardImageId: draft.boardImageId || null,
     createdAt,
     updatedAt: now,
   };
@@ -121,7 +125,7 @@ export function copySet(set, now) {
 // สิ่งที่ห้องเก็บไว้ตอนสร้าง: ครูแก้/ลบชุดระหว่างเกม เกมที่เล่นอยู่ไม่เพี้ยน
 export function roomQuestionSnapshot(id, set) {
   const s = normalizeSet(set);
-  return { id, name: s.name, emojis: s.emojis, questions: s.questions };
+  return { id, name: s.name, emojis: s.emojis, questions: s.questions, boardImageId: s.boardImageId };
 }
 
 // ชุดคำถามเดิมใน questions.js → รูปแบบที่เก็บใน Firebase (ใช้ย้ายข้อมูลครั้งแรก)

@@ -221,6 +221,19 @@
           <input id="setNameInput" class="es-input" maxlength="40" placeholder="เช่น สืบค้นฐานข้อมูล บทที่ 3" autocomplete="off" />
         </div>
 
+        <div class="es-section es-bgimg">
+          <span class="es-label">รูปพื้นหลังกระดาน <span class="es-muted">· ไม่ใส่ก็ได้ ใช้กระดานปกติ</span></span>
+          <div class="es-bg-row">
+            <div class="es-bg-preview" id="setBgPreview" aria-label="ตัวอย่างรูปพื้นหลังกระดาน"><span>ไม่มีรูป</span></div>
+            <div class="es-bg-actions">
+              <label class="es-btn es-soft es-small es-bg-upload" for="setBgInput">🖼️ อัปโหลดรูป</label>
+              <input type="file" id="setBgInput" accept="image/*" hidden />
+              <button type="button" class="es-btn es-soft es-small es-danger" id="setBgRemove">ลบรูป</button>
+              <p class="es-muted" id="setBgNote">ระบบย่อรูปเป็น 1200×1000 ให้เอง (ครอปตรงกลางให้พอดีกระดาน)</p>
+            </div>
+          </div>
+        </div>
+
         <div class="es-section es-emoji">
           <div class="es-tray-head">
             <span class="es-label">ตัวหมาก emoji</span><span class="es-count" id="setEmojiCount">0/30</span>

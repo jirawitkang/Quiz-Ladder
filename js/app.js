@@ -35,6 +35,8 @@ import {
   push,
   questionSetRef,
   questionSetsRef,
+  boardImageRef,
+  boardImagesRef,
   resultIndexRef,
   resultRef,
   resultsIndexRef,
@@ -533,6 +535,9 @@ function resetRoomUi() {
   dom.podium?.classList.remove("rise");
   hostBoardView.reset();
   playerBoardView.reset();
+  boardBgId = undefined;
+  hostBoardView.setBackground(null);
+  playerBoardView.setBackground(null);
   setHidden(dom.meChip, true);
   resetJoinQr(dom.joinQr);
   setHidden(dom.soundToggle, true);
@@ -642,6 +647,7 @@ const PHASE_TEXT = {
 // ผลทอยของคนอื่นถูกซ่อนจนลูกเต๋า 3D บนมือถือคนทอยกลิ้งจบ (DICE_ROLL_MS) — คนดูจอ Host จะได้ลุ้นไปพร้อมกัน
 function renderRoom(rawRoom) {
   lastRoom = rawRoom;
+  syncBoardBackground(rawRoom);
   const masked = maskPendingRolls(rawRoom, serverNow(), DICE_ROLL_MS, isPlayer() ? session.playerId : null);
   const room = masked.room;
   lastView = room;
@@ -1399,6 +1405,36 @@ function renderSetLibrary() {
   renderLibrary(dom.setLibrary, qsets.list, { confirmDeleteId: qsets.confirmDeleteId, loading: !qsets.loaded });
 }
 
+// รูปพื้นหลังกระดาน: โหลดครั้งเดียวต่อ id (รูปไม่เคยถูกแก้ทับ เปลี่ยนรูป = id ใหม่)
+const boardImageCache = new Map();
+function loadBoardImage(id) {
+  if (!boardImageCache.has(id)) {
+    const p = get(boardImageRef(id)).then((snap) => {
+      const url = snap.val()?.dataUrl;
+      if (!url) throw new Error("ไม่พบรูปพื้นหลัง");
+      return url;
+    });
+    p.catch(() => boardImageCache.delete(id)); // โหลดพลาด → ลองใหม่ครั้งหน้า
+    boardImageCache.set(id, p);
+  }
+  return boardImageCache.get(id);
+}
+
+let boardBgId; // รูปที่กระดานแสดงอยู่ (undefined = ยังไม่ได้ตั้ง)
+function syncBoardBackground(room) {
+  const id = room?.questionSet?.boardImageId || null;
+  if (id === boardBgId) return;
+  boardBgId = id;
+  const apply = (url) => {
+    hostBoardView.setBackground(url);
+    playerBoardView.setBackground(url);
+  };
+  if (!id) return apply(null);
+  loadBoardImage(id)
+    .then((url) => boardBgId === id && apply(url))
+    .catch((e) => console.warn("[board] background failed:", e));
+}
+
 const setEditor = createSetEditor({
   name: $("setNameInput"),
   count: $("setEmojiCount"),
@@ -1409,7 +1445,11 @@ const setEditor = createSetEditor({
   questions: $("setQuestionList"),
   addQuestion: $("addQuestionBtn"),
   error: $("setEditorError"),
-});
+  bgPreview: $("setBgPreview"),
+  bgInput: $("setBgInput"),
+  bgRemove: $("setBgRemove"),
+  bgNote: $("setBgNote"),
+}, { loadImage: loadBoardImage });
 
 function openSetEditor(id) {
   const existing = id ? findSet(id) : null;
@@ -1430,6 +1470,13 @@ async function saveQuestionSet() {
   try {
     const now = serverNow();
     const existing = qsets.editingId ? findSet(qsets.editingId) : null;
+    // รูปใหม่: อัปโหลดเป็นรายการใหม่ใน boardImages แล้วอ้างอิง id (รูปเก่าคงไว้ ห้องที่ใช้อยู่ไม่พัง)
+    if (draft.pendingImage) {
+      const imgRef = await push(boardImagesRef(), { dataUrl: draft.pendingImage, width: 1200, height: 1000, createdAt: now });
+      boardImageCache.set(imgRef.key, Promise.resolve(draft.pendingImage));
+      draft.boardImageId = imgRef.key;
+      draft.pendingImage = null;
+    }
     const data = fromDraft(draft, now, existing?.createdAt || now);
     if (existing) await set(questionSetRef(existing.id), data);
     else await push(questionSetsRef(), data);

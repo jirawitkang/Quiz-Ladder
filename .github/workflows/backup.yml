@@ -1,4 +1,4 @@
-# สำรองชุดคำถาม + ผลการเล่นจาก Firebase ลง branch "backups" (ไม่ใช่ main → ไม่ทำให้เว็บ deploy ใหม่ระหว่างสอน)
+# สำรองชุดคำถาม + ผลการเล่น + รูปพื้นหลังกระดานจาก Firebase ลง branch "backups" (ไม่ใช่ main → ไม่ทำให้เว็บ deploy ใหม่ระหว่างสอน)
 # รันเองทุกคืน 02:00 เวลาไทย หรือกด "Run workflow" ในแท็บ Actions ของ repo
 # commit เฉพาะเมื่อข้อมูลเปลี่ยน — กู้คืนด้วย: node tools/restore-backup.mjs
 name: Backup Firebase
@@ -39,6 +39,7 @@ jobs:
           curl -sSf "$DB_URL/questionSets.json" | jq --sort-keys . > backups/question-sets.json
           curl -sSf "$DB_URL/results.json" | jq --sort-keys . > backups/results.json
           curl -sSf "$DB_URL/resultsIndex.json" | jq --sort-keys . > backups/results-index.json
+          curl -sSf "$DB_URL/boardImages.json" | jq --sort-keys . > backups/board-images.json
           echo "question sets: $(jq 'if . == null then 0 else length end' backups/question-sets.json)"
           echo "results:       $(jq 'if . == null then 0 else length end' backups/results.json)"
 

@@ -38,6 +38,9 @@ export const playerRef = (code, pid) => ref(db, `rooms/${code}/players/${pid}`);
 export const questionSetsRef = () => ref(db, "questionSets");
 export const questionSetRef = (id) => ref(db, `questionSets/${id}`);
 // ผลการเล่นย้อนหลัง: ผลเต็ม (results) + สรุปสำหรับหน้ารายการ (resultsIndex)
+// รูปพื้นหลังกระดาน (data URL) — แยกจากชุดคำถาม เปลี่ยนรูป = สร้าง id ใหม่ (ห้องที่เล่นอยู่ยังใช้รูปเดิมได้)
+export const boardImagesRef = () => ref(db, "boardImages");
+export const boardImageRef = (id) => ref(db, `boardImages/${id}`);
 export const resultRef = (key) => ref(db, `results/${key}`);
 export const resultsIndexRef = () => ref(db, "resultsIndex");
 export const resultIndexRef = (key) => ref(db, `resultsIndex/${key}`);

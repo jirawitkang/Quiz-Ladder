@@ -98,8 +98,8 @@ function wallsSvg() {
     }
     if (W - x > 4) out += `<line x1="${x}" y1="${y}" x2="${W}" y2="${y}"/>`;
   }
-  return `<g class="walls" stroke-width="6" stroke-linecap="round">${out}</g>
-    <rect class="frame" x="3" y="3" width="${W - 6}" height="${BOARD_ROWS * 100 - 6}" rx="12" fill="none" stroke-width="6"/>`;
+  return `<g class="walls" stroke-width="4" stroke-linecap="round">${out}</g>
+    <rect class="frame" x="2" y="2" width="${W - 4}" height="${BOARD_ROWS * 100 - 4}" rx="12" fill="none" stroke-width="4"/>`;
 }
 
 /* ---------- component ---------- */
@@ -136,7 +136,11 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false, ho
 
   const layer = document.createElement("div");
   layer.className = "board-layer";
-  root.append(grid, svg, layer);
+  // รูปพื้นหลังของชุดคำถาม (ถ้ามี) อยู่ใต้ช่องทั้งหมด — ช่องจะโปร่งแสงและไม่สลับสีแถว (.has-bg)
+  const bg = document.createElement("div");
+  bg.className = "board-bg";
+  root.append(bg, grid, svg, layer);
+  let bgUrl = null;
 
   let me = meId;
   let players = {}; // pid -> { name, emoji, color, position, offline }
@@ -356,6 +360,13 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false, ho
       }
       syncIdle();
       layout();
+    },
+    // url = data URL / URL ของรูป หรือ null = ไม่มีรูป
+    setBackground(url) {
+      if (url === bgUrl) return;
+      bgUrl = url || null;
+      bg.style.backgroundImage = bgUrl ? `url("${bgUrl}")` : "";
+      root.classList.toggle("has-bg", !!bgUrl);
     },
     setMe(pid) {
       me = pid;

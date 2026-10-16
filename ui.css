@@ -1282,6 +1282,22 @@
   .rs-mini div.good{ color:#2E9E5B; } .rs-mini div.mid{ color:var(--es-orange); } .rs-mini div.bad{ color:#c2463b; }
   @media (max-width:560px){ .rs-hrow{ grid-template-columns:30px minmax(0,1fr) 46px; } .rs-hrow .rs-mini, .rs-hrow > .es-muted{ display:none; } }
 
+  /* รูปพื้นหลังกระดานในหน้าแก้ชุดคำถาม */
+  .es-bg-row{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .es-bg-preview{
+    flex:none; width:180px; aspect-ratio:6/5; border-radius:14px; border:2px dashed var(--es-line); background:#fff center / cover no-repeat;
+    display:grid; place-items:center; color:var(--es-ink-soft); font-size:13px; position:relative; overflow:hidden;
+  }
+  .es-bg-preview.has-img{ border-style:solid; }
+  .es-bg-preview.has-img span{ display:none; }
+  .es-bg-preview.has-img::after{ /* ตารางจาง ๆ ให้เห็นว่าบนกระดานจะเป็นอย่างไร */
+    content:""; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.45) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.45) 1px, transparent 1px);
+    background-size:16.666% 20%; background-color:rgba(255,255,255,.25);
+  }
+  .es-bg-actions{ display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0; flex:1; }
+  .entry-stage .es-bg-upload{ display:inline-block; cursor:pointer; }
+  .es-bg-actions .es-muted{ max-width:340px; }
+
   @media (prefers-reduced-motion: reduce){
     .es-screen, .es-logo, .es-tokens span, .es-pin-dots.shake{ animation:none; }
   }
@@ -1511,7 +1527,13 @@
   .board-cell.finish{ background:#cdeed8; }
   .cell-num{ font-family:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif; font-weight:400; color:#8b80c4; }
   .board .ladder.up .rails{ stroke:#d9761b; } .board .ladder.up .rungs{ stroke:#f0a24e; } .board .ladder.up .mark circle{ fill:#FFA240; }
-  .board .walls, .board .frame{ stroke:#1f3f73; } /* กรมท่า: ไม่ซ้ำกับบันไดส้ม/ม่วง */
+  .board .walls, .board .frame{ stroke:#b4b7c0; } /* เทาอ่อน บาง: บอกทางเดินโดยไม่แย่งความเด่นจากบันได */
+  /* รูปพื้นหลังของชุดคำถาม: อยู่ใต้ช่อง, ช่องเป็นขาวโปร่งเท่ากันทุกแถว (ไม่สลับสี) */
+  .board-bg{ position:absolute; inset:0; border-radius:14px; background:center / cover no-repeat; pointer-events:none; }
+  .board.has-bg .board-grid{ background:transparent; }
+  .board.has-bg .board-cell, .board.has-bg .board-cell.alt{ background:rgba(255,255,255,.55); border-color:rgba(221,214,241,.6); }
+  .board.has-bg .board-cell.start{ background:rgba(255,226,191,.85); }
+  .board.has-bg .board-cell.finish{ background:rgba(205,238,216,.85); }
   .board .ladder.down .rails{ stroke:#6a4fc4; } .board .ladder.down .rungs{ stroke:#9b84e6; } .board .ladder.down .mark circle{ fill:#7b5cd6; }
   .board-float.ladder{ background:#FFA240; color:#2b1b00; }
   .board-float.drop{ background:#7b5cd6; color:#fff; }

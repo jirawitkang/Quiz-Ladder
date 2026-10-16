@@ -21,7 +21,9 @@ js/game-logic.js          กติกาทั้งหมดเป็น pure 
 js/emoji-themes.js        ธีมละ 30 emoji + ตัวสำรอง เพิ่มทีละ 20 เมื่อผู้เล่นเกิน 30 + EMOJI_CATALOG (ร้าน emoji ให้ครูเลือก)
 js/question-sets.js       ชุดคำถามที่ครูแก้จากเว็บ: validate/แปลง draft ↔ รูปแบบที่เก็บ, สำเนาลงห้อง (pure)
 js/question-editor.js     หน้าคลังชุดคำถาม + หน้าแก้ชุดคำถาม (DOM ล้วน, app.js เป็นคนบันทึก Firebase)
-js/board-view.js          วาดกระดาน/บันไดส้ม-ม่วง + วงลูกศรทางเข้า (SVG), ตัวหมากซ้อนช่อง (+N), แอนิเมชันเดิน
+js/board-view.js          วาดกระดาน/บันไดส้ม-ม่วง + วงลูกศร + เส้นกั้นแถว (SVG), รูปพื้นหลัง (setBackground), ตัวหมากซ้อนช่อง, แอนิเมชันเดิน
+js/board-image.js         ย่อ/ครอปรูปพื้นหลังเป็น JPEG 1200×1000 ≤250 KB ในเบราว์เซอร์ก่อนอัปโหลด
+assets/board-backgrounds/ รูปพื้นหลังที่ Claude วาด (.jpg ที่ใช้จริง + .svg ต้นฉบับ + สคริปต์วาด .mjs)
 js/render.js              Lobby, ตัวเลือก emoji, แผงรอ, อันดับ (กล่องเขียวคนเข้าเส้นชัย), feed, ตาราง, สรุปผล
 js/dice.js                ลูกเต๋า 3D: วางที่ #diceDock → โยน/กระดอน 4 ครั้ง → หยุดกลางกระดาน (planThrow)
 js/sound.js               เสียงสังเคราะห์ด้วย Web Audio (ลูกเต๋า, ก้าว, บันได, งู, ถูก/ผิด, นับถอยหลัง, พลุ, fanfare) + ปุ่ม mute
@@ -33,7 +35,8 @@ js/export.js              Export Excel (กดจากหน้าผลย้�
 js/app.js                 session, flow Host/Player, presence, render, timers, event bindings
 tools/check-active-rooms.mjs  เช็กห้องใน Firebase ก่อน deploy
 tools/seed-question-sets.mjs  ย้ายชุดใน questions.js ขึ้น Firebase (เฉพาะที่ยังไม่มี; --write)
-tools/restore-backup.mjs  กู้ questionSets/ หรือ results/ จาก branch backups กลับขึ้น Firebase
+tools/restore-backup.mjs  กู้ questionSets/ results/ resultsIndex/ boardImages/ จาก branch backups กลับขึ้น Firebase
+tools/upload-board-backgrounds.mjs  อัปโหลดรูปใน assets/board-backgrounds/ → boardImages/bg-<ชื่อ> แล้วผูกกับชุดเดิม (--write)
 .github/workflows/backup.yml  GitHub Actions สำรอง Firebase ทุกคืน 02:00 → branch `backups` (กด Run workflow เองได้)
 tests/*.test.mjs          node:test (กติกา, render, emoji, เส้นทางโยนลูกเต๋า)
 ```
@@ -43,7 +46,7 @@ tests/*.test.mjs          node:test (กติกา, render, emoji, เส้�
   บันไดส้ม (ปีน) 5→8, 11→14, 17→20 / บันไดม่วง (ร่วง) 16→9, 22→15, 28→21
   ตั้งใจให้ปีนน้อย (+3) ร่วงมาก (−7): กระดานสั้น รอบเดียวทั้งทอยและตอบถูกไปได้ ~5–6 ช่อง ต้องมีตัวสกัด (อย่า "ปรับให้สมดุล")
   บันไดสั้น 3 ขั้นวางคร่อมเส้นแบ่ง 2 ช่อง, วงลูกศรกลางช่องทางเข้า (ส้ม ▲ / ม่วง ▼)
-  เส้นกั้นแถวสีกรมท่า #1f3f73 + กรอบกระดาน: ช่องที่เดินขึ้นแถวถัดไป (6→7, 12→13, 18→19, 24→25) เปิดโล่ง, ตรงบันไดเว้นพอดีตัวบันได
+  เส้นกั้นแถวสีเทาอ่อน #b4b7c0 หนา 4 + กรอบกระดาน: ช่องที่เดินขึ้นแถวถัดไป (6→7, 12→13, 18→19, 24→25) เปิดโล่ง, ตรงบันไดเว้นพอดีตัวบันได
 - ทอย: ปีน + ร่วงได้ / ตอบถูก: ปีนได้ ไม่ร่วง / ตอบผิดหรือไม่ตอบ: ร่วงได้ ไม่ปีน / เกินช่อง 30 = เข้าเส้นชัย
 - ข้อมูลใน history: special/blocked = "ladder" | "drop" (ผลเก่าก่อน 2026-10-14 เป็น "snake" = drop → ใช้ isDrop())
 - ผู้เล่นหลุด: ข้ามการทอย (นับ 0) และไม่ขยับตอนเฉลย
@@ -60,6 +63,9 @@ tests/*.test.mjs          node:test (กติกา, render, emoji, เส้�
 - ชุดคำถามเก็บใน Firebase `questionSets/{id}` (ชุดเดิม id = general, love, ... ; ชุดใหม่ id จาก push)
   ครูอ่าน/ทำสำเนา/แก้/ลบได้ทุกชุด (ลบต้องกดยืนยันซ้ำ), ตัวหมาก 30 ตัวเลือกเองจากร้าน emoji (บังคับครบ 30 พอดี)
   ตัวเลือก 2–4 ข้อ, เวลา 15/30/60/120 วิ; ห้องเก็บสำเนา `room.questionSet` {id,name,emojis,questions} ตอนสร้าง → แก้ชุดระหว่างเกมไม่กระทบ
+  รูปพื้นหลังกระดาน (ไม่บังคับ): เก็บแยกที่ `boardImages/{id}` = { dataUrl } ชุดคำถามเก็บแค่ boardImageId;
+  เปลี่ยนรูป = push id ใหม่ (ไม่แก้ทับ) ห้องที่เล่นอยู่จึงใช้รูปเดิมต่อได้; ห้องสำเนา boardImageId ใน room.questionSet;
+  มีรูป → ช่องขาวโปร่ง 55% ไม่สลับสีแถว (.board.has-bg); รูปที่ไม่มีชุดไหนใช้แล้วไม่ถูกลบอัตโนมัติ
   flow: PIN → เมนูครู (hostMenu) → สร้างห้องเกม (admin) / ชุดคำถาม (library → setEditor) / ผลย้อนหลัง (results → resultDetail, setInsights)
 - ผลการเล่น: Host บันทึกตอนเกมจบ (เฉพาะเกมที่เล่นจบ ไม่บันทึกเกมที่ยกเลิก) → `results/{createdAt_CODE}` (สำเนาห้องเต็ม)
   + `resultsIndex/{key}` (สรุปสำหรับหน้ารายการ); เก็บตลอดไป ลบจากหน้าเว็บได้ (กดยืนยันซ้ำ) — ลบต้องลบทั้งสองที่

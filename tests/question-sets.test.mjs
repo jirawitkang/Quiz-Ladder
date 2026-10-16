@@ -22,6 +22,7 @@ const validDraft = () => ({
     { text: "ข้อแรก?", choices: ["ก", "ข", "ค"], correct: 2, timeLimit: 60 },
     { text: "ข้อสอง?", choices: ["ใช่", "ไม่ใช่"], correct: 0, timeLimit: 15 },
   ],
+  boardImageId: null,
 });
 
 test("valid draft passes; each problem gets a specific message", () => {
@@ -115,4 +116,14 @@ test("old rooms without a snapshot still use questions.js", () => {
   const room = { gameSettings: { questionSetId: "love", emojiTheme: "love" } };
   assert.equal(getQuestionFromRoom(room, 0).text, QUESTION_SETS.love[0].text);
   assert.deepEqual(getRoomEmojiChoices({ ...room, players: {} }), getThemeEmojis("love"));
+});
+
+test("board background id is saved, copied and snapshotted into the room", () => {
+  const stored = fromDraft({ ...validDraft(), boardImageId: "-img1" }, 5);
+  assert.equal(stored.boardImageId, "-img1");
+  assert.equal(toDraft(stored).boardImageId, "-img1");
+  assert.equal(copySet(stored, 9).boardImageId, "-img1");
+  assert.equal(roomQuestionSnapshot("-s", stored).boardImageId, "-img1");
+  assert.equal(fromDraft(validDraft(), 5).boardImageId, null);
+  assert.equal(listQuestionSets({ x: { name: "a" } })[0].boardImageId, null);
 });
