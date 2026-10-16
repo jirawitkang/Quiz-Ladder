@@ -1,5 +1,6 @@
 {
   "food1": {
+    "boardImageId": "bg-food-quest",
     "createdAt": 1791898319252,
     "emojis": [
       "🍎",
@@ -139,6 +140,7 @@
     "updatedAt": 1791898319252
   },
   "food2": {
+    "boardImageId": "bg-food-quest",
     "createdAt": 1791898319251,
     "emojis": [
       "🍎",
@@ -278,6 +280,7 @@
     "updatedAt": 1791898319251
   },
   "food3": {
+    "boardImageId": "bg-food-quest",
     "createdAt": 1791898319250,
     "emojis": [
       "🍎",
@@ -417,6 +420,7 @@
     "updatedAt": 1791898319250
   },
   "food4": {
+    "boardImageId": "bg-food-quest",
     "createdAt": 1791898319249,
     "emojis": [
       "🍎",
@@ -556,6 +560,7 @@
     "updatedAt": 1791898319249
   },
   "food5": {
+    "boardImageId": "bg-food-quest",
     "createdAt": 1791898319248,
     "emojis": [
       "🍎",
@@ -695,6 +700,7 @@
     "updatedAt": 1791898319248
   },
   "friends": {
+    "boardImageId": "bg-friends-fun-facts",
     "createdAt": 1791898319254,
     "emojis": [
       "🎉",
@@ -844,6 +850,7 @@
     "updatedAt": 1791898319254
   },
   "general": {
+    "boardImageId": "bg-work-life-balance",
     "createdAt": 1791898319256,
     "emojis": [
       "💼",
@@ -887,7 +894,7 @@
           "D": "เพราะแก้วมันเศร้า"
         },
         "correctOption": "C",
-        "text": "ทำไมกาแฟถึงขม? (ตอบผิดไม่ดุ แต่อาจงอนนิดนึง)",
+        "text": "ทำไมกาแฟถึงขม?",
         "timeLimit": 30
       },
       {
@@ -993,6 +1000,7 @@
     "updatedAt": 1791898319256
   },
   "love": {
+    "boardImageId": "bg-love",
     "createdAt": 1791898319255,
     "emojis": [
       "❤️",
@@ -1142,6 +1150,7 @@
     "updatedAt": 1791898319255
   },
   "money": {
+    "boardImageId": "bg-money-coach",
     "createdAt": 1791898319253,
     "emojis": [
       "💰",
