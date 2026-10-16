@@ -239,16 +239,17 @@ test("maskPendingRolls hides a winning roll and the game end it caused", async (
   assert.equal(v.finalPlayers, undefined);
 });
 
-test("board layout: short vertical ladders, no shared cells, old 'snake' history still reads as a drop", () => {
+test("board layout: vertical one-row ladders, no shared cells, climb small / drop big, old 'snake' reads as a drop", () => {
   const ends = [...Object.entries(LADDERS), ...Object.entries(DROPS)].flat().map(Number);
   assert.equal(new Set(ends).size, ends.length);
+  const oneRowApart = (a, b) => Math.abs(cellPosition(a).row - cellPosition(b).row) === 1 && cellPosition(a).col === cellPosition(b).col;
   for (const [a, b] of Object.entries(LADDERS)) {
-    assert.ok(b > a && b - a <= 5);
-    assert.equal(cellPosition(+a).col, cellPosition(b).col);
+    assert.ok(b > a && b - a <= 3, `ladder ${a}→${b} climbs at most 3`);
+    assert.ok(oneRowApart(+a, b));
   }
   for (const [a, b] of Object.entries(DROPS)) {
-    assert.ok(b < a && a - b <= 5);
-    assert.equal(cellPosition(+a).col, cellPosition(b).col);
+    assert.ok(b < a && a - b >= 7, `drop ${a}→${b} falls at least 7`);
+    assert.ok(oneRowApart(+a, b));
   }
   assert.ok(isDrop("snake") && isDrop("drop") && !isDrop("ladder"));
 });

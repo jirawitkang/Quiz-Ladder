@@ -64,9 +64,9 @@ test("start round aborts outside idle/result and at max rounds", () => {
 test("roll moves player, records history, rejects double roll", () => {
   const room = makeRoom({ a: player("A") });
   applyStartRound(room);
-  assert.ok(applyRoll(room, "a", 4, 1));
-  assert.equal(room.players.a.position, 5);
-  assert.equal(room.history.round_1.diceMoves.a.diceRoll, 4);
+  assert.ok(applyRoll(room, "a", 3, 1)); // 1 → 4 (ช่องธรรมดา ไม่มีบันได)
+  assert.equal(room.players.a.position, 4);
+  assert.equal(room.history.round_1.diceMoves.a.diceRoll, 3);
   assert.equal(applyRoll(room, "a", 3, 2), undefined);
 });
 

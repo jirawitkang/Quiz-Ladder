@@ -7,11 +7,12 @@ import { BOARD_SIZE } from "./config.js";
 export const BOARD_COLS = 6;
 export const BOARD_ROWS = 5; // BOARD_COLS * BOARD_ROWS ต้องเท่ากับ BOARD_SIZE
 
-// บันไดตั้งตรงข้ามแถวเดียว ไม่ทับกัน และระยะสั้น (3–5 ช่อง) ให้เกมยาวพอได้ตอบคำถามหลายข้อ
+// บันไดตั้งตรงข้ามแถวเดียว ไม่ทับกัน — ตั้งใจให้ปีนได้น้อย (+3) แต่ร่วงทีละมาก (−7):
+// กระดานสั้น รอบเดียวทั้งทอยและตอบถูกไปได้ ~5–6 ช่อง ต้องมีตัวสกัดให้เกมยาวพอได้ตอบคำถามหลายข้อ
 // บันไดส้ม: ช่องล่าง → ช่องบน (หยุดที่ปลายล่าง = ปีนขึ้น)
-export const LADDERS = Object.freeze({ 4: 9, 10: 15, 22: 27 });
+export const LADDERS = Object.freeze({ 5: 8, 11: 14, 17: 20 });
 // บันไดม่วง: ช่องบน → ช่องล่าง (หยุดที่ปลายบน = ร่วงลง) — แทนงูของเกมบันไดงูเดิม
-export const DROPS = Object.freeze({ 14: 11, 21: 16, 26: 23 });
+export const DROPS = Object.freeze({ 16: 9, 22: 15, 28: 21 });
 
 export const MOVE = Object.freeze({
   DICE: "dice", // ปีนได้ ร่วงได้

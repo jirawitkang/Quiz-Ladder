@@ -1511,6 +1511,7 @@
   .board-cell.finish{ background:#cdeed8; }
   .cell-num{ font-family:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif; font-weight:400; color:#8b80c4; }
   .board .ladder.up .rails{ stroke:#d9761b; } .board .ladder.up .rungs{ stroke:#f0a24e; } .board .ladder.up .mark circle{ fill:#FFA240; }
+  .board .walls, .board .frame{ stroke:#1f3f73; } /* กรมท่า: ไม่ซ้ำกับบันไดส้ม/ม่วง */
   .board .ladder.down .rails{ stroke:#6a4fc4; } .board .ladder.down .rungs{ stroke:#9b84e6; } .board .ladder.down .mark circle{ fill:#7b5cd6; }
   .board-float.ladder{ background:#FFA240; color:#2b1b00; }
   .board-float.drop{ background:#7b5cd6; color:#fff; }

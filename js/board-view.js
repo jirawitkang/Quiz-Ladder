@@ -36,25 +36,70 @@ const cellCenterSvg = (n) => {
 /* ---------- static drawing ---------- */
 
 // บันได 1 อัน: from = ช่องทางเข้า (ต้องหยุดที่นี่ถึงจะปีน/ร่วง), to = ช่องปลายทาง
-// วงลูกศรวางฝั่งที่ไม่มีบันไดพาด: ส้ม (ปีน) อยู่ล่างกลางช่อง, ม่วง (ร่วง) อยู่บนกลางช่อง
+// บันไดสั้น 3 ขั้นวางคร่อมเส้นแบ่งระหว่าง 2 ช่อง (ไม่เกะกะกระดาน) + วงลูกศรกลางช่องทางเข้า
+const RUNG_GAP = 14;
+const RUNGS = 3;
+const RAIL_OFFSET = 14;
+
 function ladderSvg(from, to, kind) {
   const p = cellCenterSvg(from);
   const q = cellCenterSvg(to);
   const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy);
-  const nx = (-dy / len) * 13, ny = (dx / len) * 13;
+  const ux = dx / len, uy = dy / len;
+  const nx = -uy * RAIL_OFFSET, ny = ux * RAIL_OFFSET;
+  const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2;
+  const half = ((RUNGS - 1) / 2) * RUNG_GAP + 10;
+  const a = { x: mx - ux * half, y: my - uy * half };
+  const b = { x: mx + ux * half, y: my + uy * half };
   let rungs = "";
-  for (let d = 22; d < len - 10; d += 26) {
-    const x = p.x + (dx * d) / len, y = p.y + (dy * d) / len;
+  for (let i = 0; i < RUNGS; i++) {
+    const d = (i - (RUNGS - 1) / 2) * RUNG_GAP;
+    const x = mx + ux * d, y = my + uy * d;
     rungs += `<line x1="${x + nx}" y1="${y + ny}" x2="${x - nx}" y2="${y - ny}"/>`;
   }
   const up = kind === "ladder";
-  const my = p.y + (up ? 31 : -31);
+  const arrow = up
+    ? `M${p.x - 6} ${p.y + 4} L${p.x} ${p.y - 5} L${p.x + 6} ${p.y + 4} Z`
+    : `M${p.x - 6} ${p.y - 4} L${p.x} ${p.y + 5} L${p.x + 6} ${p.y - 4} Z`;
   return `<g class="ladder ${up ? "up" : "down"}" stroke-linecap="round" fill="none">
-    <g class="rails" stroke-width="7"><line x1="${p.x + nx}" y1="${p.y + ny}" x2="${q.x + nx}" y2="${q.y + ny}"/><line x1="${p.x - nx}" y1="${p.y - ny}" x2="${q.x - nx}" y2="${q.y - ny}"/></g>
+    <g class="rails" stroke-width="7"><line x1="${a.x + nx}" y1="${a.y + ny}" x2="${b.x + nx}" y2="${b.y + ny}"/><line x1="${a.x - nx}" y1="${a.y - ny}" x2="${b.x - nx}" y2="${b.y - ny}"/></g>
     <g class="rungs" stroke-width="5">${rungs}</g>
-    <g class="mark"><circle cx="${p.x}" cy="${my}" r="13" stroke="#fff" stroke-width="3"/><path d="${
-      up ? `M${p.x - 6} ${my + 4} L${p.x} ${my - 5} L${p.x + 6} ${my + 4} Z` : `M${p.x - 6} ${my - 4} L${p.x} ${my + 5} L${p.x + 6} ${my - 4} Z`
-    }" fill="#fff" stroke="none"/></g></g>`;
+    <g class="mark"><circle cx="${p.x}" cy="${p.y}" r="13" stroke="#fff" stroke-width="3"/><path d="${arrow}" fill="#fff" stroke="none"/></g></g>`;
+}
+
+// เส้นกั้นระหว่างแถว + กรอบกระดาน: บอกทางเดินซิกแซก — ช่องที่เลี้ยวขึ้นแถวถัดไปเปิดโล่งทั้งช่อง,
+// ตรงบันไดเว้นช่องแค่พอดีตัวบันได
+const LADDER_GAP = 44;
+
+function wallsSvg() {
+  const crossings = new Set(
+    [...Object.entries(LADDERS), ...Object.entries(DROPS)].map(([a, b]) => {
+      const pa = cellPosition(Number(a));
+      const pb = cellPosition(b);
+      return `${Math.max(pa.row, pb.row)}:${pa.col}`; // เส้นแบ่งเหนือแถว (row นับจากบน) ที่บันไดพาดผ่าน
+    })
+  );
+  const W = BOARD_COLS * 100;
+  let out = "";
+  for (let row = 1; row < BOARD_ROWS; row++) {
+    const y = row * 100;
+    // ช่องสุดท้ายของแถวล่าง (เลขมากสุด) คือจุดที่เดินขึ้นไปแถวบน
+    const lastBelow = Math.max(cellNumberAt(0, row), cellNumberAt(BOARD_COLS - 1, row));
+    const turnCol = cellPosition(lastBelow).col;
+    const gaps = [];
+    for (let col = 0; col < BOARD_COLS; col++) {
+      if (col === turnCol) gaps.push([col * 100, col * 100 + 100]);
+      else if (crossings.has(`${row}:${col}`)) gaps.push([col * 100 + 50 - LADDER_GAP / 2, col * 100 + 50 + LADDER_GAP / 2]);
+    }
+    let x = 0;
+    for (const [g0, g1] of gaps) {
+      if (g0 - x > 4) out += `<line x1="${x}" y1="${y}" x2="${g0}" y2="${y}"/>`;
+      x = g1;
+    }
+    if (W - x > 4) out += `<line x1="${x}" y1="${y}" x2="${W}" y2="${y}"/>`;
+  }
+  return `<g class="walls" stroke-width="6" stroke-linecap="round">${out}</g>
+    <rect class="frame" x="3" y="3" width="${W - 6}" height="${BOARD_ROWS * 100 - 6}" rx="12" fill="none" stroke-width="6"/>`;
 }
 
 /* ---------- component ---------- */
@@ -85,6 +130,7 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false, ho
   svg.setAttribute("viewBox", `0 0 ${BOARD_COLS * 100} ${BOARD_ROWS * 100}`);
   svg.setAttribute("aria-hidden", "true");
   svg.innerHTML =
+    wallsSvg() +
     Object.entries(LADDERS).map(([f, t]) => ladderSvg(Number(f), t, "ladder")).join("") +
     Object.entries(DROPS).map(([f, t]) => ladderSvg(Number(f), t, "drop")).join("");
 
