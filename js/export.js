@@ -27,6 +27,8 @@ function loadXlsx() {
 }
 
 function answerResult(ar) {
+  // ข้อฝึกหลังเข้าเส้นชัย: เก็บไว้วิเคราะห์ ไม่มีผลกับการเดิน/อันดับ
+  if (ar.practice === true) return ar.answered === true ? (ar.correct === true ? "PracticeCorrect" : "PracticeWrong") : "AlreadyFinished";
   if (ar.missedAnswer === true) return "Missed";
   if (ar.answered === true) return ar.correct === true ? "Correct" : "Wrong";
   if ((ar.basePosition ?? 0) >= BOARD_SIZE) return "AlreadyFinished";

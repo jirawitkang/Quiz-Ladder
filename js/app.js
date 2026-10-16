@@ -872,7 +872,8 @@ function fillHostQuestion(room, question, { round, reveal }) {
 
   const active = Object.values(room.players || {}).filter((p) => !isPlayerDone(p) && p.connected !== false);
   const records = Object.values(room.history?.[roundKey(round)]?.answers || {});
-  const answered = reveal ? records.filter((r) => r.answered).length : active.filter((p) => p.answered).length;
+  // นับเฉพาะคนที่ยังแข่งอยู่ — ข้อฝึกของคนเข้าเส้นชัยแล้วไม่นับในตัวเลข "ตอบแล้ว"
+  const answered = reveal ? records.filter((r) => r.answered && !r.practice).length : active.filter((p) => p.answered).length;
   const total = reveal ? records.filter((r) => !r.missedAnswer && (r.basePosition ?? 0) < BOARD_SIZE).length : active.length;
   dom.hqCount.textContent = `ตอบแล้ว ${answered}/${total}`;
   dom.hqMeter.style.width = `${total ? (answered / total) * 100 : 0}%`;
@@ -1014,9 +1015,12 @@ function renderGameAction(room, me) {
     } · ดูสรุปผลด้านล่าง</div>`);
     return;
   }
-  if (isPlayerDone(me)) {
+  // เข้าเส้นชัยแล้ว: ยังตอบคำถามต่อได้เป็น "ข้อฝึก" (ไม่เดิน ไม่มีผลกับอันดับ) — ระหว่างรอทอยแสดงการ์ดรอข้อต่อไป
+  const practice = isPlayerDone(me);
+  if (practice && phase !== PHASE.ANSWERING && phase !== PHASE.RESULT) {
     const rank = (room.winners || []).find((w) => w.playerId === session.playerId)?.rank;
-    html(`<div class="big">🏁</div><div><b>เข้าเส้นชัยแล้ว!</b></div><div class="sub">${rank ? `อันดับ ${rank} · ` : ""}รอเพื่อน ๆ จบเกม</div>`);
+    html(`<div class="big">🏁</div><div><b>เข้าเส้นชัยแล้ว${rank ? ` อันดับ ${rank}` : ""}! เก่งมาก ✨</b></div>
+      <div class="sub">รอคำถามข้อต่อไปนะ มาตอบเล่นกันต่อ<br>ตอบถูกตอบผิดก็ไม่มีผลกับอันดับแล้ว สบายใจได้เลย 😊</div>`);
     return;
   }
 
@@ -1044,7 +1048,7 @@ function renderGameAction(room, me) {
       const deadline = getAnswerDeadline(room);
       const expired = room.answerDeadlineExpired === true || (deadline != null && serverNow() > deadline);
       if (changed || !box.querySelector(".choices")) {
-        html(`<div class="q-time" id="qTime"><span>ดูคำถามบนจอหน้าห้องได้ด้วย</span><span>เหลือ <b id="qTimeLeft">-</b> วินาที</span></div>
+        html(`${practice ? PRACTICE_BANNER : ""}<div class="q-time" id="qTime"><span>ดูคำถามบนจอหน้าห้องได้ด้วย</span><span>เหลือ <b id="qTimeLeft">-</b> วินาที</span></div>
           <div class="q-text"></div><div class="choices" id="playerChoices"></div>`);
         box.querySelector(".q-text").textContent = question.text;
       }
@@ -1055,7 +1059,9 @@ function renderGameAction(room, me) {
     case PHASE.RESULT: {
       const question = getQuestionFromRoom(room, room.questionIndex ?? 0);
       const rec = room.history?.[roundKey(round)]?.answers?.[session.playerId];
-      html(`${resultMessage(rec)}<div class="choices" id="playerChoices"></div><div class="sub">กดดูกระดานด้านบนว่าหมากเดินไปไหน</div>`);
+      html(`${resultMessage(rec)}<div class="choices" id="playerChoices"></div><div class="sub">${
+        practice ? "ข้อฝึก · ไม่มีผลกับอันดับ รอข้อต่อไปได้เลย" : "กดดูกระดานด้านบนว่าหมากเดินไปไหน"
+      }</div>`);
       renderChoices($("playerChoices"), question, { selected: rec?.selectedOption ?? null, showResult: true });
       return;
     }
@@ -1064,8 +1070,17 @@ function renderGameAction(room, me) {
   }
 }
 
+const PRACTICE_BANNER = `<div class="practice-banner"><span class="ic" aria-hidden="true">🏆</span><span>
+  <b>เข้าเส้นชัยแล้วก็ยังตอบต่อได้นะ!</b>ข้อนี้ไว้ฝึกสมองเฉย ๆ ไม่มีผลกับอันดับแล้ว ไม่ต้องห่วง ลองตอบดูเลย 💪</span></div>`;
+
 function resultMessage(rec) {
   if (!rec) return `<div class="big">⏳</div><div><b>กำลังสรุปผล…</b></div>`;
+  if (rec.practice) {
+    if (!rec.answered) return `<div class="big">⏰</div><div><b>ข้อนี้ไม่ทันไม่เป็นไรนะ</b></div><div class="sub">ข้อต่อไปลองใหม่ได้เลย 😊</div>`;
+    return rec.correct
+      ? `<div class="big">🎉</div><div><b>ถูกต้อง! เก่งไม่หยุดเลยนะ</b></div>`
+      : `<div class="big">💡</div><div><b>ไม่เป็นไรนะ ข้อนี้ได้รู้เพิ่มแล้ว</b></div>`;
+  }
   if (rec.missedAnswer) return `<div class="big">📴</div><div><b>หลุดการเชื่อมต่อ รอบนี้ไม่ขยับ</b></div>`;
   const move = Math.abs(rec.configuredMove || 0);
   let head;

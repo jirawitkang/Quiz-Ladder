@@ -128,3 +128,15 @@ test("set insights combine games and match questions by text", () => {
   const single = computeSetInsights([makeRecord()]);
   assert.equal(single.avgMs, computeGameInsights(makeRecord()).overview.avgMs);
 });
+
+test("practice answers after finishing count for question analysis, marked practice per player", () => {
+  const rec = makeRecord();
+  // รอบ 3: a เข้าเส้นชัยแล้วแต่ตอบข้อฝึกถูก
+  rec.history.round_3.answers.a = { ...answer("a", 0, ["A", 1000], "A"), practice: true, basePosition: 30, finalPosition: 30 };
+  const { questions, players } = computeGameInsights(rec);
+  assert.equal(questions[0].eligible, 8);
+  assert.equal(questions[0].correct, 5);
+  assert.equal(questions[0].fastest.ms, 1000);
+  const a = players.find((p) => p.id === "a");
+  assert.deepEqual(a.byRound.map((r) => [r.status, r.practice]), [["correct", false], ["correct", false], ["correct", true]]);
+});

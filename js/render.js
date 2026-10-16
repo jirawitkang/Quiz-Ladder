@@ -119,10 +119,16 @@ export function renderPlayerList(el, room, players, { sort = "rank" } = {}) {
 
       let chips = "";
       for (let rn = 1; rn <= currentRound; rn++) {
-        if (finish.finishRound != null && rn > finish.finishRound) break;
         const rd = history[roundKey(rn)] || {};
         const dm = rd.diceMoves?.[pid];
         const ar = rd.answers?.[pid];
+        if (finish.finishRound != null && rn > finish.finishRound) {
+          // หลังเข้าเส้นชัย: ข้อฝึก (ไม่เดิน ไม่มีผลกับอันดับ)
+          const pres = ar?.answered ? (ar.correct ? "ok" : "no") : "none";
+          const ptitle = `รอบ ${rn}: ข้อฝึก${pres === "ok" ? " · ตอบถูก" : pres === "no" ? " · ตอบผิด" : " · ไม่ได้ตอบ"}`;
+          chips += `<span class="rd practice" title="${escapeHtml(ptitle)}">🏁<i class="${pres}"></i></span>`;
+          continue;
+        }
         const roll = dm && !dm.missed && Number(dm.diceRoll) > 0 ? dm.diceRoll : rn === currentRound && p.hasRolled ? p.lastRoll ?? "·" : "·";
         const res = !ar || (ar.correct == null && !ar.missedAnswer) ? "none" : ar.missedAnswer ? "miss" : ar.correct ? "ok" : "no";
         const special = [dm?.special, ar?.special].find(Boolean);
@@ -202,7 +208,7 @@ function collectPlayerStats(players, history) {
     for (const [pid, dm] of Object.entries(rd.diceMoves || {})) ensure(pid, dm.playerName);
     for (const [pid, ar] of Object.entries(rd.answers || {})) {
       const s = ensure(pid, ar.playerName);
-      if (answerSymbol(ar) === "➖") continue;
+      if (ar.practice || answerSymbol(ar) === "➖") continue; // ข้อฝึกหลังเข้าเส้นชัย ไม่นับคะแนนเกม
       s.answeredTotal += 1;
       if (ar.correct === true) s.correct += 1;
       // ผู้เล่นที่ไม่มีใน players (ข้อมูลเก่า) ใช้ตำแหน่งล่าสุดจาก history

@@ -201,7 +201,7 @@ function questionsTab({ questions }) {
     .join("")}</div>`;
 }
 
-const DOT_TITLE = { correct: "ถูก", wrong: "ผิด", timeout: "ไม่ทัน", missed: "หลุด", done: "เข้าเส้นชัยแล้ว" };
+const DOT_TITLE = { correct: "ถูก", wrong: "ผิด", timeout: "ไม่ทัน", missed: "หลุด", done: "เข้าเส้นชัยแล้ว (ไม่ได้ตอบข้อฝึก)" };
 
 function playersTab({ players }) {
   const rows = players
@@ -209,7 +209,9 @@ function playersTab({ players }) {
       (p) => `<tr>
         <td>${p.rank <= 3 ? MEDALS[p.rank - 1] : p.rank}</td>
         <td>${escapeHtml(`${p.emoji} ${p.name}`)}</td>
-        <td><span class="rs-dots">${p.byRound.map((r) => `<i class="${r.status}" title="รอบ ${r.round}: ${DOT_TITLE[r.status]}"></i>`).join("")}</span></td>
+        <td><span class="rs-dots">${p.byRound
+          .map((r) => `<i class="${r.status}${r.practice ? " practice" : ""}" title="รอบ ${r.round}: ${r.practice ? "ข้อฝึก · " : ""}${DOT_TITLE[r.status]}"></i>`)
+          .join("")}</span></td>
         <td class="n">${p.correct}/${p.eligible}</td>
         <td class="n">${pctText(p.percent)}</td>
         <td class="n">${sec(p.avgMs)}</td>
@@ -222,7 +224,7 @@ function playersTab({ players }) {
   return `<div class="rs-table"><table>
       <thead><tr><th>#</th><th>ผู้เล่น</th><th>ผลแต่ละรอบ</th><th class="n">ถูก</th><th class="n">%</th><th class="n">เวลาเฉลี่ย</th><th class="n">เร็วสุด</th><th class="n" title="ปีนบันไดส้ม">🟠</th><th class="n" title="ร่วงบันไดม่วง">🟣</th></tr></thead>
       <tbody>${rows}</tbody></table></div>
-    <div class="rs-legend"><span><i class="good"></i>ถูก</span><span><i class="bad"></i>ผิด/ไม่ทัน</span><span><i class="miss"></i>หลุด</span><span><i class="done"></i>เข้าเส้นชัยแล้ว</span></div>`;
+    <div class="rs-legend"><span><i class="good"></i>ถูก</span><span><i class="bad"></i>ผิด/ไม่ทัน</span><span><i class="miss"></i>หลุด</span><span><i class="done"></i>เข้าเส้นชัยแล้ว</span><span><i class="good practice"></i>ข้อฝึกหลังเข้าเส้นชัย</span></div>`;
 }
 
 /* ---------- ภาพรวมชุดคำถาม ---------- */

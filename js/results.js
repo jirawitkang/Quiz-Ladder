@@ -127,6 +127,7 @@ export function computeGameInsights(record) {
         p.byRound.push({ round: rn, status: "done" });
         continue;
       }
+      // ข้อฝึกหลังเข้าเส้นชัย (practice) นับในสถิติคำถาม/ผู้เล่นด้วย — ใช้วิเคราะห์แบบทดสอบ แต่ไม่เกี่ยวกับอันดับ
       const qi = Number.isFinite(ar.questionIndex) ? ar.questionIndex : 0;
       if (!qMap.has(qi)) {
         const q = questions[qi] || {};
@@ -163,7 +164,7 @@ export function computeGameInsights(record) {
         p.correct++;
         if (t != null) qs.correctTimes.push({ ms: t, pid, name: p.name, emoji: p.emoji });
       }
-      p.byRound.push({ round: rn, status: ar.missedAnswer ? "missed" : ar.correct ? "correct" : ar.answered ? "wrong" : "timeout" });
+      p.byRound.push({ round: rn, status: ar.missedAnswer ? "missed" : ar.correct ? "correct" : ar.answered ? "wrong" : "timeout", practice: !!ar.practice });
     }
   }
 

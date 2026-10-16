@@ -306,7 +306,9 @@ export function applyReveal(room, now) {
   for (const [pid, p] of Object.entries(room.players || {})) {
     const basePos = clampPos(p.position);
     const alreadyDone = isPlayerDone(p);
-    const onTime = !alreadyDone && isAnswerOnTime(room, p);
+    // เข้าเส้นชัยแล้ว = ข้อฝึก: เก็บคำตอบไว้วิเคราะห์ แต่ไม่เดินหมาก/ไม่มีผลกับอันดับ (ไม่ตอบก็ไม่เป็นไร)
+    const practice = alreadyDone;
+    const onTime = isAnswerOnTime(room, p);
     const answered = onTime;
     const selected = onTime ? p.answer : null;
 
@@ -323,7 +325,9 @@ export function applyReveal(room, now) {
     let special = null;
     let blocked = null;
 
-    if (!alreadyDone && !missedAnswer) {
+    if (practice) {
+      correct = answered ? selected === q.correctOption : null;
+    } else if (!missedAnswer) {
       correct = answered && selected === q.correctOption;
       configuredMove = correct ? settings.rewardCorrect : settings.penaltyWrong;
       landing = clampPos(basePos + configuredMove);
@@ -347,6 +351,7 @@ export function applyReveal(room, now) {
       correct,
       answered,
       missedAnswer,
+      practice,
       diceRoll: p.lastRoll ?? null,
       basePosition: basePos,
       landingPosition: landing,
@@ -424,8 +429,9 @@ export function applyStartGame(room, now, random = Math.random) {
 /* ---------- Transactions (player level) ---------- */
 
 // ใช้กับ transaction บน rooms/{code}/players/{pid} เท่านั้น — ไม่ชนกับผู้เล่นคนอื่น
+// คนที่เข้าเส้นชัยแล้วยังตอบได้ (ข้อฝึก) — applyReveal บันทึกเป็น practice ไม่เดินหมาก ไม่มีผลกับอันดับ
 export function applyAnswer(player, optionKey, now) {
-  if (!player || isPlayerDone(player)) return;
+  if (!player) return;
   player.answer = optionKey;
   player.answered = true;
   player.answerUpdatedAt = now;

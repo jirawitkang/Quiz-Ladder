@@ -1272,6 +1272,8 @@
   .rs-dots i{ width:12px; height:12px; border-radius:4px; background:var(--es-paper-2); }
   .rs-dots i.correct{ background:#2E9E5B; } .rs-dots i.wrong, .rs-dots i.timeout{ background:#c2463b; }
   .rs-dots i.missed{ background:#cfc7ea; } .rs-dots i.done{ background:#ebe7f6; }
+  /* ข้อฝึกหลังเข้าเส้นชัย: สีเดิมแต่จางและมีขอบประ */
+  .rs-dots i.practice, .rs-legend i.practice{ opacity:.5; outline:1.5px dashed #6b62a8; outline-offset:1px; }
 
   .rs-heat{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
   .rs-hrow{ display:grid; grid-template-columns:30px minmax(0,1fr) 140px 50px 48px; gap:10px; align-items:center; font-size:14px; }
@@ -1598,6 +1600,7 @@
   .dt .rd{ position:relative; width:30px; border-radius:8px; overflow:hidden; border:1.5px solid #d9d3ef; text-align:center; font:400 14px/20px "Lilita One","Arial Rounded MT Bold",system-ui,sans-serif; }
   .dt .rd i{ display:block; height:6px; }
   .dt .rd sup{ position:absolute; top:-6px; right:-5px; font-size:10px; }
+  .dt .rd.practice{ border-style:dashed; font-size:11px; }
   .dt .rd i.ok, .dt-legend i.ok{ background:#2E9E5B; } .dt .rd i.no, .dt-legend i.no{ background:#d64545; }
   .dt .rd i.miss, .dt-legend i.miss{ background:#cfc7ea; } .dt .rd i.none{ background:#ede9f7; }
   .dt-legend{ display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:#6b62a8; margin-top:8px; }
@@ -1630,3 +1633,13 @@
   body.on-game .choice-btn.correct:disabled{ opacity:1; }
   body.on-game .choice-btn.wrong{ outline:4px solid #d64545; outline-offset:2px; opacity:1; }
   body.on-game .end-game{ background:var(--g-paper); color:var(--g-ink); border-radius:24px; box-shadow:0 10px 0 #cfc7ea; }
+
+  /* นักเรียนที่เข้าเส้นชัยแล้ว: ยังตอบข้อฝึกต่อได้ (ไม่มีผลกับอันดับ) */
+  .practice-banner{
+    display:flex; gap:10px; align-items:flex-start; text-align:left; padding:10px 12px; border-radius:16px;
+    background:#fff6ec; border:2px dashed #FFA240; color:#7a4510; font-size:14px; line-height:1.5;
+  }
+  .practice-banner .ic{ font-size:26px; line-height:1; flex:none; }
+  .practice-banner b{ display:block; font-weight:600; color:#2f2a66; }
+  .practice-tag{ display:inline-block; font-size:12px; padding:2px 10px; border-radius:999px; background:#ede9f7; color:#6b62a8; }
+

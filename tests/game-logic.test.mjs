@@ -196,7 +196,34 @@ test("deadline expiry marks disconnected non-answerers as missed", () => {
   assert.equal(applyDeadlineExpired(room, 100), undefined);
 });
 
-test("applyAnswer aborts for missing or finished player", () => {
+test("applyAnswer aborts for a missing player; finished players may still answer (practice)", () => {
   assert.equal(applyAnswer(null, "A", 1), undefined);
-  assert.equal(applyAnswer(player("A", { finished: true }), "A", 1), undefined);
+  assert.ok(applyAnswer(player("A", { finished: true }), "A", 1));
+});
+
+test("reveal: finished player's answer is recorded as practice — no move, no rank change", () => {
+  const room = makeRoom(
+    { w: player("W", { position: BOARD_SIZE, finished: true, finishedRound: 1 }), x: player("X", { position: BOARD_SIZE, finished: true }), a: player("A", { position: 10 }) },
+    { maxWinners: 5 }
+  );
+  room.winners = [{ playerId: "w", rank: 1 }, { playerId: "x", rank: 2 }];
+  applyStartRound(room);
+  room.players.a.hasRolled = true;
+  toAnswering(room);
+  const q = getQuestionFromRoom(room, room.questionIndex);
+  const wrong = Object.keys(q.choices).find((k) => k !== q.correctOption);
+  applyAnswer(room.players.w, wrong, 5000); // x ไม่ตอบ
+  applyAnswer(room.players.a, q.correctOption, 5000);
+
+  assert.ok(applyReveal(room, 9000));
+  const w = room.history.round_1.answers.w;
+  assert.deepEqual([w.practice, w.answered, w.correct, w.selectedOption], [true, true, false, wrong]);
+  assert.equal(w.finalPosition, BOARD_SIZE);
+  assert.ok(Number.isFinite(w.answerTimeMs));
+  const x = room.history.round_1.answers.x;
+  assert.deepEqual([x.practice, x.answered, x.correct, x.missedAnswer], [true, false, null, false]);
+  assert.equal(room.players.w.position, BOARD_SIZE);
+  assert.deepEqual(room.winners.map((r) => r.playerId), ["w", "x"]);
+  assert.equal(room.history.round_1.answers.a.practice, false);
+  assert.equal(room.players.a.position, 12);
 });
