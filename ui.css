@@ -1023,6 +1023,8 @@
   .es-wordmark span{ display:block; }
   .es-wordmark .q{ color:#fff; }
   .es-wordmark .l{ color:var(--es-orange); }
+  .es-wordmark .l{ display:flex; justify-content:center; align-items:center; }
+  .es-wordmark .es-d{ height:.82em; width:auto; margin:0 .01em; overflow:visible; filter:drop-shadow(0 5px 0 rgba(0,0,0,.28)); }
   .es-course{ margin-top:14px; font-size:13px; padding:4px 12px; border-radius:999px; background:rgba(255,255,255,.1); color:#d8d2f3; }
   .es-actions{ display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:30px; width:100%; }
   .es-tokens{ display:flex; gap:8px; margin-top:28px; font-size:26px; }
