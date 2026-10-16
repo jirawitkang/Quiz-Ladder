@@ -26,7 +26,7 @@ js/board-image.js         ย่อ/ครอปรูปพื้นหลั�
 assets/board-backgrounds/ รูปพื้นหลังที่ Claude วาด (.jpg ที่ใช้จริง + .svg ต้นฉบับ + สคริปต์วาด .mjs)
 js/render.js              Lobby, ตัวเลือก emoji, แผงรอ, อันดับ (กล่องเขียวคนเข้าเส้นชัย), feed, ตาราง, สรุปผล
 js/dice.js                ลูกเต๋า 3D: วางที่ #diceDock → โยน/กระดอน 4 ครั้ง → หยุดกลางกระดาน (planThrow)
-js/sound.js               เสียงสังเคราะห์ด้วย Web Audio (ลูกเต๋า, ก้าว, บันได, งู, ถูก/ผิด, นับถอยหลัง, พลุ, fanfare) + ปุ่ม mute
+js/sound.js               เสียงสังเคราะห์ด้วย Web Audio (ลูกเต๋า, ก้าว, ปีน/ร่วงบันได, ถูก/ผิด, นับถอยหลัง, พลุ, fanfare) + ปุ่ม mute
 js/celebrate.js           พลุ/กระดาษสี/ป้ายประกาศ บน canvas (อันดับ 1–3 เข้าเส้นชัย, จบเกม)
 js/qr.js                  QR ลิงก์ ?room=CODE, อ่าน/ลบ param ตอนเปิดหน้า
 js/results.js             ผลการเล่นย้อนหลัง: สร้าง record ตอนจบเกม + สถิติเกมเดียว/ทั้งชุดคำถาม (pure)
