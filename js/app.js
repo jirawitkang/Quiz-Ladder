@@ -663,6 +663,15 @@ function renderRoom(rawRoom) {
   if (dom.roundInfo) dom.roundInfo.innerHTML = inLobby ? "Lobby" : `<small>รอบ</small>${room.currentRound || 0}/${maxRounds}`;
   if (dom.phaseInfo) dom.phaseInfo.textContent = inLobby ? "รอผู้เล่น" : PHASE_TEXT[room.phase] || PHASE_TEXT[PHASE.IDLE];
 
+  // Lobby เป็นหน้าจอเกมแยก (ซ่อนแถบหัวเว็บ + แถบห้อง); เริ่มเกมแล้วกลับไปหน้ากระดาน
+  // ต้องแสดงหน้าก่อนวาด view — ลูกเต๋า 3D วัดตำแหน่งกล่อง #diceDock ตอน render ถ้าหน้ายังซ่อนจะได้ขนาด 0 แล้วลอยไปมุมจอ
+  document.body.classList.toggle("on-lobby", inLobby);
+  document.body.classList.toggle("on-game", !inLobby);
+  setHidden(dom.roomView, inLobby);
+  setHidden(dom.hostLobby, !(inLobby && isHost()));
+  setHidden(dom.playerLobby, !(inLobby && isPlayer()));
+  setHidden(dom.endGameArea, !ended);
+
   if (isHost()) renderHostView(room);
   else renderPlayerView(room);
 
@@ -670,13 +679,6 @@ function renderRoom(rawRoom) {
   collectMoveEvents(room);
   renderBoards();
 
-  // Lobby เป็นหน้าจอเกมแยก (ซ่อนแถบหัวเว็บ + แถบห้อง); เริ่มเกมแล้วกลับไปหน้ากระดาน
-  document.body.classList.toggle("on-lobby", inLobby);
-  document.body.classList.toggle("on-game", !inLobby);
-  setHidden(dom.roomView, inLobby);
-  setHidden(dom.hostLobby, !(inLobby && isHost()));
-  setHidden(dom.playerLobby, !(inLobby && isPlayer()));
-  setHidden(dom.endGameArea, !ended);
   if (ended) {
     saveResultIfEnded(rawRoom);
     renderEndGameSummary({ titleEl: dom.endGameTitle, summaryEl: dom.endGameSummary }, room, getViewPlayers(room));
@@ -931,13 +933,17 @@ function renderPlayerView(room) {
 // ช่วงทอย: เปิดลูกเต๋า 3D รอให้ผู้เล่นแตะที่ลูกเต๋าเอง (เหมือนเดิม)
 function syncDiceOverlay(room, me) {
   const canRoll = room.phase === PHASE.ROLLING && room.status === STATUS.IN_GAME && !me.hasRolled && !isPlayerDone(me);
+  // แสดงกล่องก่อน ลูกเต๋าจะได้วัดตำแหน่งกล่องได้ (ซ่อนอยู่ = ขนาด 0 → ลูกเต๋าลอยไปมุมจอ)
+  if (canRoll) setHidden(dom.diceDock, false);
+  if (!busy.roll) {
+    const state = dice.getState();
+    if (canRoll && (state === "hidden" || state === "waiting")) dice.setState("waiting"); // waiting ซ้ำ = จัดตำแหน่งตามจุดวางใหม่
+    else if (!canRoll && state === "waiting") dice.setState("hidden");
+    else if (state !== "hidden" && state !== "done" && room.phase !== PHASE.ROLLING) dice.setState("hidden");
+  }
   // เว้นที่วางลูกเต๋าไว้จนลูกเต๋าปิด — การ์ดข้อความจะได้ไม่เลื่อนขึ้นระหว่างลูกเต๋าค้างอยู่กลางกระดาน
+  // (ตัดสินหลังอัปเดตสถานะลูกเต๋า ไม่งั้นกล่องว่างค้างอยู่อีกหนึ่งรอบการอัปเดต)
   setHidden(dom.diceDock, !(canRoll || busy.roll || dice.getState() !== "hidden"));
-  if (busy.roll) return;
-  const state = dice.getState();
-  if (canRoll && (state === "hidden" || state === "waiting")) dice.setState("waiting"); // waiting ซ้ำ = จัดตำแหน่งตามจุดวางใหม่
-  else if (!canRoll && state === "waiting") dice.setState("hidden");
-  else if (state !== "hidden" && state !== "done" && room.phase !== PHASE.ROLLING) dice.setState("hidden");
 }
 
 // ผู้เล่นทอยแล้วแต่ลูกเต๋า 3D ยังกลิ้ง/ยังไม่ปิด → ยังไม่เฉลยแต้ม
@@ -1029,7 +1035,7 @@ function renderGameAction(room, me) {
       if (!me.hasRolled || isRollRevealPending(room, me)) {
         html(busy.roll || me.hasRolled
           ? `<div class="big">🎲</div><div><b>ลูกเต๋ากำลังกลิ้ง…</b></div>`
-          : `<div><b>แตะที่ลูกเต๋าด้านบนเพื่อทอย</b></div><div class="sub">ลูกเต๋าจะกลิ้งไปหยุดกลางกระดาน</div>`);
+          : `<div><b>แตะที่ลูกเต๋าเพื่อทอย</b></div><div class="sub">ลูกเต๋าจะกลิ้งไปหยุดกลางกระดาน</div>`);
         return;
       }
       const dm = room.history?.[roundKey(round)]?.diceMoves?.[session.playerId];

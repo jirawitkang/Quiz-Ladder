@@ -1617,7 +1617,13 @@
   body.on-game .dice-dock{ background:rgba(255,255,255,.06); border:2px dashed rgba(255,255,255,.25); border-radius:24px; }
   body.on-game .q-time{ color:var(--g-ink-soft); }
   body.on-game .q-time b{ color:var(--g-ink); font-family:var(--g-display); font-weight:400; font-size:22px; }
-  body.on-game .q-text{ color:var(--g-ink); font-weight:600; text-align:center; }
+  body.on-game .q-text{ color:var(--g-ink); font-weight:600; text-align:left; } /* คำถามยาว 2 ภาษาอ่านง่ายกว่าเมื่อชิดซ้าย */
+  /* นักเรียนบนคอม (ส่วนใหญ่เล่นบนคอมเพราะต้องเปิดฐานข้อมูลค้นคำตอบ): คอลัมน์คำถามกว้างขึ้น อ่านคำถามยาวได้สบาย */
+  @media (min-width: 900px){
+    body.on-game .player-layout:not(.in-lobby){ grid-template-columns:minmax(0,1fr) clamp(360px,38vw,560px); gap:18px; }
+    body.on-game .player-layout:not(.in-lobby) > #playerAction{ font-size:16px; }
+    body.on-game .player-layout .choice-btn{ min-height:72px; font-size:16px; }
+  }
   body.on-game .choices{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
   body.on-game .choice-btn{
     display:flex; flex-direction:column; align-items:flex-start; gap:4px; min-height:84px; padding:10px 12px;

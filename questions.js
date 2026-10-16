@@ -9,7 +9,7 @@
 export const QUESTION_SETS = {
   general: [
     {
-      text: "ทำไมกาแฟถึงขม? (ตอบผิดไม่ดุ แต่อาจงอนนิดนึง)",
+      text: "ทำไมกาแฟถึงขม?",
       choices: { A: "เพราะชีวิต", B: "เพราะน้ำตาลหมด", C: "เพราะเมล็ดกาแฟ", D: "เพราะแก้วมันเศร้า" },
       correctOption: "C",
       timeLimit: 30,
