@@ -1330,6 +1330,8 @@
   .lb-brand b span{ color:var(--es-orange); }
   .lobby-stage .lb-ghost{ font-weight:500; font-size:15px; padding:9px 16px; border-radius:16px; color:#fff; background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.28); }
   .lobby-stage .lb-ghost:hover{ background:rgba(255,255,255,.18); }
+  .lobby-stage .lb-howto{ font-weight:600; color:var(--es-ink, #2f2a66); background:#FFA240; border-color:#FFA240; }
+  .lobby-stage .lb-howto:hover{ background:#ffb25e; }
 
   .lb-grid{ display:grid; grid-template-columns:minmax(280px,380px) minmax(0,1fr); gap:22px; align-items:start; }
   @media (max-width:860px){ .lb-grid{ grid-template-columns:minmax(0,1fr); } }
@@ -1649,3 +1651,245 @@
   .practice-banner b{ display:block; font-weight:600; color:#2f2a66; }
   .practice-tag{ display:inline-block; font-size:12px; padding:2px 10px; border-radius:999px; background:#ede9f7; color:#6b62a8; }
 
+
+  /* =========================
+     20) INTRO CLIP — คลิปวิธีเล่นเต็มจอ (js/intro-clip.js): เวที 1280×720 ย่อ/ขยายพอดีจอ
+     ภาพเข้า/ออกด้วยคลาส is-in / is-out / is-on ที่ JS ตั้งตามเวลาของเสียง (หยุดชั่วคราว = หยุดแอนิเมชันด้วย)
+     ========================= */
+  body.iv-open{ overflow:hidden; }
+  .iv-overlay{
+    --iv-night:#241c55; --iv-ink:#2f2a66; --iv-ink-soft:#6b62a8; --iv-paper:#f6f4fb; --iv-line:#d9d3ef;
+    --iv-orange:#FFA240; --iv-orange-deep:#d9761b; --iv-purple:#7b5cd6; --iv-green:#2e9d57; --iv-red:#e04646;
+    --iv-display:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
+    --iv-body:"Mitr","Noto Sans Thai","Leelawadee UI",system-ui,sans-serif;
+    position:fixed; inset:0; z-index:9000; background:#140f33; color:#fff; font-family:var(--iv-body);
+  }
+  .iv-overlay.paused *{ animation-play-state:paused !important; }
+  .iv-frame{ position:absolute; inset:0 0 6px; display:grid; place-items:center; overflow:hidden; }
+  .iv-stage{
+    position:absolute; left:50%; top:50%; width:1280px; height:720px; margin:-360px 0 0 -640px; overflow:hidden;
+    transform-origin:50% 50%; border-radius:18px; background:var(--iv-night);
+  }
+  .iv-bg{
+    position:absolute; inset:0;
+    background-image: linear-gradient(rgba(255,255,255,.035) 50%, transparent 50%), linear-gradient(90deg, rgba(255,255,255,.035) 50%, transparent 50%);
+    background-size:120px 120px;
+  }
+
+  /* ภาพเข้า/ออก — fill backwards เพื่อให้สไตล์ is-on ทำงานหลังแอนิเมชันจบ */
+  .iv-stage [data-in]:not(.is-in):not(.is-out), .iv-stage [data-out]:not(.is-in):not(.is-out){ visibility:hidden; }
+  .iv-stage .is-in[data-in]{ animation: iv-pop .45s cubic-bezier(.2,1.4,.4,1) backwards; }
+  .iv-stage .is-out{ animation: iv-out .3s ease-in forwards; pointer-events:none; }
+  @keyframes iv-pop{ from{ opacity:0; transform:translateY(14px) scale(.9); } }
+  @keyframes iv-out{ to{ opacity:0; visibility:hidden; } }
+
+  .iv-chip{
+    position:absolute; display:inline-flex; flex-direction:column; gap:2px; padding:10px 20px; border-radius:16px;
+    font-size:24px; font-weight:600; color:var(--iv-ink); background:#fff; box-shadow:0 6px 0 rgba(0,0,0,.25);
+  }
+  .iv-chip small{ font-size:16px; font-weight:400; opacity:.8; }
+  .iv-chip.good{ background:#dff5e6; color:#17663a; box-shadow:0 6px 0 #9fd6b2; }
+  .iv-chip.bad{ background:#ffe1e1; color:#a32020; box-shadow:0 6px 0 #f0a6a6; }
+
+  /* ฉาก 1: โลโก้ */
+  .iv-logo{ position:absolute; left:0; right:0; top:150px; display:flex; flex-direction:column; align-items:center; gap:14px; transition:transform .7s cubic-bezier(.5,0,.2,1); }
+  .iv-logo.is-on{ transform:translateY(-245px) scale(.42); }
+  .iv-badge svg{ width:120px; height:120px; filter:drop-shadow(0 8px 0 rgba(0,0,0,.28)); }
+  .iv-wordmark{ font-family:var(--iv-display); font-size:120px; line-height:.9; text-align:center; text-shadow:0 7px 0 rgba(0,0,0,.28); }
+  .iv-wordmark span{ display:block; }
+  .iv-wordmark .l{ color:var(--iv-orange); display:flex; align-items:center; justify-content:center; }
+  .iv-d{ height:.82em; width:auto; overflow:visible; filter:drop-shadow(0 6px 0 rgba(0,0,0,.28)); }
+  .iv-win{ left:880px; top:196px; flex-direction:row; gap:6px; font-size:26px; }
+  .iv-win b{ color:#17663a; }
+
+  /* กระดาน */
+  .iv-board{
+    position:absolute; left:0; top:0; padding:14px; background:#fff; border-radius:20px; box-shadow:0 10px 0 rgba(0,0,0,.25);
+    opacity:0; transform:translate(64px,120px); transition:opacity .4s, transform .7s cubic-bezier(.5,0,.2,1);
+  }
+  .iv-board.show{ opacity:1; }
+  .iv-stage[data-scene="1"] .iv-board, .iv-stage[data-scene="7"] .iv-board{ transform:translate(366px,190px) scale(.9); }
+  .iv-board-inner{ position:relative; border-radius:10px; overflow:visible; }
+  .iv-board-svg{ display:block; border-radius:10px; }
+  .iv-num{ font:500 13px var(--iv-body); fill:#9a93c8; }
+  .iv-flag{ font-size:30px; text-anchor:middle; }
+  .iv-arrow{ transform-box:fill-box; transform-origin:center; }
+  .iv-arrow.pulse{ animation: iv-pulse .5s ease-in-out infinite alternate; }
+  @keyframes iv-pulse{ to{ transform:scale(1.35); } }
+  .iv-tokens{ position:absolute; inset:0; }
+  .iv-token{
+    position:absolute; left:-26px; top:-26px; width:52px; height:52px; border-radius:50%; background:#fff;
+    box-shadow:0 0 0 4px var(--ring), 0 6px 10px rgba(0,0,0,.3); display:grid; place-items:center;
+    opacity:0; transition:opacity .3s;
+  }
+  .iv-token.show{ opacity:1; }
+  .iv-token span{ font-size:32px; line-height:1; }
+  .iv-token em{
+    position:absolute; top:58px; left:50%; transform:translateX(-50%); font-style:normal; font-size:14px; font-weight:600;
+    padding:1px 10px; border-radius:999px; background:var(--iv-orange); color:var(--iv-ink); white-space:nowrap;
+  }
+  .iv-mark{
+    position:absolute; translate:-50% -100%; padding:6px 14px; border-radius:12px; font-size:18px; font-weight:600;
+    white-space:nowrap; box-shadow:0 4px 0 rgba(0,0,0,.2); z-index:2;
+  }
+  .iv-mark.good{ background:#dff5e6; color:#17663a; }
+  .iv-mark.bad{ background:#ffe1e1; color:#a32020; }
+
+  /* ฉาก 2: เข้าห้อง */
+  .iv-scene{ position:absolute; inset:0; }
+  .iv-projector{
+    position:absolute; left:150px; top:80px; width:400px; padding:26px; border-radius:24px; background:#fff; color:var(--iv-ink);
+    display:flex; flex-direction:column; align-items:center; gap:12px; box-shadow:0 10px 0 rgba(0,0,0,.25);
+  }
+  .iv-cap{ font-size:20px; color:var(--iv-ink-soft); }
+  .iv-qr{ width:240px; height:240px; display:block; }
+  .iv-code-big{ font-family:var(--iv-display); font-size:58px; letter-spacing:.08em; color:var(--iv-ink); }
+  .iv-hand-arrow{ position:absolute; left:600px; top:290px; font-size:70px; color:var(--iv-orange); animation: iv-nudge .8s ease-in-out infinite alternate; }
+  @keyframes iv-nudge{ to{ transform:translateX(18px); } }
+  .iv-phone{
+    position:absolute; left:740px; top:50px; width:290px; height:560px; border-radius:42px; background:#14112b;
+    padding:14px; box-shadow:0 0 0 3px #3a3178, 0 14px 0 rgba(0,0,0,.3);
+  }
+  .iv-screen{ position:absolute; inset:14px; border-radius:30px; background:var(--iv-paper); color:var(--iv-ink); padding:30px 20px; overflow:hidden; display:flex; flex-direction:column; gap:10px; }
+  .iv-scan{ background:#0e0c20; align-items:center; justify-content:center; }
+  .iv-cam{ position:relative; width:200px; height:200px; border-radius:18px; overflow:hidden; box-shadow:0 0 0 4px var(--iv-orange); }
+  .iv-cam .iv-qr{ width:200px; height:200px; }
+  .iv-scanline{ position:absolute; left:0; right:0; height:4px; background:var(--iv-orange); box-shadow:0 0 14px var(--iv-orange); animation: iv-scan 1.1s ease-in-out infinite alternate; }
+  @keyframes iv-scan{ from{ top:4%; } to{ top:94%; } }
+  .iv-ph-cap{ color:#fff; font-size:18px; }
+  .iv-ph-title{ font-size:24px; font-weight:600; text-align:center; margin-bottom:8px; }
+  .iv-form label{ font-size:16px; color:var(--iv-ink-soft); }
+  .iv-field{ height:52px; border-radius:14px; background:#fff; border:2px solid var(--iv-line); display:flex; align-items:center; padding:0 14px; font-size:22px; }
+  .iv-field.mono{ font-family:var(--iv-display); letter-spacing:.12em; font-size:28px; }
+  .iv-field::after{ content:""; width:2px; height:26px; background:var(--iv-ink); margin-left:2px; animation: iv-blink .8s steps(1) infinite; }
+  @keyframes iv-blink{ 50%{ opacity:0; } }
+  .iv-pick{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+  .iv-pick span{ position:relative; aspect-ratio:1; display:grid; place-items:center; font-size:24px; background:#fff; border-radius:12px; border:2px solid var(--iv-line); }
+  .iv-pick span.taken{ opacity:.45; }
+  .iv-pick small{ position:absolute; bottom:-2px; font-size:10px; line-height:1.2; padding:0 4px; border-radius:6px; background:var(--iv-ink); color:#fff; }
+  .iv-pick span.mine.is-on{ border-color:var(--iv-orange); box-shadow:0 0 0 4px var(--iv-orange); transform:scale(1.12); transition:transform .25s cubic-bezier(.2,1.6,.4,1); }
+  .iv-ph-ok{ margin-top:auto; text-align:center; font-size:20px; font-weight:600; padding:12px; border-radius:14px; background:var(--iv-orange); }
+
+  /* ฉาก 3–4: รอบ */
+  .iv-panel{ position:absolute; left:660px; width:560px; }
+  .iv-round{ top:60px; display:flex; align-items:center; gap:16px; }
+  .iv-round-tag{ font-weight:600; font-size:36px; color:var(--iv-orange); text-shadow:0 4px 0 rgba(0,0,0,.25); }
+  .iv-steps{ display:flex; gap:10px; }
+  .iv-steps span{ font-size:20px; padding:8px 16px; border-radius:999px; background:rgba(255,255,255,.1); color:rgba(255,255,255,.6); transition:background .3s, color .3s; }
+  .iv-steps span.is-on{ background:#fff; color:var(--iv-ink); font-weight:600; }
+  .iv-dicebox{ top:150px; height:440px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; }
+  .iv-dock{ position:relative; width:260px; height:260px; display:grid; place-items:center; border-radius:28px; background:rgba(255,255,255,.08); border:3px dashed rgba(255,255,255,.25); perspective:700px; }
+  .iv-cube{ position:relative; width:130px; height:130px; transform-style:preserve-3d; }
+  .iv-face{
+    position:absolute; inset:0; border-radius:22px; background:#fff; box-shadow: inset 0 0 0 3px #e6e1f5, inset 0 -8px 0 #ece8f8;
+    display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); padding:18px; backface-visibility:hidden;
+  }
+  .iv-face i{ width:24px; height:24px; border-radius:50%; place-self:center; }
+  .iv-face i.on{ background:var(--iv-ink); }
+  .f-front{ transform:translateZ(65px); }
+  .f-back{ transform:rotateY(180deg) translateZ(65px); }
+  .f-right{ transform:rotateY(90deg) translateZ(65px); }
+  .f-left{ transform:rotateY(-90deg) translateZ(65px); }
+  .f-top{ transform:rotateX(90deg) translateZ(65px); }
+  .f-bottom{ transform:rotateX(-90deg) translateZ(65px); }
+  .iv-shadow{ position:absolute; bottom:30px; left:50%; width:120px; height:18px; margin-left:-60px; border-radius:50%; background:rgba(0,0,0,.3); filter:blur(4px); }
+  .iv-tap{ position:absolute; right:-30px; bottom:-20px; font-size:72px; }
+  .iv-stage .iv-tap.is-in[data-in]{ animation: iv-tapping .5s ease-in-out infinite alternate; }
+  @keyframes iv-tapping{ to{ transform:translate(-14px,-14px) scale(.9); } }
+  .iv-hint{ font-size:26px; }
+  .iv-result{ font-size:30px; font-weight:600; padding:10px 26px; border-radius:16px; background:var(--iv-orange); color:var(--iv-ink); }
+  .iv-result b{ font-family:var(--iv-display); font-size:40px; font-weight:400; }
+
+  .iv-q{ top:150px; }
+  .iv-card{ background:#fffdf7; color:var(--iv-ink); border-radius:22px; padding:24px 26px; box-shadow:0 10px 0 rgba(0,0,0,.25); }
+  .iv-qhead{ display:flex; align-items:center; gap:12px; font-size:18px; color:var(--iv-ink-soft); }
+  .iv-timer{ flex:1; height:10px; border-radius:999px; background:#ede9f7; overflow:hidden; }
+  .iv-timer i{ display:block; height:100%; background:var(--iv-orange); border-radius:inherit; }
+  .iv-timeout{ font-weight:600; color:var(--iv-red); }
+  .iv-qtext{ font-size:26px; font-weight:500; line-height:1.4; margin:14px 0 18px; }
+  .iv-opts{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .iv-opt{ display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:14px; background:#fff; border:3px solid #ede9f7; font-size:20px; transition:border-color .2s, background .2s; }
+  .iv-opt b{ width:36px; height:36px; flex:none; display:grid; place-items:center; border-radius:10px; color:#fff; font-family:var(--iv-display); font-weight:400; font-size:22px; }
+  .k-A b{ background:#f08a1c; } .k-B b{ background:#1e88e5; } .k-C b{ background:#2e9d57; } .k-D b{ background:var(--iv-purple); }
+  .iv-opt.k-B.is-on{ border-color:var(--iv-green); background:#dff5e6; }
+  .iv-opt.k-A.is-on{ border-color:var(--iv-red); background:#ffe1e1; }
+  .iv-verdicts{ display:flex; gap:12px; margin-top:24px; }
+  .iv-verdicts .iv-chip{ position:static; font-size:20px; padding:8px 16px; }
+
+  /* ฉาก 5: คำอธิบายบันได */
+  .iv-legend{ top:110px; display:flex; flex-direction:column; gap:14px; }
+  .iv-legend h3{ margin:0 0 6px; font-weight:600; font-size:42px; text-shadow:0 4px 0 rgba(0,0,0,.25); }
+  .iv-row{ display:flex; align-items:center; gap:16px; padding:12px 18px; border-radius:18px; background:#fff; color:var(--iv-ink); font-size:26px; box-shadow:0 6px 0 rgba(0,0,0,.22); }
+  .iv-row i{ width:46px; height:46px; flex:none; border-radius:50%; display:grid; place-items:center; color:#fff; font-style:normal; font-size:22px; box-shadow:0 0 0 3px #fff, 0 0 0 5px rgba(0,0,0,.08); }
+  .iv-row.up i{ background:var(--iv-orange); } .iv-row.down i{ background:var(--iv-purple); }
+  .iv-row.safe i{ background:var(--iv-green); } .iv-row.stuck i{ background:var(--iv-red); }
+  .iv-row.up b{ color:var(--iv-orange-deep); } .iv-row.down b{ color:var(--iv-purple); }
+  .iv-row.safe b{ color:#17663a; } .iv-row.stuck b{ color:#a32020; }
+  .iv-row.safe, .iv-row.stuck{ font-size:22px; margin-left:30px; }
+
+  /* ฉาก 6: เบราว์เซอร์ */
+  .iv-browser{ position:absolute; left:170px; top:70px; width:940px; height:470px; border-radius:16px; background:#e9e6f3; overflow:hidden; box-shadow:0 12px 0 rgba(0,0,0,.3); color:var(--iv-ink); }
+  .iv-tabs{ display:flex; gap:6px; padding:10px 12px 0; height:52px; background:#d6d1ea; }
+  .iv-tab{ display:flex; align-items:center; gap:10px; width:300px; padding:0 14px; border-radius:12px 12px 0 0; font-size:18px; background:transparent; color:var(--iv-ink-soft); }
+  .iv-tab svg{ width:22px; height:22px; }
+  .iv-tab em{ margin-left:auto; font-style:normal; font-size:22px; width:28px; height:28px; display:grid; place-items:center; border-radius:8px; }
+  .iv-tab.game, .iv-tab.alt.is-on{ background:#fff; color:var(--iv-ink); }
+  .iv-tabs:has(.alt.is-on) .iv-tab.game{ background:transparent; color:var(--iv-ink-soft); }
+  .iv-tab.game .iv-x{ transition:background .2s; }
+  .iv-browser-scene:has(.iv-ban.is-in) .iv-x{ background:#ffd0d0; color:var(--iv-red); }
+  .iv-page{ position:absolute; left:0; right:0; top:52px; bottom:0; background:#fff; padding:30px 36px; display:flex; flex-direction:column; gap:16px; }
+  .iv-mini-q{ font-size:24px; font-weight:500; }
+  .iv-mini-me{ font-size:20px; color:var(--iv-ink-soft); }
+  .iv-lost{ margin-top:10px; align-self:flex-start; padding:16px 24px; border-radius:18px; background:#eceaf2; font-size:26px; filter:grayscale(1); }
+  .iv-stage .iv-lost.is-in[data-in]{ animation: iv-shake .5s ease-in-out backwards; }
+  .iv-lost b{ color:var(--iv-red); filter:none; }
+  .iv-lost small{ display:block; font-size:18px; color:var(--iv-ink-soft); }
+  @keyframes iv-shake{ 0%{ opacity:0; } 20%,60%{ transform:translateX(-10px); opacity:1; } 40%,80%{ transform:translateX(10px); } }
+  .iv-search{ font-size:22px; padding:12px 18px; border-radius:999px; border:2px solid var(--iv-line); }
+  .iv-hit{ display:flex; flex-direction:column; gap:8px; padding:6px 0; }
+  .iv-hit b{ color:#1a5fc2; font-size:20px; font-weight:500; }
+  .iv-hit i{ height:10px; border-radius:6px; background:#ece9f4; width:90%; }
+  .iv-hit i.s{ width:60%; }
+  .iv-cursor{ position:absolute; left:282px; top:28px; width:34px; }
+  .iv-stage .iv-cursor.is-in[data-in]{ animation: iv-cursor .65s cubic-bezier(.3,.7,.3,1) backwards; }
+  @keyframes iv-cursor{ from{ transform:translate(300px,280px); } }
+  .iv-ban{ position:absolute; left:384px; top:31px; font-size:140px; line-height:1; filter:drop-shadow(0 6px 0 rgba(0,0,0,.25)); }
+  .iv-tip-ok{ left:0; right:0; margin:auto; width:fit-content; top:566px; }
+  .iv-tip-no{ left:820px; top:84px; font-size:34px; }
+
+  /* ฉาก 7 */
+  .iv-finish{ left:880px; top:196px; max-width:360px; }
+  .iv-go{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(20,15,51,.72); z-index:5; }
+  .iv-go span{ font-size:44px; font-weight:600; }
+  .iv-go b{ font-weight:600; font-size:88px; color:var(--iv-orange); text-shadow:0 7px 0 rgba(0,0,0,.35); }
+  .iv-stage .iv-go.is-in[data-in]{ animation: iv-zoom .6s cubic-bezier(.2,1.5,.4,1) backwards; }
+  @keyframes iv-zoom{ from{ opacity:0; transform:scale(.6); } }
+  .iv-confetti{ position:absolute; inset:0; pointer-events:none; z-index:6; overflow:hidden; }
+  .iv-confetti i{ position:absolute; top:-30px; width:12px; height:20px; border-radius:3px; opacity:0; }
+  .iv-confetti.is-in i{ animation: iv-fall var(--s) linear var(--d) both; }
+  @keyframes iv-fall{ 0%{ opacity:1; transform:translateY(0) rotate(var(--r)); } 100%{ opacity:1; transform:translateY(780px) rotate(calc(var(--r) + 720deg)); } }
+
+  /* ซับไตเติล */
+  .iv-sub{ position:absolute; left:0; right:0; bottom:22px; display:flex; justify-content:center; z-index:7; opacity:0; transition:opacity .3s; }
+  .iv-sub.show{ opacity:1; }
+  .iv-sub span{ max-width:1100px; padding:10px 24px; border-radius:14px; background:rgba(10,8,28,.78); font-size:24px; line-height:1.4; text-align:center; text-wrap:balance; }
+
+  /* ปุ่มควบคุม (นอกเวที ไม่ย่อตามจอ) */
+  .iv-controls{ position:absolute; top:14px; right:14px; display:flex; gap:8px; z-index:10; }
+  .iv-btn{ height:44px; min-width:44px; padding:0 14px; border:0; border-radius:12px; font:600 17px var(--iv-body); color:#fff; background:rgba(255,255,255,.16); cursor:pointer; }
+  .iv-btn:hover{ background:rgba(255,255,255,.28); }
+  .iv-btn.off{ opacity:.45; text-decoration:line-through; }
+  .iv-btn:focus-visible, .iv-start button:focus-visible, .iv-end button:focus-visible{ outline:3px solid var(--iv-orange); outline-offset:2px; }
+  .iv-progress{ position:absolute; left:0; right:0; bottom:0; height:6px; background:rgba(255,255,255,.12); }
+  .iv-progress i{ display:block; height:100%; width:0; background:var(--iv-orange); }
+  .iv-start, .iv-end{ position:absolute; inset:0; z-index:9; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:rgba(20,15,51,.6); }
+  .iv-end{ flex-direction:row; gap:18px; }
+  .iv-start button, .iv-end button{
+    font:600 26px var(--iv-body); padding:16px 36px; border:0; border-radius:18px; cursor:pointer;
+    color:var(--iv-ink); background:#fff; box-shadow:0 7px 0 #b9b0dc;
+  }
+  .iv-start button, .iv-end button.primary{ background:var(--iv-orange); box-shadow:0 7px 0 var(--iv-orange-deep); }
+  .iv-start small{ font-size:18px; opacity:.8; }
+  @media (prefers-reduced-motion: reduce){
+    .iv-hand-arrow, .iv-tap, .iv-scanline, .iv-arrow.pulse{ animation:none; }
+  }

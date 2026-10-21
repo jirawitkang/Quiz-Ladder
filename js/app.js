@@ -113,6 +113,7 @@ import {
   unlockAudio,
 } from "./sound.js";
 import { banner, confetti, fireworks, MEDAL_PALETTES } from "./celebrate.js";
+import { openIntroClip } from "./intro-clip.js";
 import { clearRoomFromUrl, readRoomFromUrl, renderJoinQr, resetJoinQr } from "./qr.js";
 import { getQuestionFromRoom, getRoomQuestionSetName } from "../questions.js";
 import {
@@ -204,6 +205,7 @@ const dom = {
   lobbyStartHint: $("lobbyStartHint"),
   lobbyCancelBtn: $("lobbyCancelBtn"),
   lobbySoundBtn: $("lobbySoundBtn"),
+  lobbyHowToBtn: $("lobbyHowToBtn"),
   playerLobby: $("playerLobby"),
   plName: $("plName"),
   plRoom: $("plRoom"),
@@ -2098,6 +2100,8 @@ function bindUIEvents() {
   on(dom.confirmCreateRoomBtn, "click", hostCreateRoom);
   on(dom.lobbyStartBtn, "click", hostStartGame);
   on(dom.lobbyCancelBtn, "click", hostCancelRoom);
+  // คลิปวิธีเล่นฉายจากจอครู (ปิดเสียงเกมไว้ = คลิปปิดเสียงด้วย)
+  on(dom.lobbyHowToBtn, "click", () => openIntroClip({ muted: isMuted(), onClose: () => dom.lobbyHowToBtn.focus() }));
   on(dom.plExitBtn, "click", playerLeave);
   on(dom.hostNextBtn, "click", () => hostNext?.());
   on(dom.toggleQuestionOverlayBtn, "click", hostToggleQuestionPanel);

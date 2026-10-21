@@ -27,6 +27,8 @@ assets/board-backgrounds/ รูปพื้นหลังที่ Claude ว�
 js/render.js              Lobby, ตัวเลือก emoji, แผงรอ, อันดับ (กล่องเขียวคนเข้าเส้นชัย), feed, ตาราง, สรุปผล
 js/dice.js                ลูกเต๋า 3D: วางที่ #diceDock → โยน/กระดอน 4 ครั้ง → หยุดกลางกระดาน (planThrow)
 js/sound.js               เสียงสังเคราะห์ด้วย Web Audio (ลูกเต๋า, ก้าว, ปีน/ร่วงบันได, ถูก/ผิด, นับถอยหลัง, พลุ, fanfare) + ปุ่ม mute
+js/intro-clip.js          คลิปวิธีเล่น ~1 นาที (ปุ่ม ▶ ดูวิธีเล่น ใน Lobby ครู): ภาพ DOM ตามเวลาเสียงพากย์ + เพลง/เอฟเฟกต์ Web Audio + ซับ
+assets/intro/             intro-voice.m4a เสียงพากย์คลิป
 js/celebrate.js           พลุ/กระดาษสี/ป้ายประกาศ บน canvas (อันดับ 1–3 เข้าเส้นชัย, จบเกม)
 js/qr.js                  QR ลิงก์ ?room=CODE, อ่าน/ลบ param ตอนเปิดหน้า
 js/results.js             ผลการเล่นย้อนหลัง: สร้าง record ตอนจบเกม + สถิติเกมเดียว/ทั้งชุดคำถาม (pure)
@@ -35,6 +37,7 @@ js/export.js              Export Excel (กดจากหน้าผลย้�
 js/app.js                 session, flow Host/Player, presence, render, timers, event bindings
 tools/check-active-rooms.mjs  เช็กห้องใน Firebase ก่อน deploy
 tools/seed-question-sets.mjs  ย้ายชุดใน questions.js ขึ้น Firebase (เฉพาะที่ยังไม่มี; --write)
+tools/make-intro-voice.mjs  สร้างเสียงพากย์ด้วย Gemini TTS (key ที่ ../.claude/gemini-key.txt นอก repo, ฟรี 3 ครั้ง/นาที + จำกัดรายวัน) แล้วแก้ VOICE_TIMING ใน intro-clip.js ให้เอง
 tools/restore-backup.mjs  กู้ questionSets/ results/ resultsIndex/ boardImages/ จาก branch backups กลับขึ้น Firebase
 tools/upload-board-backgrounds.mjs  อัปโหลดรูปใน assets/board-backgrounds/ → boardImages/bg-<ชื่อ> แล้วผูกกับชุดเดิม (--write)
 .github/workflows/backup.yml  GitHub Actions สำรอง Firebase ทุกคืน 02:00 → branch `backups` (กด Run workflow เองได้)
@@ -83,12 +86,14 @@ tests/*.test.mjs          node:test (กติกา, render, emoji, เส้�
 - นักเรียนส่วนใหญ่เล่นบนคอม (ต้องเปิดฐานข้อมูลค้นคำตอบในแท็บอื่น) — ทดสอบหน้าจอนักเรียนบนคอมเสมอ ไม่ใช่แค่มือถือ
   คอม ≥900px: กระดานซ้าย + คอลัมน์คำถามขวา clamp(360px,38vw,560px), คำถามชิดซ้าย; มือถือ: กระดานบน การกระทำล่าง
 - คำถาม/ตัวเลือกแสดงตามที่ตั้งไว้ในชุดคำถามทุกตัวอักษร ห้ามเติมข้อความอื่นเข้าไปในคำถาม (ข้อความแนะนำให้อยู่นอกตัวคำถาม)
+- คลิปวิธีเล่น: ครูเป็นคนเล่า เสียงผู้หญิงสดใส นักศึกษา ป.ตรี/โท, เฉพาะจอครู, ~1 นาที, มีเพลงเบา ๆ + ซับไตเติล;
+  จังหวะภาพผูกกับสัดส่วนของแต่ละประโยค (CUE_SPEC) → เปลี่ยนเสียงแล้วไม่ต้องจับเวลาใหม่ (ผู้ใช้ไม่ชอบเสียง Kanya ของ macOS)
 - เสียง: จอ Host เล่นเสียงของทุกคน (ไม่มีเสียงก้าวเดิน กันรก), มือถือเล่นเฉพาะเรื่องของตัวเอง
 
 ## รัน / ทดสอบ
 ```bash
 node --test tests/*.test.mjs                 # ต้องผ่านทั้งหมดก่อน commit
-node "../.claude/serve.mjs"                  # static server :8765 (python http.server ใช้ไม่ได้ใน Desktop)
+node "../.claude/serve.mjs" [port]           # static server :8765 (python http.server ใช้ไม่ได้ใน Desktop); พอร์ตชนให้ใช้ launch config quiz-runner-8766
 ```
 - http://localhost:8765 = Firebase จริง (ลบห้องทดสอบทุกครั้ง: Host กด "ยกเลิกห้อง")
 - http://localhost:8765/test.html = Firebase จำลองในหน่วยความจำ (`../.claude/mock/`, import map ใน serve.mjs)
