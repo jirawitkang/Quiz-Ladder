@@ -50,9 +50,11 @@ const SCENES = [CUES.s1, CUES.s2, CUES.s3, CUES.s4, CUES.s5, CUES.s6, CUES.s7];
 const ROLL_END = CUES.rolled;
 const STEP = 0.34;
 
+const HERO_NAME = "น้ำฝน";
+
 // เส้นทางตัวหมาก: set = วางที่ช่อง, walk = เดินทีละช่อง (กระโดด), slide = ไถลตามบันได
 const TOKENS = [
-  { id: "hero", emoji: "🦊", color: "#FFA240", name: "มายด์", ops: [
+  { id: "hero", emoji: "🦊", color: "#FFA240", name: HERO_NAME, ops: [
     { at: 0, kind: "set", to: 2 },
     { at: CUES.walk, kind: "walk", from: 2, to: 6 },
     { at: CUES.ok + 0.25, kind: "walk", from: 6, to: 8 },
@@ -82,9 +84,8 @@ const TOKENS = [
 ];
 
 const PICK_EMOJIS = ["🐶", "🐱", "🐭", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔", "🐧"];
-const TAKEN = { "🐼": "ต้น", "🐸": "ฝน", "🐯": "บีม" };
+const TAKEN = { "🐼": "ต้น", "🐸": "แบม", "🐯": "บีม" };
 const ROOM_CODE = "K7Q2M9";
-const HERO_NAME = "มายด์";
 
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 const lerp = (a, b, f) => a + (b - a) * f;
