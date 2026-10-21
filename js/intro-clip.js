@@ -372,7 +372,18 @@ function stageHtml() {
   </div>
 
   <!-- ฉาก 7: เส้นชัย -->
-  <div class="iv-chip good iv-finish" data-in="s7">🏁 ถึงเส้นชัยแล้ว ยังตอบคำถามต่อได้<small>เป็นข้อฝึก ไม่มีผลกับอันดับ</small></div>
+  <!-- การ์ดคำถามแบบเดียวกับฉาก 4 → คนเพิ่งเล่นครั้งแรกเห็นว่า "ตอบต่อ" คือตอบคำถามแบบนี้ -->
+  <div class="iv-panel iv-practice" data-in="s7">
+    <div class="iv-chip good iv-finish">🏁 ถึงเส้นชัยแล้ว</div>
+    <div class="iv-card">
+      <div class="iv-qhead"><span>คำถามข้อถัดไป</span><span class="iv-practice-tag">ข้อฝึก</span></div>
+      <div class="iv-qtext">ฐานข้อมูลใดเน้นบทความด้านวิศวกรรมและคอมพิวเตอร์?</div>
+      <div class="iv-opts">
+        ${opt("A", "ERIC")}${opt("B", "PubMed")}${opt("C", "IEEE Xplore", 'data-on="s7+1.2"')}${opt("D", "JSTOR")}
+      </div>
+    </div>
+    <div class="iv-practice-note" data-in="s7+1.2">✓ ยังตอบคำถามต่อได้ <small>ไม่มีผลกับอันดับ</small></div>
+  </div>
   <div class="iv-go" data-in="go"><span>พร้อมแล้ว</span><b>ไปปีนบันไดกันเลย!</b></div>
   <div class="iv-confetti" data-in="go"></div>
 
