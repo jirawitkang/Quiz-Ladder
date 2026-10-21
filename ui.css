@@ -1704,17 +1704,19 @@
 
   /* กระดาน */
   .iv-board{
-    position:absolute; left:0; top:0; padding:14px; background:#fff; border-radius:20px; box-shadow:0 10px 0 rgba(0,0,0,.25);
+    position:absolute; left:0; top:0; padding:8px;
     opacity:0; transform:translate(64px,120px); transition:opacity .4s, transform .7s cubic-bezier(.5,0,.2,1);
   }
   .iv-board.show{ opacity:1; }
   .iv-stage[data-scene="1"] .iv-board, .iv-stage[data-scene="7"] .iv-board{ transform:translate(366px,190px) scale(.9); }
-  .iv-board-inner{ position:relative; border-radius:10px; overflow:visible; }
-  .iv-board-svg{ display:block; border-radius:10px; }
-  .iv-num{ font:500 13px var(--iv-body); fill:#9a93c8; }
-  .iv-flag{ font-size:30px; text-anchor:middle; }
-  .iv-arrow{ transform-box:fill-box; transform-origin:center; }
-  .iv-arrow.pulse{ animation: iv-pulse .5s ease-in-out infinite alternate; }
+  .iv-board .board{ width:504px; border-radius:14px; box-shadow:0 0 0 8px #fbf8ef, 0 16px 0 8px #cfc7ea, 0 30px 40px 8px rgba(0,0,0,.45); }
+  .iv-board .board-grid{ border:none; border-radius:14px; }
+  /* ขนาดตัวอักษรในกระดานเกมผูกกับ vw → ในเวทีที่ย่อขยายทั้งก้อน ใช้ค่าคงที่แทน */
+  .iv-board .cell-num{ font-size:16px; }
+  .iv-board .cell-tag{ font-size:15px; }
+  .iv-board .cell-flag{ font-size:36px; }
+  .iv-board .ladder .mark{ transform-box:fill-box; transform-origin:center; }
+  .iv-board .ladder .mark.pulse{ animation: iv-pulse .5s ease-in-out infinite alternate; }
   @keyframes iv-pulse{ to{ transform:scale(1.35); } }
   .iv-tokens{ position:absolute; inset:0; }
   .iv-token{
@@ -1891,5 +1893,5 @@
   .iv-start button, .iv-end button.primary{ background:var(--iv-orange); box-shadow:0 7px 0 var(--iv-orange-deep); }
   .iv-start small{ font-size:18px; opacity:.8; }
   @media (prefers-reduced-motion: reduce){
-    .iv-hand-arrow, .iv-tap, .iv-scanline, .iv-arrow.pulse{ animation:none; }
+    .iv-hand-arrow, .iv-tap, .iv-scanline, .iv-board .ladder .mark.pulse{ animation:none; }
   }

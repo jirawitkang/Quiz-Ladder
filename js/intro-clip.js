@@ -4,6 +4,7 @@
 // เสียงพากย์สร้างด้วย tools/make-intro-voice.mjs ซึ่งเขียน VOICE_TIMING ด้านล่างให้เองทุกครั้งที่สร้างเสียงใหม่
 
 import { LADDERS, DROPS, BOARD_COLS, BOARD_ROWS, cellPosition } from "./board-config.js";
+import { boardCellsHtml, boardSvgHtml } from "./board-markup.js";
 
 const VOICE_SRC = "assets/intro/intro-voice.m4a";
 const STAGE_W = 1280;
@@ -246,37 +247,6 @@ const LOGO_SVG = `<svg viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" 
 const D_UP = `<svg class="iv-d" viewBox="0 0 70 86"><path d="M9 9 H29 C53 9 63 25 63 43 C63 61 53 77 29 77 H9 Z" fill="#FFA240" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><path d="M20 53 L35 29 L50 53 Z" fill="#fff"/></svg>`;
 const D_DOWN = `<svg class="iv-d" viewBox="0 0 70 86"><path d="M9 9 H29 C53 9 63 25 63 43 C63 61 53 77 29 77 H9 Z" fill="#7b5cd6" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><path d="M20 33 L35 57 L50 33 Z" fill="#fff"/></svg>`;
 
-function boardSvg() {
-  const W = BOARD_COLS * CELL;
-  const H = BOARD_ROWS * CELL;
-  let s = `<svg class="iv-board-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`;
-  for (let n = 1; n <= BOARD_COLS * BOARD_ROWS; n++) {
-    const { col, row } = cellPosition(n);
-    const fill = n === 1 ? "#ffe2bf" : n === 30 ? "#cdeed8" : row % 2 ? "#f8f6fd" : "#ece8f8";
-    s += `<rect x="${col * CELL}" y="${row * CELL}" width="${CELL}" height="${CELL}" fill="${fill}" stroke="#ddd6f1"/>`;
-    s += `<text x="${col * CELL + 7}" y="${row * CELL + 18}" class="iv-num">${n}</text>`;
-  }
-  s += `<text x="${cellCenter(30).x}" y="${cellCenter(30).y + 12}" class="iv-flag">🏆</text>`;
-  const ladder = (a, b, color) => {
-    const pa = cellCenter(a);
-    const pb = cellCenter(b);
-    const mid = (pa.y + pb.y) / 2;
-    const x = pa.x;
-    let g = `<g stroke="${color}" stroke-width="5" stroke-linecap="round">`;
-    g += `<line x1="${x - 12}" y1="${mid - 28}" x2="${x - 12}" y2="${mid + 28}"/><line x1="${x + 12}" y1="${mid - 28}" x2="${x + 12}" y2="${mid + 28}"/>`;
-    for (const d of [-16, 0, 16]) g += `<line x1="${x - 12}" y1="${mid + d}" x2="${x + 12}" y2="${mid + d}"/>`;
-    return g + "</g>";
-  };
-  const arrow = (n, color, up) => {
-    const p = cellCenter(n);
-    const tri = up ? `M${p.x - 8} ${p.y + 5} L${p.x} ${p.y - 7} L${p.x + 8} ${p.y + 5} Z` : `M${p.x - 8} ${p.y - 5} L${p.x} ${p.y + 7} L${p.x + 8} ${p.y - 5} Z`;
-    return `<g class="iv-arrow" data-cell="${n}"><circle cx="${p.x}" cy="${p.y}" r="17" fill="${color}" stroke="#fff" stroke-width="3"/><path d="${tri}" fill="#fff"/></g>`;
-  };
-  for (const [a, b] of Object.entries(LADDERS)) s += ladder(+a, b, "#FFA240") + arrow(+a, "#FFA240", true);
-  for (const [a, b] of Object.entries(DROPS)) s += ladder(b, +a, "#7b5cd6") + arrow(+a, "#7b5cd6", false);
-  return s + "</svg>";
-}
-
 function fakeQr() {
   const N = 25;
   let seed = 7;
@@ -311,7 +281,7 @@ function stageHtml() {
   <div class="iv-chip iv-win" data-in="s1b" data-out="s2">← ปีนถึง <b>ช่อง 30</b> ก่อน = ชนะ!</div>
 
   <div class="iv-board" id="ivBoard">
-    <div class="iv-board-inner">${boardSvg()}<div class="iv-tokens"></div></div>
+    <div class="board"><div class="board-grid">${boardCellsHtml()}</div><svg viewBox="0 0 ${BOARD_COLS * 100} ${BOARD_ROWS * 100}" aria-hidden="true">${boardSvgHtml()}</svg><div class="iv-tokens"></div></div>
   </div>
 
   <!-- ฉาก 2: เข้าห้อง -->
@@ -475,7 +445,12 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
     ton: cueTime(e.dataset.on),
     toff: cueTime(e.dataset.off),
   }));
-  const arrows = [...stage.querySelectorAll(".iv-arrow")];
+  // วงลูกศรของบันได (เรียงตาม LADDERS แล้ว DROPS เหมือน boardSvgHtml) → ใช้กะพริบตอนพูดถึงบันไดนั้น
+  const ladderFrom = [...Object.keys(LADDERS), ...Object.keys(DROPS)].map(Number);
+  const arrows = [...stage.querySelectorAll(".board .ladder .mark")].map((e, i) => {
+    e.dataset.cell = String(ladderFrom[i]);
+    return e;
+  });
   const cube = stage.querySelector(".iv-cube");
   const shadow = stage.querySelector(".iv-shadow");
   const codeField = stage.querySelector('[data-type="code"]');
@@ -484,6 +459,7 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
   const sub = stage.querySelector(".iv-sub span");
   const progress = overlay.querySelector(".iv-progress i");
   const board = stage.querySelector(".iv-board");
+  const finishCell = stage.querySelector('.board-cell[data-n="30"]');
   const toggleBtn = overlay.querySelector('[data-act="toggle"]');
   const musicBtn = overlay.querySelector('[data-act="music"]');
   const endBox = overlay.querySelector(".iv-end");
@@ -533,6 +509,7 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
 
     const boardShown = (scene === 1 && t >= CUES.s1b) || scene === 3 || scene === 4 || scene === 5 || scene === 7;
     board.classList.toggle("show", boardShown);
+    finishCell.classList.toggle("occupied", scene === 7); // ธงเส้นชัยหลบให้หมากที่เข้าเส้นชัย (เหมือนในเกม)
     TOKENS.forEach((tk, i) => {
       const p = tokenPoint(tk.ops, t);
       const vis = scene >= 3 && scene <= 5 ? true : scene === 7 && tk.id === "hero";
