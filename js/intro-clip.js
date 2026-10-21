@@ -69,12 +69,14 @@ const TOKENS = [
     { at: CUES.down + 0.55, kind: "slide", from: 16, to: 9, dur: 1.0, sfx: "drop" },
   ] },
   { id: "tiger", emoji: "🐯", color: "#fb8c00", ops: [
-    { at: 0, kind: "set", to: 19 },
-    { at: CUES.safe + 0.05, kind: "walk", from: 19, to: 22 },
+    { at: 0, kind: "set", to: 20 },
+    // ตอบถูก = เดินหน้า มาหยุดที่บันไดม่วงก็ไม่ร่วง
+    { at: CUES.safe + 0.05, kind: "walk", from: 20, to: 22 },
   ] },
   { id: "bunny", emoji: "🐰", color: "#d81b60", ops: [
-    { at: 0, kind: "set", to: 10 },
-    { at: CUES.stuck + 0.1, kind: "walk", from: 10, to: 11 },
+    { at: 0, kind: "set", to: 13 },
+    // ตอบผิด = ถอยหลัง มาหยุดที่บันไดส้มก็ไม่ได้ปีน
+    { at: CUES.stuck + 0.1, kind: "walk", from: 13, to: 11 },
   ] },
 ];
 
@@ -123,7 +125,7 @@ function buildSfx() {
     { at: CUES.ok, kind: "correct" },
     { at: CUES.bad, kind: "wrong" },
     { at: CUES.safe + 1.1, kind: "correct" },
-    { at: CUES.stuck + 0.5, kind: "wrong" },
+    { at: CUES.stuck + 0.85, kind: "wrong" },
     { at: CUES.noclose + 0.66, kind: "wrong" },
     { at: CUES.lost, kind: "drop" },
     { at: CUES.go, kind: "fanfare" },
@@ -458,8 +460,8 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
     m.style.top = `${p.y - 44}px`;
     tokenLayer.appendChild(m);
   };
-  mark(22, "good", "✓ ตอบถูก ไม่ร่วง", "safe+1.1");
-  mark(11, "bad", "✗ ตอบผิด ไม่ได้ปีน", "stuck+0.5");
+  mark(22, "good", "✓ ตอบถูก เดินหน้า ไม่ร่วง", "safe+1.1");
+  mark(11, "bad", "✗ ตอบผิด ถอยหลัง ไม่ได้ปีน", "stuck+0.85");
 
   const cueTime = (v) => {
     if (v == null) return null;
