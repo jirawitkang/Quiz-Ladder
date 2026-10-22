@@ -41,18 +41,27 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function speak(key, text, voice) {
   for (let attempt = 1; ; attempt++) {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `${STYLE}: ${text}` }] }],
-        generationConfig: {
-          responseModalities: ["AUDIO"],
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
-        },
-      }),
-    });
-    const json = await res.json();
+    let res;
+    try {
+      res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `${STYLE}: ${text}` }] }],
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
+          },
+        }),
+      });
+    } catch (e) {
+      // เน็ตหลุด/เครื่องหลับ → รอแล้วลองใหม่ ไม่นับเป็นความพยายาม
+      console.error(`  ${voice}: เชื่อมต่อไม่ได้ (${e.cause?.code || e.message}) รอ 60 วิ`);
+      attempt--;
+      await sleep(60000);
+      continue;
+    }
+    const json = await res.json().catch(() => ({}));
     const data = json?.candidates?.[0]?.content?.parts?.find((p) => p.inlineData)?.inlineData?.data;
     if (data) {
       const pcm = trimSilence(Buffer.from(data, "base64"));
@@ -110,10 +119,19 @@ if (opt("--sample")) {
   }
 } else {
   const voice = opt("--voice") || "Leda";
+  // เก็บเสียงรายประโยคไว้ใน tmp/ → รันซ้ำแล้วทำต่อจากประโยคที่ยังไม่มี (โควตาฟรีน้อย)
+  const cacheDir = join(ROOT, "tmp", "voice-lines", voice);
+  await mkdir(cacheDir, { recursive: true });
   const parts = [];
   for (const [i, line] of LINES.entries()) {
-    parts.push(await speak(key, line, voice));
-    console.error(`line ${i + 1}: ${seconds(parts[i]).toFixed(2)} s`);
+    const file = join(cacheDir, `${i + 1}.pcm`);
+    let pcm = await readFile(file).catch(() => null);
+    if (!pcm) {
+      pcm = await speak(key, line, voice);
+      await writeFile(file, pcm);
+    }
+    parts.push(pcm);
+    console.error(`line ${i + 1}: ${seconds(pcm).toFixed(2)} s`);
   }
   const chunks = [silence(LEAD_S)];
   const starts = [];
