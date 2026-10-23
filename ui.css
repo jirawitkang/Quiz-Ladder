@@ -1904,3 +1904,66 @@
   @media (prefers-reduced-motion: reduce){
     .iv-hand-arrow, .iv-tap, .iv-scanline, .iv-board .ladder .mark.pulse{ animation:none; }
   }
+
+  /* =========================
+     21) BOARD 3D — กระดานภูเขาขั้นบันได 2.5 มิติ (js/board3d.js): canvas + ชั้น CSS ท้องฟ้า/ดาว/เมฆ/หิ่งห้อย/แสงหมากของฉัน
+     ========================= */
+  .board3d{ position:relative; width:100%; aspect-ratio:6 / 5; border-radius:16px; overflow:hidden; background:#4236b2; }
+  .board3d > canvas{ position:absolute; inset:0; display:block; width:100%; height:100%; }
+  .board3d .board-float, .board3d .board-pop{ z-index:30; }
+  /* ท้องฟ้า/ดาว/เมฆเป็น CSS: ขยับด้วย transform/opacity ซึ่งการ์ดจอทำให้เอง ไม่ต้องวาดฉาก 3 มิติใหม่ → แทบไม่กินเครื่อง */
+  .board3d .b3-sky{ position:absolute; inset:0; overflow:hidden; background:linear-gradient(#251e7a, #4236b2 45%, #7a5fd4 75%, #d58cc4); } /* หัวค่ำ: ม่วงคราม → ชมพูที่ขอบฟ้า */
+  .board3d .b3-stars{ position:absolute; inset:-5% -10%; pointer-events:none; animation: b3-twinkle 2.6s ease-in-out infinite alternate, b3-drift 40s ease-in-out infinite alternate; }
+  .board3d .b3-stars.a{ background-image:
+    radial-gradient(1.8px 1.8px at 6% 10%, #fff 50%, transparent 55%), radial-gradient(1.4px 1.4px at 18% 26%, #fff 50%, transparent 55%),
+    radial-gradient(2.2px 2.2px at 31% 7%, #fffbe0 50%, transparent 55%), radial-gradient(1.4px 1.4px at 44% 19%, #fff 50%, transparent 55%),
+    radial-gradient(1.8px 1.8px at 57% 5%, #fff 50%, transparent 55%), radial-gradient(1.4px 1.4px at 69% 22%, #fff 50%, transparent 55%),
+    radial-gradient(2.2px 2.2px at 82% 9%, #fffbe0 50%, transparent 55%), radial-gradient(1.4px 1.4px at 93% 28%, #fff 50%, transparent 55%),
+    radial-gradient(1.6px 1.6px at 4% 46%, #fff 50%, transparent 55%), radial-gradient(1.6px 1.6px at 96% 52%, #fff 50%, transparent 55%); }
+  .board3d .b3-stars.b{ animation-delay:-2.5s, -40s; background-image:
+    radial-gradient(1.4px 1.4px at 11% 17%, #fff 50%, transparent 55%), radial-gradient(1.8px 1.8px at 25% 4%, #fff 50%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 38% 30%, #fff 50%, transparent 55%), radial-gradient(2px 2px at 63% 14%, #fffbe0 50%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 76% 3%, #fff 50%, transparent 55%), radial-gradient(1.8px 1.8px at 88% 18%, #fff 50%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 8% 62%, #fff 50%, transparent 55%), radial-gradient(1.6px 1.6px at 92% 66%, #fff 50%, transparent 55%); }
+  @keyframes b3-twinkle{ from{ opacity:.15; } to{ opacity:1; } }
+  @keyframes b3-drift{ from{ transform:translateX(-4%); } to{ transform:translateX(4%); } }
+  .board3d .b3-cloud{ position:absolute; pointer-events:none; width:34%; height:18%;
+    background: radial-gradient(closest-side, rgba(232,226,255,.92), transparent) 0% 70% / 55% 80% no-repeat,
+      radial-gradient(closest-side, rgba(240,236,255,.95), transparent) 45% 30% / 60% 100% no-repeat,
+      radial-gradient(closest-side, rgba(228,220,255,.9), transparent) 100% 75% / 55% 75% no-repeat;
+    animation: b3-cloudmove 60s linear infinite; }
+  /* เมฆลอยข้ามแถบฟ้าด้านบน (ส่วนที่ภูเขาไม่บัง) จากซ้ายไปขวาแล้ววนใหม่ */
+  .board3d .b3-cloud{ left:0; width:30%; }
+  .board3d .b3-cloud.c1{ top:0%; animation-duration:55s; } .board3d .b3-cloud.c2{ top:7%; width:24%; opacity:.75; animation-duration:75s; animation-delay:-30s; }
+  .board3d .b3-cloud.c3{ top:3%; width:20%; opacity:.6; animation-duration:95s; animation-delay:-60s; } .board3d .b3-cloud.c4{ top:48%; width:22%; opacity:.6; animation-duration:65s; animation-delay:-15s; }
+  @keyframes b3-cloudmove{ from{ transform:translateX(-110%); } to{ transform:translateX(460%); } }
+  @media (prefers-reduced-motion: reduce){ .board3d .b3-stars, .board3d .b3-cloud, .board3d .b3-clouds{ animation:none; } }
+    .board3d .b3-clouds{ position:absolute; left:-5%; right:-5%; bottom:-8%; height:26%; pointer-events:none; animation: b3-drift 45s ease-in-out infinite alternate;
+    background: radial-gradient(closest-side, rgba(176,160,240,.85), transparent) 0% 100% / 30% 90% no-repeat,
+      radial-gradient(closest-side, rgba(176,160,240,.8), transparent) 22% 110% / 34% 100% no-repeat,
+      radial-gradient(closest-side, rgba(176,160,240,.85), transparent) 50% 120% / 36% 100% no-repeat,
+      radial-gradient(closest-side, rgba(176,160,240,.8), transparent) 78% 110% / 34% 100% no-repeat,
+      radial-gradient(closest-side, rgba(176,160,240,.85), transparent) 100% 100% / 30% 90% no-repeat; }
+  /* ของกลางคืนบน DOM (ไม่ต้องวาดฉาก 3 มิติใหม่): หิ่งห้อยกะพริบ, แสงเรืองเส้นชัย, ขอบจอมืดจาง ๆ */
+  .board3d .b3-glows{ position:absolute; inset:0; pointer-events:none; }
+  .board3d .b3-glows i{ position:absolute; width:5px; height:5px; margin:-2.5px; border-radius:50%; background:#fff6bf;
+    box-shadow:0 0 6px 3px rgba(255,232,120,.65); animation: b3-firefly 3.2s ease-in-out infinite alternate; }
+  @keyframes b3-firefly{ 0%{ opacity:.05; transform:translate(0,0); } 60%{ opacity:1; } 100%{ opacity:.3; transform:translate(6px,-8px); } }
+  .board3d .b3-glows .finglow{ width:var(--r); height:var(--r); margin:calc(var(--r) / -2); background:radial-gradient(closest-side, rgba(255,214,120,.55), rgba(255,190,90,.18) 55%, transparent);
+    box-shadow:none; mix-blend-mode:screen; animation: b3-finpulse 2.8s ease-in-out infinite alternate; }
+  @keyframes b3-finpulse{ from{ opacity:.65; transform:scale(.92); } to{ opacity:1; transform:scale(1.06); } }
+  .board3d .b3-glows i.lamp{ width:var(--r); height:var(--r); margin:calc(var(--r) / -2); box-shadow:none; mix-blend-mode:screen;
+    background:radial-gradient(closest-side, rgba(255,214,140,.85), rgba(255,170,80,.3) 45%, transparent); animation: b3-finpulse 2.2s ease-in-out infinite alternate; }
+  .board3d .b3-glows i.pool{ width:var(--r); height:calc(var(--r) * .42); margin:calc(var(--r) * -.21) 0 0 calc(var(--r) / -2); box-shadow:none; mix-blend-mode:screen;
+    background:radial-gradient(closest-side, rgba(255,176,90,.5), rgba(255,150,70,.16) 60%, transparent); animation:none; opacity:1; }
+  .board3d .b3-vignette{ position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 85% 80% at 50% 46%, transparent 70%, rgba(16,10,52,.3) 100%); }
+  @media (prefers-reduced-motion: reduce){ .board3d .b3-glows i{ animation:none; opacity:.8; } }
+  /* หมากของฉัน (จอนักเรียน): แสงเรืองนุ่ม ๆ รอบลูกแก้ว หายใจช้า ๆ — DOM จึงขยับได้โดยไม่ต้องวาดฉากใหม่ */
+  .board3d .b3-marks{ position:absolute; inset:0; pointer-events:none; }
+  .board3d .b3-meglow{ position:absolute; --d:60px; width:var(--d); height:var(--d); margin:calc(var(--d) / -2) 0 0 calc(var(--d) / -2); }
+  .board3d .b3-meglow::before{ content:""; position:absolute; inset:-34%; border-radius:50%; mix-blend-mode:screen;
+    background:radial-gradient(closest-side, transparent 52%, rgba(255,236,170,.75) 62%, rgba(255,214,110,.32) 76%, transparent 100%);
+    animation: b3-mepulse 1.8s ease-in-out infinite alternate; }
+  @keyframes b3-mepulse{ from{ opacity:.55; } to{ opacity:1; } }
+  .board3d .b3-crowd{ position:absolute; transform:translate(-50%,-50%); font:600 12px/1.3 "Mitr","Noto Sans Thai",system-ui,sans-serif; background:#fff; color:#2f2a66; padding:1px 7px; border-radius:999px; box-shadow:0 2px 0 rgba(0,0,0,.25); }
+  @media (prefers-reduced-motion: reduce){ .board3d .b3-meglow::before{ animation:none; } }

@@ -466,6 +466,13 @@
   </main>
 
   <noscript>เกมนี้ต้องเปิดใช้งาน JavaScript</noscript>
+  <!-- three.js สำหรับกระดานภูเขา 3 มิติ (js/board3d.js โหลดแบบ lazy เฉพาะห้องที่ตั้งเป็น 3D) -->
+  <script type="importmap">
+  { "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  } }
+  </script>
   <script type="module" src="js/app.js"></script>
 </body>
 

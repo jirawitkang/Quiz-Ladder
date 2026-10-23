@@ -327,15 +327,78 @@ const inRoom = () => !!session.roomCode && !!session.role;
 const isHost = () => session.role === ROLE.HOST;
 const isPlayer = () => session.role === ROLE.PLAYER;
 
+// ช่วงทดลอง: ครูเปิดเว็บด้วย ?board=3d → ห้องที่สร้างใช้กระดานภูเขา 3 มิติ (จำไว้ในแท็บนี้แม้ refresh)
+const BOARD_STYLE = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get("board");
+    if (q === "3d" || q === "2d") sessionStorage.setItem("QL_BOARD_STYLE", q);
+    return sessionStorage.getItem("QL_BOARD_STYLE") === "3d" ? "3d" : "2d";
+  } catch {
+    return "2d";
+  }
+})();
+// กระดาน: 2 มิติเดิม หรือภูเขา 3 มิติ (ห้องที่ตั้ง gameSettings.boardStyle = "3d") — นักเรียนเห็นตามห้องที่ครูสร้าง
+// โหลด three.js แบบ lazy เฉพาะเมื่อห้องเป็น 3D; เครื่องที่เปิด WebGL ไม่ได้ใช้ 2 มิติแทนอัตโนมัติ
+let board3dModule = null; // null = ยังไม่โหลด, false = โหลดไม่ได้
+let board3dLoading = null;
+function loadBoard3d() {
+  board3dLoading ||= import("./board3d.js")
+    .then((m) => (board3dModule = m))
+    .catch((e) => {
+      console.warn("[board] 3D unavailable, using 2D", e);
+      board3dModule = false;
+    });
+  return board3dLoading;
+}
+function createSwitchableBoard(root, opts) {
+  let inner = createBoardView(root, opts);
+  let me = null;
+  return {
+    get is3d() {
+      return !!inner.is3d;
+    },
+    // สลับชนิดกระดาน (คืน true ถ้าสลับแล้ว)
+    setKind(kind) {
+      if ((kind === "3d") === !!inner.is3d) return false;
+      if (kind === "3d" && !board3dModule) return false;
+      inner.reset();
+      inner.destroy?.();
+      root.innerHTML = "";
+      root.classList.remove("board", "board3d", "has-bg");
+      inner = (kind === "3d" && board3dModule.createBoard3D(root, opts)) || createBoardView(root, opts);
+      inner.setMe(me);
+      return true;
+    },
+    update: (...a) => inner.update(...a),
+    setBackground: (url) => inner.setBackground(url),
+    setMe(pid) {
+      me = pid;
+      inner.setMe(pid);
+    },
+    isIdle: () => inner.isIdle(),
+    reset: () => inner.reset(),
+  };
+}
+// ห้องอยากได้กระดานแบบไหน → สลับเฉพาะกระดานของบทบาทนี้ (ครู/นักเรียน ไม่สร้าง 3D สองชุด)
+function syncBoardKind(room) {
+  const want = room?.gameSettings?.boardStyle === "3d" ? "3d" : "2d";
+  const view = activeBoardView();
+  if (want === "3d" && board3dModule === null) {
+    loadBoard3d().then(() => lastRoom && renderRoom(lastRoom));
+    return;
+  }
+  if (view.setKind(want)) boardBgId = undefined; // กลับมา 2 มิติ → ตั้งรูปพื้นหลังใหม่
+}
+
 // จอ Host = ลำโพงหลักของห้อง: เสียงปีน/ร่วงบันได/เข้าเส้นชัยของทุกคน (ไม่เล่นเสียงก้าวเดิน กันเสียงรก)
-const hostBoardView = createBoardView(dom.hostBoard, {
+const hostBoardView = createSwitchableBoard(dom.hostBoard, {
   hooks: {
     onSpecial: (_pid, kind) => throttled(kind, kind === "ladder" ? playLadder : playDrop),
     onFinish: (pid) => celebrateFinish(pid),
   },
 });
 // มือถือ: เสียงเฉพาะหมากของตัวเอง
-const playerBoardView = createBoardView(dom.playerBoard, {
+const playerBoardView = createSwitchableBoard(dom.playerBoard, {
   floatsOnlyForMe: true,
   hooks: {
     onStep: (pid) => pid === session.playerId && playHop(),
@@ -649,6 +712,7 @@ const PHASE_TEXT = {
 // ผลทอยของคนอื่นถูกซ่อนจนลูกเต๋า 3D บนมือถือคนทอยกลิ้งจบ (DICE_ROLL_MS) — คนดูจอ Host จะได้ลุ้นไปพร้อมกัน
 function renderRoom(rawRoom) {
   lastRoom = rawRoom;
+  syncBoardKind(rawRoom);
   syncBoardBackground(rawRoom);
   const masked = maskPendingRolls(rawRoom, serverNow(), DICE_ROLL_MS, isPlayer() ? session.playerId : null);
   const room = masked.room;
@@ -1558,6 +1622,7 @@ function readGameSettings(questionSetId) {
     maxWinners: Math.max(1, parseIntOr(dom.maxWinnersInput?.value, DEFAULT_SETTINGS.maxWinners)),
     rewardCorrect: Math.abs(parseIntOr(dom.rewardCorrectInput?.value, DEFAULT_SETTINGS.rewardCorrect)),
     penaltyWrong: -Math.abs(parseIntOr(dom.penaltyWrongInput?.value, DEFAULT_SETTINGS.penaltyWrong)),
+    boardStyle: BOARD_STYLE,
   };
 }
 
