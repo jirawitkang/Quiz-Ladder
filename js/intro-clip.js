@@ -94,13 +94,13 @@ const lerp = (a, b, f) => a + (b - a) * f;
 const easeOut = (x) => 1 - Math.pow(1 - x, 3);
 const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 
-function cellCenter(n) {
+function cellCenter2d(n) {
   const { col, row } = cellPosition(n);
   return { x: col * CELL + CELL / 2, y: row * CELL + CELL / 2 };
 }
 
-// ตำแหน่งตัวหมาก ณ เวลา t จากรายการ ops
-export function tokenPoint(ops, t) {
+// ตำแหน่งตัวหมาก ณ เวลา t จากรายการ ops — at(n) = จุดกลางช่อง n (กระดาน 2 มิติ หรือภูเขา 3 มิติ)
+export function tokenPoint(ops, t, cellCenter = cellCenter2d) {
   let op = ops[0];
   for (const o of ops) if (o.at <= t) op = o;
   if (op.kind === "set") return { ...cellCenter(op.to), lift: 0 };
@@ -284,7 +284,7 @@ function stageHtml() {
   <div class="iv-chip iv-win" data-in="s1b" data-out="s2">← ปีนถึง <b>ช่อง 30</b> ก่อน = ชนะ!</div>
 
   <div class="iv-board" id="ivBoard">
-    <div class="board"><div class="board-grid">${boardCellsHtml()}</div><svg viewBox="0 0 ${BOARD_COLS * 100} ${BOARD_ROWS * 100}" aria-hidden="true">${boardSvgHtml()}</svg><div class="iv-tokens"></div></div>
+    <div class="iv-boardbox"><div class="board"><div class="board-grid">${boardCellsHtml()}</div><svg viewBox="0 0 ${BOARD_COLS * 100} ${BOARD_ROWS * 100}" aria-hidden="true">${boardSvgHtml()}</svg></div><div class="iv-tokens"></div></div>
   </div>
 
   <!-- ฉาก 2: เข้าห้อง -->
@@ -429,20 +429,22 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
   stage.querySelector(".iv-confetti").innerHTML = confettiHtml();
   const tokenLayer = stage.querySelector(".iv-tokens");
   const tokenEls = TOKENS.map((tk) => {
-    const e = el("div", "iv-token", `<span>${tk.emoji}</span>${tk.name ? `<em>${tk.name}</em>` : ""}`);
+    const e = el("div", "iv-token", `<span class="glass" style="--c:${tk.color}">${tk.emoji}</span>${tk.name ? `<em>${tk.name}</em>` : ""}`);
     e.style.setProperty("--ring", tk.color);
     tokenLayer.appendChild(e);
     return e;
   });
   // ป้ายเหนือช่องในฉากบันได (ตอบถูกไม่ร่วง / ตอบผิดไม่ได้ปีน)
+  // ตำแหน่งช่องบนจอ: เริ่มด้วยกระดาน 2 มิติ แล้วสลับเป็นภูเขา 3 มิติเมื่อโหลดเสร็จ (เครื่องที่เปิด 3 มิติไม่ได้ใช้ 2 มิติต่อ)
+  let cellAt = cellCenter2d;
+  let board3d = null;
+  const marks = [];
   const mark = (cell, cls, text, cue) => {
-    const p = cellCenter(cell);
     const m = el("div", `iv-mark ${cls}`, text);
     m.dataset.in = cue;
     m.dataset.out = "s6";
-    m.style.left = `${p.x}px`;
-    m.style.top = `${p.y - 44}px`;
     tokenLayer.appendChild(m);
+    marks.push({ cell, m });
   };
   mark(22, "good", "✓ ตอบถูก เดินหน้า ไม่ร่วง", "safe+1.1");
   mark(11, "bad", "✗ ตอบผิด ถอยหลัง ไม่ได้ปีน", "stuck+0.85");
@@ -473,7 +475,25 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
   const sub = stage.querySelector(".iv-sub span");
   const progress = overlay.querySelector(".iv-progress i");
   const board = stage.querySelector(".iv-board");
-  const finishCell = stage.querySelector('.board-cell[data-n="30"]');
+  let finishCell = stage.querySelector('.board-cell[data-n="30"]');
+  import("./board3d.js")
+    .then(async (mod) => {
+      const holder = stage.querySelector(".iv-boardbox .board");
+      const host = el("div", "iv-b3");
+      // ความละเอียดตามขนาดที่เวทีถูกขยายจริงบนจอ ภาพภูเขาจะได้คมบนโปรเจกเตอร์
+      const b3 = mod.createBoard3D(host, { bare: true, pixelRatio: Math.min(4, (globalThis.devicePixelRatio || 1) * 2) });
+      if (!b3 || !holder) return;
+      holder.replaceWith(host);
+      b3.update({});
+      await b3.whenReady();
+      if (!overlay.isConnected) return b3.destroy();
+      board3d = b3;
+      finishCell = null;
+      stage.classList.add("iv-3d");
+      cellAt = (n) => b3.screenPoint(n);
+      render(now());
+    })
+    .catch((e) => console.warn("[intro] 3D board unavailable", e));
   const toggleBtn = overlay.querySelector('[data-act="toggle"]');
   const musicBtn = overlay.querySelector('[data-act="music"]');
   const endBox = overlay.querySelector(".iv-end");
@@ -523,9 +543,14 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
 
     const boardShown = (scene === 1 && t >= CUES.s1b) || scene === 3 || scene === 4 || scene === 5 || scene === 7;
     board.classList.toggle("show", boardShown);
-    finishCell.classList.toggle("occupied", scene === 7); // ธงเส้นชัยหลบให้หมากที่เข้าเส้นชัย (เหมือนในเกม)
+    finishCell?.classList.toggle("occupied", scene === 7); // ธงเส้นชัยหลบให้หมากที่เข้าเส้นชัย (เหมือนในเกม)
+    for (const { cell, m } of marks) {
+      const p = cellAt(cell);
+      m.style.left = `${p.x}px`;
+      m.style.top = `${p.y - (board3d ? 36 : 44)}px`;
+    }
     TOKENS.forEach((tk, i) => {
-      const p = tokenPoint(tk.ops, t);
+      const p = tokenPoint(tk.ops, t, cellAt);
       const vis = scene >= 3 && scene <= 5 ? true : scene === 7 && tk.id === "hero";
       const e = tokenEls[i];
       e.style.transform = `translate(${p.x}px, ${p.y - p.lift}px)`;
@@ -642,6 +667,7 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
     snd?.ctx.close?.();
     window.removeEventListener("resize", fit);
     document.removeEventListener("keydown", onKey);
+    board3d?.destroy();
     overlay.remove();
     document.body.classList.remove("iv-open");
     onClose?.();

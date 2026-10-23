@@ -51,7 +51,8 @@ const STAGE_HTML = `<div class="b3-sky"><div class="b3-stars a"></div><div class
 <div class="b3-glows"></div><div class="b3-clouds"></div><div class="b3-vignette"></div><div class="b3-marks"><div class="b3-meglow" hidden></div></div>`;
 
 // คืน null ถ้าเครื่องเปิด WebGL ไม่ได้ → ผู้เรียกใช้กระดาน 2 มิติแทน
-export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hooks = {} } = {}) {
+// bare: ไม่มีท้องฟ้า/เมฆ/ขอบมืดของตัวเอง (วางบนฉากอื่น เช่นคลิปวิธีเล่น), pixelRatio: ความละเอียดภาพ (คลิปย่อ/ขยายทั้งเวที)
+export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hooks = {}, bare = false, pixelRatio = null } = {}) {
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
@@ -64,9 +65,10 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.25;
   renderer.setClearColor(0x000000, 0); // โปร่ง → เห็นท้องฟ้า CSS ด้านหลัง
-  renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, 2)); // ภาพสวยเป็นค่าเริ่มต้น (ผู้ใช้เลือกทั้งคอมและมือถือ)
+  renderer.setPixelRatio(pixelRatio || Math.min(globalThis.devicePixelRatio || 1, 2)); // ภาพสวยเป็นค่าเริ่มต้น (ผู้ใช้เลือกทั้งคอมและมือถือ)
 
   root.classList.add("board3d");
+  root.classList.toggle("b3-bare", bare);
   root.innerHTML = STAGE_HTML;
   root.querySelector(".b3-sky").after(renderer.domElement);
   const glowsEl = root.querySelector(".b3-glows");
@@ -1085,6 +1087,12 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
       layout();
     },
     setBackground() {}, // รูปพื้นหลังของชุดคำถามใช้เฉพาะกระดาน 2 มิติ
+    // กลางผิวช่อง n บนจอ (พิกเซลในกรอบ root) — คลิปวิธีเล่นใช้วางตัวหมากของตัวเอง
+    screenPoint(n) {
+      const [x, y] = toPx(warp(cellWorld(n)));
+      return { x, y };
+    },
+    whenReady: () => ready,
     setMe(pid) {
       me = pid;
       layout(false);
@@ -1111,7 +1119,7 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
       renderer.dispose();
       renderer.forceContextLoss?.();
       root.innerHTML = "";
-      root.classList.remove("board3d");
+      root.classList.remove("board3d", "b3-bare");
     },
   };
 }

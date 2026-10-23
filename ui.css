@@ -1711,6 +1711,8 @@
   /* ขนาดกระดานต่อฉาก (scale รอบจุดกลาง): ฉาก 1 ใต้โลโก้, ฉาก 3–5 และ 7 ซ้ายเต็มความสูง (ขวาเป็นแผง) */
   .iv-stage[data-scene="1"] .iv-board{ transform:translate(229px,159px) scale(1.11); }
 
+  .iv-boardbox{ position:relative; width:504px; aspect-ratio:6 / 5; }
+  .iv-b3{ width:504px; }
   .iv-board .board{ width:504px; border-radius:14px; box-shadow:0 0 0 8px #fbf8ef, 0 16px 0 8px #cfc7ea, 0 30px 40px 8px rgba(0,0,0,.45); }
   .iv-board .board-grid{ border:none; border-radius:14px; }
   /* ขนาดตัวอักษรในกระดานเกมผูกกับ vw → ในเวทีที่ย่อขยายทั้งก้อน ใช้ค่าคงที่แทน */
@@ -1722,10 +1724,18 @@
   @keyframes iv-pulse{ to{ transform:scale(1.35); } }
   .iv-tokens{ position:absolute; inset:0; }
   .iv-token{
-    position:absolute; left:-26px; top:-26px; width:52px; height:52px; border-radius:50%; background:#fff;
-    box-shadow:0 0 0 4px var(--ring), 0 6px 10px rgba(0,0,0,.3); display:grid; place-items:center;
+    position:absolute; left:-26px; top:-40px; width:52px; height:52px; display:grid; place-items:center;
     opacity:0; transition:opacity .3s;
   }
+  /* หมากลูกแก้วบนฐานสี (แบบเดียวกับกระดาน 3 มิติ) */
+  .iv-token::before{ content:""; position:absolute; left:50%; bottom:-12px; width:44px; height:14px; transform:translateX(-50%); border-radius:50%;
+    background:var(--ring); box-shadow:0 0 0 2px rgba(255,255,255,.85), 0 4px 6px rgba(0,0,0,.3); }
+  .iv-token .glass{ --s:52px; z-index:1; }
+  /* บนภูเขา 3 มิติช่องเล็กกว่ากระดาน 2 มิติ → หมากย่อตามให้พอดีแผ่นหิน */
+  .iv-stage.iv-3d .iv-token{ left:-20px; top:-34px; width:40px; height:40px; }
+  .iv-stage.iv-3d .iv-token .glass{ --s:40px; }
+  .iv-stage.iv-3d .iv-token::before{ width:34px; height:11px; bottom:-9px; }
+  .iv-stage.iv-3d .iv-token em{ top:46px; }
   .iv-token.show{ opacity:1; }
   .iv-token span{ font-size:32px; line-height:1; }
   .iv-token em{
@@ -2012,3 +2022,6 @@
   .board .board-token.glass.glass.glass{ position:absolute; width:5.6%; height:auto; aspect-ratio:1; font-size:clamp(11px, 1.8vw, 24px); } /* ต้องคงตำแหน่งแบบ absolute ของหมากบนกระดาน */
   .board .board-token.glass.glass.glass.me{ box-shadow: inset 0 0 0 2px rgba(255,255,255,.78), 0 0 0 3px #FFA240, 0 0 14px 4px rgba(255,214,110,.7); }
   .board .board-token.glass.glass.glass.offline{ filter:grayscale(1); opacity:.55; }
+  /* กระดาน 3 มิติแบบไม่มีฉากของตัวเอง (คลิปวิธีเล่น): ภูเขาลอยบนพื้นหลังของคลิป */
+  .board3d.b3-bare{ background:transparent; overflow:visible; border-radius:0; }
+  .board3d.b3-bare .b3-sky, .board3d.b3-bare .b3-clouds, .board3d.b3-bare .b3-vignette{ display:none; }
