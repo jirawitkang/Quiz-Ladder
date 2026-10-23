@@ -127,6 +127,8 @@ node "../.claude/serve.mjs" [port]           # static server :8765 (python http.
 - renderRoom ต้องแสดง #roomView/lobby ก่อนเรียก renderHostView/renderPlayerView — ลูกเต๋า 3D วัดตำแหน่ง #diceDock ตอน render
   ถ้าหน้ายังซ่อนจะได้ขนาด 0 แล้วลอยไปมุมซ้ายบน; syncDiceOverlay ซ่อนกล่องลูกเต๋า "หลัง" อัปเดตสถานะลูกเต๋า
 - Duplicate Tab คัดลอก sessionStorage → แท็บใหม่จะเข้าห้องเป็นผู้เล่นคนเดิม
+- Gemini TTS (make-intro-voice): ทุกประโยคมีเสียงคลิกต้นประโยค + เสียงซ่าดัง ~0.15 วิ ท้ายประโยค → cleanEdges() ตัดให้อัตโนมัติ
+  (ผู้ใช้ได้ยินเหมือนสัญญาณวิทยุตัด) เสียงใหม่ทุกครั้งต้องวัดขอบซ้ำ; คำสั่งสไตล์แบบ "Say ...:" โมเดลอ่านออกเสียงด้วย ใช้ DIRECTOR'S NOTES/TRANSCRIPT
 - GitHub Pages cache ~10 นาที
 - Firebase rules เปิด ใครก็ลบข้อมูลได้ → สำรองอัตโนมัติไว้ที่ branch `backups` (ไม่ใช่ main เพราะ push main = deploy)
   GitHub ปิด scheduled workflow เองถ้า repo ไม่มีความเคลื่อนไหว 60 วัน → กด Enable ในแท็บ Actions
