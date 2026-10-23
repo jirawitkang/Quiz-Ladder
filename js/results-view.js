@@ -5,6 +5,8 @@
 import { escapeHtml } from "./utils.js";
 import { EASY_PCT, HARD_PCT } from "./results.js";
 
+const SAFE_TOKEN = /^#[0-9a-f]{3,8}$/i; // สีลูกแก้ว
+
 const MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 const END_REASON = { winners: "จบเพราะเข้าเส้นชัยครบ", rounds: "จบเพราะเล่นครบทุกรอบ" };
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -121,7 +123,7 @@ function overviewTab({ overview: o, questions, players, highlights }) {
     .map((i) => {
       const p = top[i];
       if (!p) return `<div></div>`;
-      return `<div class="rs-pod p${i + 1}"><div class="e">${escapeHtml(p.emoji || "❔")}</div><div class="n">${escapeHtml(p.name)}</div><div class="bar">${i + 1}</div></div>`;
+      return `<div class="rs-pod p${i + 1}"><div class="e"><span class="glass" style="--c:${SAFE_TOKEN.test(p.color || "") ? p.color : "#7b5cd6"}">${escapeHtml(p.emoji || "❔")}</span></div><div class="n">${escapeHtml(p.name)}</div><div class="bar">${i + 1}</div></div>`;
     })
     .join("");
   return `

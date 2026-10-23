@@ -142,7 +142,7 @@ export function renderPlayerList(el, room, players, { sort = "rank" } = {}) {
       const tags = `${done ? ` <span class="tag fin">เข้าเส้นชัย</span>` : ""}${offline ? ` <span class="tag off">หลุด</span>` : ""}`;
       return `<tr class="${done ? "fin" : ""}${offline ? " off" : ""}">
         <td class="num">${done && rank <= MEDALS.length ? MEDALS[rank - 1] : rank}</td>
-        <td><span class="who"><span class="av" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span>${escapeHtml(name)}${tags}</span></td>
+        <td><span class="who"><span class="av${p.emoji ? " glass" : ""}" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span>${escapeHtml(name)}${tags}</span></td>
         <td><span class="cellbar"><b>${pos}</b><span class="bar"><i style="width:${(pos / BOARD_SIZE) * 100}%"></i></span></span></td>
         <td><span class="now">${now}</span></td>
         <td><span class="rounds">${chips || "—"}</span></td>
@@ -251,7 +251,7 @@ export function renderPodium(el, room, players, myPlayerId = null) {
     const color = SAFE_COLOR.test(s.player?.color || "") ? s.player.color : "#9e9e9e";
     const where = s.finished ? "เข้าเส้นชัย" : `ช่อง ${s.finalPosition}`;
     return `<div class="podium-col rank-${rank}${s.id === myPlayerId ? " me" : ""}">
-      <div class="podium-av" style="--c:${color}">${escapeHtml(s.player?.emoji || "❔")}</div>
+      <div class="podium-av${s.player?.emoji ? " glass" : ""}" style="--c:${color}">${escapeHtml(s.player?.emoji || "❔")}</div>
       <div class="podium-name">${escapeHtml(s.name)}</div>
       <div class="podium-where">${where}</div>
       <div class="podium-block"><span class="podium-medal">${medals[rank - 1]}</span><b>${rank}</b></div>
@@ -334,7 +334,7 @@ export function renderLobbyPlayers(el, players, myPlayerId = null) {
       const cls = ["lb-tok", !p.emoji && "waiting", pid === myPlayerId && "me"].filter(Boolean).join(" ");
       const color = SAFE_COLOR.test(p.color || "") ? p.color : "#9e9e9e";
       const title = `${p.name}${p.emoji ? "" : " · ยังไม่เลือกตัวหมาก"}`;
-      return `<div class="${cls}" data-pid="${escapeHtml(pid)}" title="${escapeHtml(title)}"><span class="av" style="--c:${color}">${escapeHtml(
+      return `<div class="${cls}" data-pid="${escapeHtml(pid)}" title="${escapeHtml(title)}"><span class="av${p.emoji ? " glass" : ""}" style="--c:${color}">${escapeHtml(
         p.emoji || "❔"
       )}</span><span class="nm">${escapeHtml(p.name)}</span></div>`;
     })
@@ -352,6 +352,8 @@ export function renderLobbyPlayers(el, players, myPlayerId = null) {
 // taken: Map emoji -> pid
 export function renderEmojiPicker(el, { choices, taken, players, myPlayerId, themeSize }) {
   if (!el) return;
+  // ลูกแก้วที่มีเจ้าของแล้วอมสีของเจ้าของ ตัวที่ว่างใช้ม่วงกลาง ๆ
+  const ownerColor = (pid) => (pid && SAFE_COLOR.test(players[pid]?.color || "") ? players[pid].color : "#7b5cd6");
   const top = el.scrollTop;
   el.innerHTML = choices
     .map((emoji, i) => {
@@ -363,7 +365,7 @@ export function renderEmojiPicker(el, { choices, taken, players, myPlayerId, the
       const aria = `${emoji}${takenByOther ? ` เลือกแล้วโดย ${label}` : mine ? " ตัวของคุณ" : " ว่าง"}`;
       return `${reserve}<button type="button" class="pick-tile${mine ? " mine" : ""}" data-emoji="${escapeHtml(emoji)}"${
         takenByOther ? " disabled" : ""
-      } aria-label="${escapeHtml(aria)}"><span>${escapeHtml(emoji)}</span><small>${escapeHtml(label)}</small></button>`;
+      } aria-label="${escapeHtml(aria)}"><span class="glass" style="--c:${ownerColor(owner)}">${escapeHtml(emoji)}</span><small>${escapeHtml(label)}</small></button>`;
     })
     .join("");
   el.scrollTop = top;
@@ -445,7 +447,7 @@ function leaderboardRow(p, i) {
   const meta = finished ? "เข้าเส้นชัย" : `ช่อง <b>${p.pos}</b>${roll || ans ? ` · ${roll} ${ans}` : ""}`;
   return `<li class="${p.connected === false && !finished ? "offline" : ""}">
     <span class="lb-rank">${rank}</span>
-    <span class="lb-av" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span>
+    <span class="lb-av${p.emoji ? " glass" : ""}" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span>
     <span class="lb-name">${escapeHtml(p.name)}</span>
     <span class="lb-meta">${meta}</span>
     <span class="lb-st">${p.statusIcon}</span>
@@ -480,12 +482,20 @@ export function renderLeaderboard(el, room, players, { limit = Infinity } = {}) 
 
 /* ---------- Host: event feed ---------- */
 
+// ลูกแก้วตัวเล็กของผู้เล่นสำหรับแทรกในข้อความ
+function glassFor(p) {
+  if (!p?.emoji) return "";
+  const color = SAFE_COLOR.test(p.color || "") ? p.color : "#7b5cd6";
+  return `<span class="glass" style="--c:${color}">${escapeHtml(p.emoji)}</span>`;
+}
+
 // เหตุการณ์เด่นจาก history (ปีน/ร่วงบันได/เข้าเส้นชัย/หลุด) ใหม่สุดอยู่บน
 export function buildFeedItems(room, limit = 12) {
   const history = room.history || {};
   const players = room.players || {};
   const items = [];
-  const who = (pid, rec) => `${players[pid]?.emoji ? `${players[pid].emoji} ` : ""}${rec.playerName || players[pid]?.name || pid}`;
+  // \u0001pid\u0002 = ที่วางลูกแก้วของผู้เล่น (renderFeed แทนเป็น HTML หลัง escape ข้อความแล้ว)
+  const who = (pid, rec) => `${players[pid]?.emoji ? `\u0001${pid}\u0002` : ""}${rec.playerName || players[pid]?.name || pid}`;
 
   for (const rn of sortedRoundNumbers(history)) {
     const rd = history[roundKey(rn)] || {};
@@ -516,6 +526,8 @@ export function renderFeed(el, room) {
   if (!el) return;
   const items = buildFeedItems(room);
   el.innerHTML = items.length
-    ? items.map((it) => `<li class="${it.kind}">${escapeHtml(it.text)}</li>`).join("")
+    ? items
+        .map((it) => `<li class="${it.kind}">${escapeHtml(it.text).replace(/\u0001([^\u0002]*)\u0002/g, (_, pid) => glassFor(room.players?.[pid]))}</li>`)
+        .join("")
     : `<li class="feed-empty">การปีน/ร่วงบันได และการเข้าเส้นชัยจะแสดงที่นี่</li>`;
 }

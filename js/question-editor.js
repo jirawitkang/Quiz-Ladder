@@ -56,7 +56,7 @@ export function createSetEditor(els, { loadImage } = {}) {
     els.count.textContent = `${n}/${SET_EMOJI_COUNT}`;
     els.count.className = `es-count${n === SET_EMOJI_COUNT ? " ok" : n > SET_EMOJI_COUNT ? " over" : ""}`;
     els.tray.innerHTML =
-      draft.emojis.map((e, i) => `<button type="button" data-emoji-out="${i}" aria-label="เอา ${escapeHtml(e)} ออก">${escapeHtml(e)}</button>`).join("") +
+      draft.emojis.map((e, i) => `<button type="button" data-emoji-out="${i}" aria-label="เอา ${escapeHtml(e)} ออก"><span class="glass">${escapeHtml(e)}</span></button>`).join("") +
       `<span></span>`.repeat(Math.max(0, SET_EMOJI_COUNT - n));
     els.themes.innerHTML = Object.entries(EMOJI_THEMES)
       .map(([id, t]) => `<button type="button" class="es-chip" data-emoji-theme="${id}">${escapeHtml(t.emojis[0])} ${escapeHtml(t.name)}</button>`)
@@ -69,7 +69,7 @@ export function createSetEditor(els, { loadImage } = {}) {
       .map((e) => {
         const on = chosen.has(e);
         const full = !on && n >= SET_EMOJI_COUNT;
-        return `<button type="button" data-emoji-pick="${escapeHtml(e)}" aria-pressed="${on}"${full ? " disabled" : ""}>${escapeHtml(e)}</button>`;
+        return `<button type="button" data-emoji-pick="${escapeHtml(e)}" aria-pressed="${on}"${full ? " disabled" : ""}><span class="glass">${escapeHtml(e)}</span></button>`;
       })
       .join("");
   }

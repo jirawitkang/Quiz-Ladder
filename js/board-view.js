@@ -127,7 +127,7 @@ export function createBoardView(root, { meId = null, floatsOnlyForMe = false, ho
         let el = tokens.get(pid);
         if (!el) {
           el = document.createElement("div");
-          el.className = "board-token";
+          el.className = "board-token glass"; // ลูกแก้วแบบเดียวกับกระดาน 3 มิติ
           layer.appendChild(el);
           tokens.set(pid, el);
         }

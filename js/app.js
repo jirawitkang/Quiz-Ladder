@@ -981,7 +981,7 @@ function renderPlayerView(room) {
   setHidden(dom.playerBoard, inLobby);
 
   // ตัวหมาก + ตำแหน่งของตัวเอง อยู่ในแถบเดียวกับ "รอบที่"
-  const av = `<span class="me-av${me.emoji ? "" : " waiting"}" style="--c:${escapeHtml(color)}">${escapeHtml(me.emoji || "❔")}</span>`;
+  const av = `<span class="me-av${me.emoji ? " glass" : " waiting"}" style="--c:${escapeHtml(color)}">${escapeHtml(me.emoji || "❔")}</span>`;
   // ระหว่างลูกเต๋ากลิ้ง แสดงช่องเดิมไว้ก่อน ไม่ให้รู้ผลล่วงหน้า
   const shownPos = isRollRevealPending(room, me) ? me.startOfRoundPos ?? me.position : me.position;
   setHidden(dom.meChip, false);
@@ -1046,6 +1046,7 @@ function renderPlayerLobby(room, me) {
   dom.plRoom.textContent = `ห้อง ${session.roomCode || "-"}`;
   dom.plAv.textContent = me.emoji || "❔";
   dom.plAv.classList.toggle("none", !me.emoji);
+  dom.plAv.classList.toggle("glass", !!me.emoji);
   dom.plAv.style.setProperty("--c", SAFE_COLOR.test(me.color || "") ? me.color : "#FFA240");
   dom.plTitle.textContent = me.emoji ? "ตัวหมากของคุณ" : "เลือกตัวหมากของคุณ";
   dom.plSub.textContent = me.emoji ? "แตะตัวอื่นเพื่อเปลี่ยนได้" : "ตัวหมากนี้จะเดินบนกระดานแทนคุณ";
