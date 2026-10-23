@@ -28,6 +28,10 @@ export const LINES = [
   "ถึงเส้นชัยแล้วยังตอบต่อได้นะคะ พร้อมแล้ว ไปปีนบันไดกันเลยค่ะ!",
 ];
 
+// ประโยคที่ต้องแยกเป็น 2 ช่วงตรงช่วงหยุดหายใจกลางประโยค เพื่อค้างภาพไว้ก่อนพูดต่อ: เลขประโยค → วินาทีที่เว้นเพิ่ม
+// (ประโยค 7: ค้างการ์ดข้อฝึกไว้ก่อน "พร้อมแล้ว ไปปีนบันได…") — ซับไตเติลใน intro-clip.js แยกเป็น 2 บรรทัดตามนี้
+const HOLDS = { 7: 1.6 };
+
 const RATE = 24000; // Gemini TTS คืน PCM 16-bit mono 24 kHz
 const LEAD_S = 0.6; // เงียบก่อนประโยคแรก
 const GAP_S = 0.45; // เว้นระหว่างประโยค
@@ -138,6 +142,20 @@ function wav(pcm) {
   return Buffer.concat([h, pcm]);
 }
 
+// แยกเสียงตรงช่วงเงียบที่ยาวที่สุดระหว่าง 30–75% ของประโยค
+function splitAtPause(pcm) {
+  const wins = Math.floor(pcm.length / 2 / WIN);
+  let best = { len: 0, at: 0 };
+  let run = 0;
+  for (let w = Math.floor(wins * 0.3); w < Math.floor(wins * 0.75); w++) {
+    run = rmsAt(pcm, w) < 300 ? run + 1 : 0;
+    if (run > best.len) best = { len: run, at: w - Math.floor(run / 2) };
+  }
+  if (best.len < 5) throw new Error("splitAtPause: no pause found");
+  const cut = best.at * WIN * 2;
+  return [pcm.subarray(0, cut), pcm.subarray(cut)];
+}
+
 const silence = (s) => Buffer.alloc(Math.round(RATE * s) * 2);
 const seconds = (pcm) => pcm.length / 2 / RATE;
 
@@ -188,13 +206,21 @@ if (opt("--sample")) {
     parts.push(pcm);
     console.error(`line ${i + 1}: ${seconds(pcm).toFixed(2)} s`);
   }
+  // ช่วงเสียงตามลำดับ (ประโยคใน HOLDS ถูกแยกเป็น 2 ช่วง) → VOICE_TIMING.lines มีทีละช่วง
+  const segments = [];
+  parts.forEach((pcm, i) => {
+    const hold = HOLDS[i + 1];
+    if (!hold) return segments.push({ pcm, gap: GAP_S });
+    const [a, b] = splitAtPause(pcm);
+    segments.push({ pcm: a, gap: hold }, { pcm: b, gap: GAP_S });
+  });
   const chunks = [silence(LEAD_S)];
   const starts = [];
   let t = LEAD_S;
-  for (const pcm of parts) {
+  for (const { pcm, gap } of segments) {
     starts.push({ at: +t.toFixed(2), dur: +seconds(pcm).toFixed(2) });
-    chunks.push(pcm, silence(GAP_S));
-    t += seconds(pcm) + GAP_S;
+    chunks.push(pcm, silence(gap));
+    t += seconds(pcm) + gap;
   }
   console.log(JSON.stringify({ voice, total: +t.toFixed(2), lines: starts }));
   if (args.includes("--write")) {

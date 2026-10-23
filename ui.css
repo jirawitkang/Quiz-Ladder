@@ -1885,8 +1885,9 @@
   .iv-sub span{ max-width:1100px; padding:10px 24px; border-radius:14px; background:rgba(10,8,28,.78); font-size:24px; line-height:1.4; text-align:center; text-wrap:balance; }
 
   /* ปุ่มควบคุม (นอกเวที ไม่ย่อตามจอ) */
-  .iv-controls{ position:absolute; top:14px; right:14px; display:flex; gap:8px; z-index:10; }
-  .iv-btn{ height:44px; min-width:44px; padding:0 14px; border:0; border-radius:12px; font:600 17px var(--iv-body); color:#fff; background:rgba(255,255,255,.16); cursor:pointer; }
+  .iv-controls{ position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:10; opacity:.7; transition:opacity .2s; }
+  .iv-controls:hover, .iv-controls:focus-within{ opacity:1; }
+  .iv-btn{ height:30px; min-width:30px; padding:0 10px; border:0; border-radius:9px; font:600 13px var(--iv-body); color:#fff; background:rgba(255,255,255,.16); cursor:pointer; }
   .iv-btn:hover{ background:rgba(255,255,255,.28); }
   .iv-btn.off{ opacity:.45; text-decoration:line-through; }
   .iv-btn:focus-visible, .iv-start button:focus-visible, .iv-end button:focus-visible{ outline:3px solid var(--iv-orange); outline-offset:2px; }
