@@ -13,9 +13,9 @@ import { join } from "node:path";
 
 const ROOT = join(import.meta.dirname, "..");
 const MODEL = "gemini-3.8-flash-tts";
-// รูปแบบ "Say ...: ข้อความ" ตามตัวอย่างของ Gemini — ถ้าเขียนคำสั่งยาวเป็นภาษาไทย โมเดลมักอ่านคำสั่งออกเสียงด้วย
-const STYLE =
-  "Say in a bright, cheerful, smiling voice, like a friendly young Thai female teacher explaining a fun game to university students, at a lively pace";
+// แยกคำสั่งสไตล์ (DIRECTOR'S NOTES) กับบทพูด (TRANSCRIPT) ชัด ๆ — แบบ "Say ...: ข้อความ" โมเดลมักอ่านคำสั่งออกเสียงด้วย
+const STYLE = "Style: bright, cheerful, smiling young Thai female teacher. Lively pace.";
+const prompt = (text) => `### DIRECTOR'S NOTES\n${STYLE}\n\n### TRANSCRIPT\n${text}`;
 
 // ต้องตรงกับ LINES ใน js/intro-clip.js (ที่นี่สะกดให้ออกเสียงถูก เช่น ตัวเลขเป็นคำ)
 export const LINES = [
@@ -47,7 +47,7 @@ async function speak(key, text, voice) {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `${STYLE}: ${text}` }] }],
+          contents: [{ parts: [{ text: prompt(text) }] }],
           generationConfig: {
             responseModalities: ["AUDIO"],
             speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
@@ -93,6 +93,42 @@ function trimSilence(pcm) {
   return pcm.subarray(Math.max(0, a - pad) * 2, Math.min(n, b + pad) * 2);
 }
 
+// Gemini TTS แถมเสียงขยะที่ขอบประโยค: คลิกสั้น ๆ ก่อนช่วงเงียบตอนต้น และเสียงซ่าดัง ~0.15 วิ หลังช่วงเงียบตอนท้าย
+// (ตัดจบทันทีไม่จางลง) → ตัดทิ้ง แล้วจางเข้า/ออกสั้น ๆ กันเสียงคลิก
+const WIN = RATE / 50; // 20 ms
+function rmsAt(pcm, w) {
+  let sum = 0;
+  for (let i = w * WIN; i < (w + 1) * WIN; i++) sum += pcm.readInt16LE(i * 2) ** 2;
+  return Math.sqrt(sum / WIN);
+}
+export function cleanEdges(pcm) {
+  const wins = Math.floor(pcm.length / 2 / WIN);
+  const quiet = (w) => rmsAt(pcm, w) < 200;
+  let start = 0;
+  let end = wins;
+  // ต้นประโยค: เสียงดังไม่เกิน 3 ช่องแรกแล้วตามด้วยความเงียบ = คลิก
+  for (let w = 1; w <= 3 && w < wins; w++) {
+    if (quiet(w) && !quiet(w - 1)) { start = w; break; }
+  }
+  // ท้ายประโยค: ช่องสุดท้ายยังดัง (ไม่จางลง) และมีช่วงเงียบ ≥0.1 วิ คั่นอยู่ภายใน 0.5 วิสุดท้าย = เสียงซ่า
+  if (wins > 30 && rmsAt(pcm, wins - 1) > 3000) {
+    for (let w = wins - 2; w > wins - 25; w--) {
+      let run = 0;
+      while (w - run >= 0 && quiet(w - run)) run++;
+      if (run >= 5) { end = w - run + 1 + 5; break; }
+    }
+  }
+  const out = Buffer.from(pcm.subarray(start * WIN * 2, end * WIN * 2));
+  const n = out.length / 2;
+  const fade = Math.round(RATE * 0.015);
+  for (let i = 0; i < fade && i < n; i++) {
+    const g = i / fade;
+    out.writeInt16LE(Math.round(out.readInt16LE(i * 2) * g), i * 2);
+    out.writeInt16LE(Math.round(out.readInt16LE((n - 1 - i) * 2) * g), (n - 1 - i) * 2);
+  }
+  return out;
+}
+
 function wav(pcm) {
   const h = Buffer.alloc(44);
   h.write("RIFF", 0); h.writeUInt32LE(36 + pcm.length, 4); h.write("WAVE", 8);
@@ -107,6 +143,24 @@ const seconds = (pcm) => pcm.length / 2 / RATE;
 
 const args = process.argv.slice(2);
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
+if (opt("--preview")) {
+  // ฟังประโยคที่สร้างเสร็จแล้ว (ตัดขอบแล้ว) โดยไม่เรียก API: --preview <voice> <โฟลเดอร์ปลายทาง>
+  const voice = opt("--preview");
+  const dir = args[args.indexOf("--preview") + 2];
+  await mkdir(dir, { recursive: true });
+  const chunks = [];
+  for (let i = 1; i <= LINES.length; i++) {
+    const raw = await readFile(join(ROOT, "tmp", "voice-lines", voice, `${i}.pcm`)).catch(() => null);
+    if (!raw) continue;
+    const pcm = cleanEdges(raw);
+    await writeFile(join(dir, `${i}.wav`), wav(pcm));
+    chunks.push(pcm, silence(GAP_S));
+    console.log(`line ${i}: ${seconds(raw).toFixed(2)} → ${seconds(pcm).toFixed(2)} s`);
+  }
+  await writeFile(join(dir, "all.wav"), wav(Buffer.concat(chunks)));
+  process.exit(0);
+}
+
 const key = await apiKey();
 
 if (opt("--sample")) {
@@ -130,6 +184,7 @@ if (opt("--sample")) {
       pcm = await speak(key, line, voice);
       await writeFile(file, pcm);
     }
+    pcm = cleanEdges(pcm);
     parts.push(pcm);
     console.error(`line ${i + 1}: ${seconds(pcm).toFixed(2)} s`);
   }
