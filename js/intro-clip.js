@@ -13,7 +13,7 @@ const CELL = 84;
 
 // เวลาเริ่ม/ความยาว (วิ) ของแต่ละประโยคในไฟล์เสียง
 // VOICE-TIMING-START (tools/make-intro-voice.mjs แก้ส่วนนี้ให้อัตโนมัติ)
-const VOICE_TIMING = {"voice":"Kanya","total":58.24,"lines":[{"at":0.8,"dur":8.56},{"at":9.96,"dur":7.17},{"at":17.73,"dur":7.75},{"at":26.07,"dur":6.29},{"at":32.97,"dur":9.97},{"at":43.54,"dur":8.4},{"at":52.53,"dur":5.11}]};
+const VOICE_TIMING = {"voice":"Leda","total":51.99,"lines":[{"at":0.6,"dur":6.9},{"at":7.95,"dur":5.7},{"at":14.1,"dur":6.34},{"at":20.89,"dur":6.04},{"at":27.38,"dur":10.48},{"at":38.31,"dur":7.64},{"at":46.4,"dur":5.14}]};
 // VOICE-TIMING-END
 const DURATION = VOICE_TIMING.total + 0.1;
 
