@@ -829,8 +829,9 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
     const hidden = pids.length - shown.length;
     return { shown, hidden, spots: hidden ? CROWD : SLOTS[Math.max(shown.length, 1)] };
   }
+  let posed = false; // คลิปวิธีเล่นคุมตำแหน่งหมากเองผ่าน pose()
   function layout(animate = true) {
-    if (!built || destroyed) return;
+    if (!built || destroyed || posed) return;
     for (const [pid, pw] of pawns) {
       if (!players[pid]) { board.remove(pw.obj); overlay.remove(pw.head); pawns.delete(pid); }
     }
@@ -1093,6 +1094,20 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
       return { x, y };
     },
     whenReady: () => ready,
+    // วางหมากตามเวลาแบบไม่มีแอนิเมชันของตัวเอง (คลิปเลื่อนไปมาได้): อยู่ระหว่างช่อง a→b สัดส่วน f, lift = กระโดดขึ้น (หน่วยโลก)
+    pose(list) {
+      if (!built || destroyed) return;
+      posed = true;
+      players = Object.fromEntries(list.map((p) => [p.id, { emoji: p.emoji, color: p.color }]));
+      for (const p of list) {
+        const pw = pawnFor(p.id);
+        pw.obj.position.lerpVectors(spotPoint(p.a, [0, 0]), spotPoint(p.b, [0, 0]), p.f);
+        pw.obj.position.y += p.lift || 0;
+        pw.obj.visible = !!p.visible;
+        pw.head.visible = !!p.visible;
+      }
+      requestRender();
+    },
     setMe(pid) {
       me = pid;
       layout(false);

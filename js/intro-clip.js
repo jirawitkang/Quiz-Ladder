@@ -99,26 +99,28 @@ function cellCenter2d(n) {
   return { x: col * CELL + CELL / 2, y: row * CELL + CELL / 2 };
 }
 
-// ตำแหน่งตัวหมาก ณ เวลา t จากรายการ ops — at(n) = จุดกลางช่อง n (กระดาน 2 มิติ หรือภูเขา 3 มิติ)
-export function tokenPoint(ops, t, cellCenter = cellCenter2d) {
+// หมากอยู่ระหว่างช่อง a→b สัดส่วน f ณ เวลา t (hop 0–1 = ช่วงกระโดดตอนเดินทีละช่อง)
+export function tokenPose(ops, t) {
   let op = ops[0];
   for (const o of ops) if (o.at <= t) op = o;
-  if (op.kind === "set") return { ...cellCenter(op.to), lift: 0 };
+  if (op.kind === "set") return { a: op.to, b: op.to, f: 0, hop: 0 };
   if (op.kind === "walk") {
     const dir = Math.sign(op.to - op.from);
     const steps = Math.abs(op.to - op.from);
     const k = (t - op.at) / STEP;
-    if (k >= steps) return { ...cellCenter(op.to), lift: 0 };
+    if (k >= steps) return { a: op.to, b: op.to, f: 0, hop: 0 };
     const i = Math.floor(k);
     const f = k - i;
-    const a = cellCenter(op.from + dir * i);
-    const b = cellCenter(op.from + dir * (i + 1));
-    return { x: lerp(a.x, b.x, easeInOut(f)), y: lerp(a.y, b.y, easeInOut(f)), lift: Math.sin(Math.PI * f) * 20 };
+    return { a: op.from + dir * i, b: op.from + dir * (i + 1), f: easeInOut(f), hop: Math.sin(Math.PI * f) };
   }
-  const f = easeInOut(clamp01((t - op.at) / op.dur));
-  const a = cellCenter(op.from);
-  const b = cellCenter(op.to);
-  return { x: lerp(a.x, b.x, f), y: lerp(a.y, b.y, f), lift: 0 };
+  return { a: op.from, b: op.to, f: easeInOut(clamp01((t - op.at) / op.dur)), hop: 0 };
+}
+
+// ตำแหน่งตัวหมากบนจอ ณ เวลา t — cellCenter(n) = จุดกลางช่อง n (กระดาน 2 มิติ หรือภูเขา 3 มิติ)
+export function tokenPoint(ops, t, cellCenter = cellCenter2d) {
+  const { a, b, f, hop } = tokenPose(ops, t);
+  const pa = cellCenter(a), pb = cellCenter(b);
+  return { x: lerp(pa.x, pb.x, f), y: lerp(pa.y, pb.y, f), lift: hop * 20 };
 }
 
 // เหตุการณ์เสียงเอฟเฟกต์ทั้งคลิป เรียงตามเวลา
@@ -549,13 +551,15 @@ export function openIntroClip({ voiceSrc = VOICE_SRC, autoplay = true, muted = f
       m.style.left = `${p.x}px`;
       m.style.top = `${p.y - (board3d ? 36 : 44)}px`;
     }
+    const visible = (tk) => (scene >= 3 && scene <= 5 ? true : scene === 7 && tk.id === "hero");
     TOKENS.forEach((tk, i) => {
       const p = tokenPoint(tk.ops, t, cellAt);
-      const vis = scene >= 3 && scene <= 5 ? true : scene === 7 && tk.id === "hero";
       const e = tokenEls[i];
       e.style.transform = `translate(${p.x}px, ${p.y - p.lift}px)`;
-      e.classList.toggle("show", vis);
+      e.classList.toggle("show", visible(tk));
     });
+    // ภูเขา 3 มิติ: หมากตัวจริงแบบในเกม (ฐานสี + ลูกแก้ว) — หมาก DOM เหลือแค่ป้ายชื่อ
+    board3d?.pose(TOKENS.map((tk) => ({ id: tk.id, emoji: tk.emoji, color: tk.color, ...tokenPose(tk.ops, t), lift: tokenPose(tk.ops, t).hop * 0.35, visible: boardShown && visible(tk) })));
     for (const a of arrows) {
       const n = +a.dataset.cell;
       const pulse = (n === 5 && t >= CUES.up && t < CUES.up + 2) || (n === 16 && t >= CUES.down && t < CUES.down + 2);

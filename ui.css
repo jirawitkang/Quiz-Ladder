@@ -1732,10 +1732,10 @@
     background:var(--ring); box-shadow:0 0 0 2px rgba(255,255,255,.85), 0 4px 6px rgba(0,0,0,.3); }
   .iv-token .glass{ --s:52px; z-index:1; }
   /* บนภูเขา 3 มิติช่องเล็กกว่ากระดาน 2 มิติ → หมากย่อตามให้พอดีแผ่นหิน */
-  .iv-stage.iv-3d .iv-token{ left:-20px; top:-34px; width:40px; height:40px; }
-  .iv-stage.iv-3d .iv-token .glass{ --s:40px; }
-  .iv-stage.iv-3d .iv-token::before{ width:34px; height:11px; bottom:-9px; }
-  .iv-stage.iv-3d .iv-token em{ top:46px; }
+  /* บนภูเขา 3 มิติ หมากวาดใน WebGL แบบเดียวกับเกม → DOM เหลือแค่ป้ายชื่อใต้ช่อง */
+  .iv-stage.iv-3d .iv-token{ left:-20px; top:-20px; width:40px; height:40px; }
+  .iv-stage.iv-3d .iv-token .glass, .iv-stage.iv-3d .iv-token::before{ display:none; }
+  .iv-stage.iv-3d .iv-token em{ top:30px; }
   .iv-token.show{ opacity:1; }
   .iv-token span{ font-size:32px; line-height:1; }
   .iv-token em{
