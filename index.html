@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="ui.css" />
 </head>
 
-<body class="booting">
+<body>
   <!-- ลูกเต๋า 3D: วางที่ #diceDock แล้วถูกโยนไปกลางกระดาน (ตำแหน่งคุมด้วย js/dice.js) -->
   <div id="diceOverlay" hidden>
     <div class="dice-mover">
@@ -91,31 +91,6 @@
     <div id="questionCountdownNumber" class="question-countdown-number">3</div>
   </div>
   
-  <header class="app-header">
-    <div class="header-inner">
-      <div class="brand" aria-label="Quiz Ladder">
-        <!-- ตัว Q (Quiz) ที่หางเป็นบันได (Ladder) — รูปเดียวกับ favicon ใน <head> -->
-        <svg class="brand-badge" viewBox="0 0 44 44" aria-hidden="true">
-          <rect x="2" y="2" width="40" height="40" rx="11" fill="#FFA240"/><circle cx="19" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="3.6"/><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="28" y1="23" x2="38" y2="33"/><line x1="23" y1="28" x2="33" y2="38"/><line x1="29.5" y1="26.5" x2="26.5" y2="29.5"/><line x1="33" y1="30" x2="30" y2="33"/><line x1="36.5" y1="33.5" x2="33.5" y2="36.5"/></g>
-        </svg>
-
-        <div class="brand-title">
-          <strong>Quiz <span class="brand-accent">Ladder</span></strong>
-          <span>Searching Online Databases</span>
-        </div>
-      </div>
-  
-      <div class="header-meta" aria-label="สถานะห้องและบทบาท">
-        <div class="pill" id="uiRoomPill">Room: -</div>
-        <div class="pill" id="uiRolePill">Role: -</div>
-  
-        <!-- Exit button (shows after start game) -->
-        <button id="headerExitBtn" class="btn-ghost pill" type="button" style="display:none;">
-          ออกจากห้อง
-        </button>
-      </div>
-    </div>
-  </header>
   
   <!-- ENTRY: หน้าจอเกมก่อนเข้าห้อง (หน้าแรก / ผู้เล่นเข้าห้อง / PIN ครู / ตั้งค่าห้อง) -->
   <section id="entrySection" class="entry-stage">

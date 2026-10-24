@@ -56,7 +56,7 @@
   body{
     margin:0;
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Thai", sans-serif;
-    background: var(--bg);
+    background: #241c55; /* ทุกหน้าเป็นจอเกมพื้นม่วงเข้ม — ระหว่างสลับหน้า/รอโหลดจะไม่แวบเป็นพื้นขาว */
     color: var(--text);
   }
   button, input, select, textarea { font: inherit; }
@@ -68,50 +68,6 @@
       scroll-behavior: auto !important;
     }
   }
-  
-  /* =========================
-     3) HEADER
-     ========================= */
-  .app-header{
-    background: linear-gradient(90deg, var(--p-600), var(--p-800));
-    color:#fff;
-    padding: 8px 8px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    box-shadow: 0 6px 18px rgba(0,0,0,.12);
-  }
-  .header-inner{
-    max-width: 1060px;
-    margin: 0 auto;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap: 12px;
-  }
-  .brand{ display:flex; align-items:center; gap: 10px; }
-  .brand-title{ display:flex; flex-direction:column; line-height:1.05; }
-  .brand-title strong{ font-size: 16px; }
-  .brand-title > span{ font-size: 12px; opacity:.9; }
-  
-  .header-meta{
-    display:flex;
-    gap: 10px;
-    flex-wrap:wrap;
-    justify-content:flex-end;
-  }
-  .pill{
-    background: rgba(255,255,255,.16);
-    border: 1px solid rgba(255,255,255,.22);
-    border-radius: 999px;
-    padding: 6px 10px;
-    font-size: 12px;
-    white-space: nowrap;
-  }
-  
-  /* Brand badge: Q + หางบันได (SVG ใน index.html) */
-  .brand-badge{ width: 44px; height: 44px; flex: none; filter: drop-shadow(0 6px 12px rgba(0,0,0,.22)); }
-  .brand-accent{ color: var(--p-550); }
   
   /* =========================
      4) LAYOUT / CONTAINER / GRID
@@ -540,14 +496,6 @@
   .mt-10{ margin-top:10px; }
   .mt-14{ margin-top:14px; }
   
-  /* Header action buttons: keep compact */
-  .header-meta button.pill{
-    height: 30px;
-    padding: 0 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
   /* =========================
      14) MISC (ย้ายจาก inline style ใน HTML/JS)
      ========================= */
@@ -993,10 +941,6 @@
     background-size: 120px 120px;
   }
   body.on-entry{ background: #241c55; }
-  body.on-entry .app-header{ display: none; }
-  /* ระหว่างโหลด/กู้ห้องเดิม ยังไม่รู้ว่าจะไปหน้าไหน: ซ่อนแถบหัวเว็บไว้ก่อน ไม่ให้แวบขึ้นมา (หน้าเกมทุกหน้าไม่มีแถบนี้) */
-  body.booting{ background:#241c55; }
-  body.booting .app-header{ display:none; }
   .es-deco{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.16; }
   .es-screen{ position:relative; width:100%; display:flex; flex-direction:column; align-items:center; animation: es-pop .35s ease-out; }
   @keyframes es-pop{ from{ transform:scale(.96); opacity:.4; } to{ transform:none; opacity:1; } }
@@ -1312,7 +1256,6 @@
      18) LOBBY — หน้าจอเกมก่อนเริ่ม (ธีมเดียวกับหน้าแรก): ครู = จอโปรเจกเตอร์, นักเรียน = เลือกตัวหมาก
      ========================= */
   body.on-lobby{ background:#241c55; }
-  body.on-lobby .app-header{ display:none; }
   .lobby-stage{
     --es-ink:#2f2a66; --es-ink-soft:#6b62a8; --es-paper:#f6f4fb; --es-paper-2:#ede9f7; --es-line:#d9d3ef;
     --es-orange:#FFA240; --es-orange-deep:#d9761b;
@@ -1425,7 +1368,6 @@
          กระดาน + แผ่นการกระทำ (นักเรียน), บันไดส้ม = ปีน / บันไดม่วง = ร่วง
      ========================= */
   body.on-game{ background:#241c55; }
-  body.on-game .app-header{ display:none; }
   body.on-game main.container{ max-width:none; margin:0; padding:0; }
   body.on-game #roomView{
     --g-ink:#2f2a66; --g-ink-soft:#6b62a8; --g-paper:#f6f4fb; --g-paper-2:#ede9f7; --g-line:#d9d3ef;

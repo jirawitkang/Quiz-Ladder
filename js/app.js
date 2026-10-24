@@ -137,9 +137,6 @@ const $ = (id) => document.getElementById(id);
 
 const dom = {
   // header
-  roomPill: $("uiRoomPill"),
-  rolePill: $("uiRolePill"),
-  headerExitBtn: $("headerExitBtn"),
 
   // entry
   entrySection: $("entrySection"),
@@ -572,19 +569,10 @@ function showEntryPage(page) {
   if (page === "pin") resetPin();
   if (page === "player") drawRoomCode();
   window.scrollTo(0, 0);
-  updateHeader();
+  updateExitButton();
 }
 
-function updateHeader() {
-  if (dom.roomPill) dom.roomPill.textContent = `Room: ${session.roomCode || "-"}`;
-  if (dom.rolePill) dom.rolePill.textContent = `Role: ${session.role || "-"}`;
-
-  const joined = inRoom();
-  // ผู้เล่นไม่ต้องเห็น Room/Role (ประหยัดพื้นที่แถบบนมือถือ) — Host ยังเห็นเหมือนเดิม
-  show(dom.roomPill, !isPlayer(), "inline-flex");
-  show(dom.rolePill, !isPlayer(), "inline-flex");
-  show(dom.headerExitBtn, joined, "inline-flex");
-  if (dom.headerExitBtn) dom.headerExitBtn.textContent = isHost() ? "ยกเลิกห้อง" : "ออกจากห้อง";
+function updateExitButton() {
   if (dom.gameExitBtn) {
     dom.gameExitBtn.textContent = isHost() ? "✕ ยกเลิกห้อง" : "🚪";
     dom.gameExitBtn.title = isHost() ? "ยกเลิกห้อง" : "ออกจากห้อง";
@@ -651,7 +639,7 @@ function enterRoom(code, role, playerId = null) {
   setHidden(dom.hostView, role !== ROLE.HOST);
   setHidden(dom.playerView, role !== ROLE.PLAYER);
   setHidden(dom.hostGameControls, role !== ROLE.HOST);
-  updateHeader();
+  updateExitButton();
   subscribeRoom(code);
 }
 
@@ -730,7 +718,7 @@ function renderRoom(rawRoom) {
   const ended = isGameEnded(room);
   const { maxRounds } = getSettings(room);
 
-  updateHeader();
+  updateExitButton();
   if (dom.roundInfo) dom.roundInfo.innerHTML = inLobby ? "Lobby" : `<small>รอบ</small>${room.currentRound || 0}/${maxRounds}`;
   if (dom.phaseInfo) dom.phaseInfo.textContent = inLobby ? "รอผู้เล่น" : PHASE_TEXT[room.phase] || PHASE_TEXT[PHASE.IDLE];
 
@@ -2144,7 +2132,6 @@ function pressPin(key) {
 function bindUIEvents() {
   const on = (el, type, fn) => el?.addEventListener(type, fn);
 
-  on(dom.headerExitBtn, "click", () => (isHost() ? hostCancelRoom() : playerLeave()));
 
   // หน้าจอเกมก่อนเข้าห้อง: ปุ่มเปลี่ยนหน้า, PIN, การ์ดชุดคำถาม, ปุ่ม − / +
   on(dom.entrySection, "click", (e) => {
@@ -2246,14 +2233,6 @@ async function restoreSession() {
 }
 
 async function boot() {
-  try {
-    await route();
-  } finally {
-    document.body.classList.remove("booting");
-  }
-}
-
-async function route() {
   bindUIEvents();
   populateHostSetup();
   const roomFromLink = readRoomFromUrl(); // สแกน QR code มา: ?room=XXXXXX
