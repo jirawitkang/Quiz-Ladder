@@ -2246,6 +2246,14 @@ async function restoreSession() {
 }
 
 async function boot() {
+  try {
+    await route();
+  } finally {
+    document.body.classList.remove("booting");
+  }
+}
+
+async function route() {
   bindUIEvents();
   populateHostSetup();
   const roomFromLink = readRoomFromUrl(); // สแกน QR code มา: ?room=XXXXXX

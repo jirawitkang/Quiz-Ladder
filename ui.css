@@ -994,6 +994,9 @@
   }
   body.on-entry{ background: #241c55; }
   body.on-entry .app-header{ display: none; }
+  /* ระหว่างโหลด/กู้ห้องเดิม ยังไม่รู้ว่าจะไปหน้าไหน: ซ่อนแถบหัวเว็บไว้ก่อน ไม่ให้แวบขึ้นมา (หน้าเกมทุกหน้าไม่มีแถบนี้) */
+  body.booting{ background:#241c55; }
+  body.booting .app-header{ display:none; }
   .es-deco{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.16; }
   .es-screen{ position:relative; width:100%; display:flex; flex-direction:column; align-items:center; animation: es-pop .35s ease-out; }
   @keyframes es-pop{ from{ transform:scale(.96); opacity:.4; } to{ transform:none; opacity:1; } }
