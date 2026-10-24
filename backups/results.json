@@ -1539,5 +1539,1539 @@
         "rank": 1
       }
     ]
+  },
+  "1792792952252_6VPD6U": {
+    "boardSize": 30,
+    "createdAt": 1792792952252,
+    "currentRound": 8,
+    "endInfo": {
+      "endReason": "winners",
+      "endedAt": 1792793272223,
+      "maxRounds": 10,
+      "maxWinners": 5,
+      "winnerCount": 1
+    },
+    "finalPlayers": {
+      "p_40bb4b0e76e4": {
+        "answered": false,
+        "color": "#7cb342",
+        "connected": true,
+        "emoji": "✂️",
+        "finished": true,
+        "finishedBy": "dice",
+        "finishedRound": 8,
+        "hasRolled": true,
+        "joinedAt": 1792792990674,
+        "lastRoll": 4,
+        "lastSeen": 1792792990674,
+        "name": "j",
+        "position": 30,
+        "startOfRoundPos": 29
+      }
+    },
+    "finalWinners": [
+      {
+        "finishedBy": "dice",
+        "finishedRound": 8,
+        "playerId": "p_40bb4b0e76e4",
+        "playerName": "j",
+        "rank": 1
+      }
+    ],
+    "gameSettings": {
+      "boardStyle": "3d",
+      "maxRounds": 10,
+      "maxWinners": 5,
+      "penaltyWrong": -2,
+      "questionSetId": "general",
+      "rewardCorrect": 2
+    },
+    "history": {
+      "round_1": {
+        "answers": {
+          "p_40bb4b0e76e4": {
+            "actualDelta": -2,
+            "answerTimeMs": 715,
+            "answered": true,
+            "answeredAt": 1792793034388,
+            "basePosition": 6,
+            "configuredMove": -2,
+            "correct": false,
+            "correctOption": "C",
+            "diceRoll": 5,
+            "finalPosition": 4,
+            "landingPosition": 4,
+            "missedAnswer": false,
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "practice": false,
+            "questionIndex": 0,
+            "questionSetId": "general",
+            "questionText": "ทำไมกาแฟถึงขม?",
+            "selectedOption": "B",
+            "timestamp": 1792793038435
+          }
+        },
+        "diceMoves": {
+          "p_40bb4b0e76e4": {
+            "diceRoll": 5,
+            "fromPosition": 1,
+            "landingPosition": 6,
+            "pathCells": [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "timestamp": 1792793017214,
+            "toPosition": 6
+          }
+        }
+      },
+      "round_2": {
+        "answers": {
+          "p_40bb4b0e76e4": {
+            "actualDelta": 2,
+            "answerTimeMs": 1589,
+            "answered": true,
+            "answeredAt": 1792793067760,
+            "basePosition": 10,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "A",
+            "diceRoll": 6,
+            "finalPosition": 12,
+            "landingPosition": 12,
+            "missedAnswer": false,
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "practice": false,
+            "questionIndex": 1,
+            "questionSetId": "general",
+            "questionText": "ถ้า Wi-Fi หลุดบ่อย เราควรทำอะไรก่อน?",
+            "selectedOption": "A",
+            "timestamp": 1792793072418
+          }
+        },
+        "diceMoves": {
+          "p_40bb4b0e76e4": {
+            "diceRoll": 6,
+            "fromPosition": 4,
+            "landingPosition": 10,
+            "pathCells": [
+              5,
+              6,
+              7,
+              8,
+              9,
+              10
+            ],
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "timestamp": 1792793050262,
+            "toPosition": 10
+          }
+        }
+      },
+      "round_3": {
+        "answers": {
+          "p_40bb4b0e76e4": {
+            "actualDelta": -9,
+            "answerTimeMs": 1404,
+            "answered": true,
+            "answeredAt": 1792793146659,
+            "basePosition": 18,
+            "configuredMove": -2,
+            "correct": false,
+            "correctOption": "A",
+            "diceRoll": 6,
+            "finalPosition": 9,
+            "landingPosition": 16,
+            "missedAnswer": false,
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "practice": false,
+            "questionIndex": 2,
+            "questionSetId": "general",
+            "questionText": "ข้อใดคือ 'งานด่วน' ที่แท้จริง?",
+            "selectedOption": "D",
+            "special": "drop",
+            "timestamp": 1792793149851
+          }
+        },
+        "diceMoves": {
+          "p_40bb4b0e76e4": {
+            "diceRoll": 6,
+            "fromPosition": 12,
+            "landingPosition": 18,
+            "pathCells": [
+              13,
+              14,
+              15,
+              16,
+              17,
+              18
+            ],
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "timestamp": 1792793127346,
+            "toPosition": 18
+          }
+        }
+      },
+      "round_4": {
+        "answers": {
+          "p_40bb4b0e76e4": {
+            "actualDelta": -2,
+            "answerTimeMs": 278,
+            "answered": true,
+            "answeredAt": 1792793180549,
+            "basePosition": 14,
+            "configuredMove": -2,
+            "correct": false,
+            "correctOption": "C",
+            "diceRoll": 2,
+            "finalPosition": 12,
+            "landingPosition": 12,
+            "missedAnswer": false,
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "practice": false,
+            "questionIndex": 3,
+            "questionSetId": "general",
+            "questionText": "ถ้าลืมรหัสผ่านบ่อย ควรตั้งรหัสใหม่ว่าอะไร?",
+            "selectedOption": "A",
+            "timestamp": 1792793183067
+          }
+        },
+        "diceMoves": {
+          "p_40bb4b0e76e4": {
+            "diceRoll": 2,
+            "fromPosition": 9,
+            "landingPosition": 11,
+            "pathCells": [
+              10,
+              11
+            ],
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "special": "ladder",
+            "timestamp": 1792793166802,
+            "toPosition": 14
+          }
+        }
+      },
+      "round_5": {
+        "answers": {
+          "p_40bb4b0e76e4": {
+            "actualDelta": 2,
+            "answerTimeMs": 2515,
+            "answered": true,
+            "answeredAt": 1792793210487,
+            "basePosition": 13,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "C",
+            "diceRoll": 1,
+            "finalPosition": 15,
+            "landingPosition": 15,
+            "missedAnswer": false,
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "practice": false,
+            "questionIndex": 4,
+            "questionSetId": "general",
+            "questionText": "เวลาพูดว่า 'เดี๋ยวทำ' โดยเฉลี่ยหมายถึง…",
+            "selectedOption": "C",
+            "timestamp": 1792793212533
+          }
+        },
+        "diceMoves": {
+          "p_40bb4b0e76e4": {
+            "diceRoll": 1,
+            "fromPosition": 12,
+            "landingPosition": 13,
+            "pathCells": [
+              13
+            ],
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "timestamp": 1792793189856,
+            "toPosition": 13
+          }
+        }
+      },
+      "round_6": {
+        "answers": {
+          "p_40bb4b0e76e4": {
+            "actualDelta": 2,
+            "answerTimeMs": 1822,
+            "answered": true,
+            "answeredAt": 1792793234944,
+            "basePosition": 20,
+            "blocked": "drop",
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "D",
+            "diceRoll": 5,
+            "finalPosition": 22,
+            "landingPosition": 22,
+            "missedAnswer": false,
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "practice": false,
+            "questionIndex": 5,
+            "questionSetId": "general",
+            "questionText": "ถ้าพบไฟล์ชื่อ final_v7_REALfinal จริง ๆ แล้วไฟล์ไหนคือไฟล์สุดท้าย?",
+            "selectedOption": "D",
+            "timestamp": 1792793237018
+          }
+        },
+        "diceMoves": {
+          "p_40bb4b0e76e4": {
+            "diceRoll": 5,
+            "fromPosition": 15,
+            "landingPosition": 20,
+            "pathCells": [
+              16,
+              17,
+              18,
+              19,
+              20
+            ],
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "timestamp": 1792793218579,
+            "toPosition": 20
+          }
+        }
+      },
+      "round_7": {
+        "answers": {
+          "p_40bb4b0e76e4": {
+            "actualDelta": 2,
+            "answerTimeMs": 4894,
+            "answered": true,
+            "answeredAt": 1792793261681,
+            "basePosition": 27,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "D",
+            "diceRoll": 5,
+            "finalPosition": 29,
+            "landingPosition": 29,
+            "missedAnswer": false,
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "practice": false,
+            "questionIndex": 6,
+            "questionSetId": "general",
+            "questionText": "ข้อใดคือ 'การออกกำลังกาย' ของสายออฟฟิศ?",
+            "selectedOption": "D",
+            "timestamp": 1792793264718
+          }
+        },
+        "diceMoves": {
+          "p_40bb4b0e76e4": {
+            "diceRoll": 5,
+            "fromPosition": 22,
+            "landingPosition": 27,
+            "pathCells": [
+              23,
+              24,
+              25,
+              26,
+              27
+            ],
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "timestamp": 1792793243933,
+            "toPosition": 27
+          }
+        }
+      },
+      "round_8": {
+        "diceMoves": {
+          "p_40bb4b0e76e4": {
+            "diceRoll": 4,
+            "fromPosition": 29,
+            "landingPosition": 30,
+            "pathCells": [
+              30
+            ],
+            "playerId": "p_40bb4b0e76e4",
+            "playerName": "j",
+            "timestamp": 1792793272223,
+            "toPosition": 30
+          }
+        }
+      }
+    },
+    "hostName": "l",
+    "players": {
+      "p_40bb4b0e76e4": {
+        "answered": false,
+        "color": "#7cb342",
+        "connected": true,
+        "emoji": "✂️",
+        "finished": true,
+        "finishedBy": "dice",
+        "finishedRound": 8,
+        "hasRolled": true,
+        "joinedAt": 1792792990674,
+        "lastRoll": 4,
+        "lastSeen": 1792792990674,
+        "name": "j",
+        "position": 30,
+        "startOfRoundPos": 29
+      }
+    },
+    "questionSet": {
+      "boardImageId": "bg-work-life-balance",
+      "emojis": [
+        "💼",
+        "📎",
+        "📌",
+        "✏️",
+        "🖊️",
+        "📏",
+        "📐",
+        "📁",
+        "📅",
+        "📊",
+        "📈",
+        "🖨️",
+        "💻",
+        "⌨️",
+        "🖱️",
+        "☕",
+        "📞",
+        "📦",
+        "🗂️",
+        "📝",
+        "🔖",
+        "🧷",
+        "✂️",
+        "🗃️",
+        "💡",
+        "🔋",
+        "📮",
+        "🧮",
+        "🔍",
+        "⏰"
+      ],
+      "id": "general",
+      "name": "Work ไร้ Balance",
+      "questions": [
+        {
+          "choices": {
+            "A": "เพราะชีวิต",
+            "B": "เพราะน้ำตาลหมด",
+            "C": "เพราะเมล็ดกาแฟ",
+            "D": "เพราะแก้วมันเศร้า"
+          },
+          "correctOption": "C",
+          "text": "ทำไมกาแฟถึงขม?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "รีสตาร์ทเราเตอร์",
+            "B": "โทษชะตา",
+            "C": "เดินไปใกล้ ๆ แล้วทำเนียน",
+            "D": "อธิษฐานกับเสาสัญญาณ"
+          },
+          "correctOption": "A",
+          "text": "ถ้า Wi-Fi หลุดบ่อย เราควรทำอะไรก่อน?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "งานที่ต้องเสร็จเมื่อวาน",
+            "B": "งานที่หัวหน้าบอกว่าไม่รีบ",
+            "C": "งานที่ส่งแล้วแต่ยังต้องแก้",
+            "D": "งานที่ยังไม่เริ่มแต่ใกล้เดดไลน์"
+          },
+          "correctOption": "A",
+          "text": "ข้อใดคือ 'งานด่วน' ที่แท้จริง?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "123456",
+            "B": "password",
+            "C": "ForgetMeNot202!",
+            "D": "ชื่อแมว+วันเกิด+OTP"
+          },
+          "correctOption": "C",
+          "text": "ถ้าลืมรหัสผ่านบ่อย ควรตั้งรหัสใหม่ว่าอะไร?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ภายใน 5 นาที",
+            "B": "หลังอาหาร",
+            "C": "พรุ่งนี้แหละ",
+            "D": "เมื่อโลกสงบ"
+          },
+          "correctOption": "C",
+          "text": "เวลาพูดว่า 'เดี๋ยวทำ' โดยเฉลี่ยหมายถึง…",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "final",
+            "B": "final_v7_REALfinal",
+            "C": "final_v7_REALfinal_2",
+            "D": "ไฟล์ที่เปิดล่าสุด"
+          },
+          "correctOption": "D",
+          "text": "ถ้าพบไฟล์ชื่อ final_v7_REALfinal จริง ๆ แล้วไฟล์ไหนคือไฟล์สุดท้าย?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "เดินไปเข้าห้องน้ำ",
+            "B": "ยืดเส้นยืดสาย",
+            "C": "เดินไปหาเครื่องปริ้นท์แล้วเครื่องพัง",
+            "D": "ทั้งหมดที่กล่าวมา"
+          },
+          "correctOption": "D",
+          "text": "ข้อใดคือ 'การออกกำลังกาย' ของสายออฟฟิศ?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "โทรแจ้งตำรวจ",
+            "B": "ทำใจแล้วกินแบบคลีน",
+            "C": "เขียนรายงานสาเหตุราก (RCA)",
+            "D": "เปิดซองอีกอันอย่างสง่างาม"
+          },
+          "correctOption": "D",
+          "text": "ถ้ากำลังจะชงมาม่า แต่หา 'ซองพริก' ไม่เจอ ควรทำยังไง?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ส่งทันที",
+            "B": "ส่งหลังประชุม",
+            "C": "ส่งก่อนเลิกงานถ้านึกได้",
+            "D": "ส่งเมื่อคุณทักมาครั้งที่ 3"
+          },
+          "correctOption": "D",
+          "text": "คำว่า 'เดี๋ยวส่งให้ครับ/ค่ะ' ในแชทงาน หมายถึงข้อใดมากที่สุด?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "นาฬิกาปลุกผิด",
+            "B": "หมอนดูดวิญญาณ",
+            "C": "มือปิดเองแบบอัตโนมัติ (สกิลลับ)",
+            "D": "ทั้ง B และ C"
+          },
+          "correctOption": "D",
+          "text": "ถ้าตั้งนาฬิกาปลุก 10 อัน แต่ยังตื่นสาย สาเหตุคืออะไร?",
+          "timeLimit": 30
+        }
+      ]
+    },
+    "roomCode": "6VPD6U",
+    "savedAt": 1792793277268,
+    "winners": [
+      {
+        "finishedBy": "dice",
+        "finishedRound": 8,
+        "playerId": "p_40bb4b0e76e4",
+        "playerName": "j",
+        "rank": 1
+      }
+    ]
+  },
+  "1792856621628_BSWWHP": {
+    "boardSize": 30,
+    "createdAt": 1792856621628,
+    "currentRound": 10,
+    "endInfo": {
+      "endReason": "rounds",
+      "endedAt": 1792857328762,
+      "maxRounds": 10,
+      "maxWinners": 5,
+      "winnerCount": 1
+    },
+    "finalPlayers": {
+      "p_4d03793b84af": {
+        "answered": false,
+        "color": "#f4511e",
+        "connected": true,
+        "emoji": "🐖",
+        "finished": true,
+        "finishedBy": "dice",
+        "finishedRound": 6,
+        "hasRolled": true,
+        "joinedAt": 1792856640574,
+        "lastRoll": 6,
+        "lastSeen": 1792856640574,
+        "name": "Kang",
+        "position": 30,
+        "startOfRoundPos": 30
+      },
+      "p_c395267d4145": {
+        "answer": "B",
+        "answerUpdatedAt": 1792857326940,
+        "answered": true,
+        "color": "#ffb300",
+        "connected": true,
+        "emoji": "👑",
+        "finished": false,
+        "hasRolled": true,
+        "joinedAt": 1792856691661,
+        "lastAnswerCorrect": true,
+        "lastRoll": 2,
+        "lastSeen": 1792856691661,
+        "name": "Lapras",
+        "position": 27,
+        "startOfRoundPos": 23
+      }
+    },
+    "finalWinners": [
+      {
+        "finishedBy": "dice",
+        "finishedRound": 6,
+        "playerId": "p_4d03793b84af",
+        "playerName": "Kang",
+        "rank": 1
+      }
+    ],
+    "gameSettings": {
+      "boardStyle": "3d",
+      "maxRounds": 10,
+      "maxWinners": 5,
+      "penaltyWrong": -2,
+      "questionSetId": "money",
+      "rewardCorrect": 2
+    },
+    "history": {
+      "round_1": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": 2,
+            "answerTimeMs": 10331,
+            "answered": true,
+            "answeredAt": 1792856895727,
+            "basePosition": 6,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "A",
+            "diceRoll": 5,
+            "finalPosition": 8,
+            "landingPosition": 8,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": false,
+            "questionIndex": 0,
+            "questionSetId": "money",
+            "questionText": "ช่วงเวลาไหนที่รู้สึกว่าเงินในบัญชีดูใจดีที่สุด?",
+            "selectedOption": "A",
+            "timestamp": 1792856907525
+          },
+          "p_c395267d4145": {
+            "actualDelta": 2,
+            "answerTimeMs": 12992,
+            "answered": true,
+            "answeredAt": 1792856898388,
+            "basePosition": 4,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "A",
+            "diceRoll": 3,
+            "finalPosition": 6,
+            "landingPosition": 6,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 0,
+            "questionSetId": "money",
+            "questionText": "ช่วงเวลาไหนที่รู้สึกว่าเงินในบัญชีดูใจดีที่สุด?",
+            "selectedOption": "A",
+            "timestamp": 1792856907525
+          }
+        },
+        "diceMoves": {
+          "p_4d03793b84af": {
+            "diceRoll": 5,
+            "fromPosition": 1,
+            "landingPosition": 6,
+            "pathCells": [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "timestamp": 1792856868656,
+            "toPosition": 6
+          },
+          "p_c395267d4145": {
+            "diceRoll": 3,
+            "fromPosition": 1,
+            "landingPosition": 4,
+            "pathCells": [
+              2,
+              3,
+              4
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "timestamp": 1792856866610,
+            "toPosition": 4
+          }
+        }
+      },
+      "round_10": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": 0,
+            "answered": false,
+            "basePosition": 30,
+            "configuredMove": 0,
+            "correctOption": "B",
+            "diceRoll": 6,
+            "finalPosition": 30,
+            "landingPosition": 30,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": true,
+            "questionIndex": 9,
+            "questionSetId": "money",
+            "questionText": "สิ่งใดช่วยให้รู้สึกว่าตัวเองยังไม่จนเกินไป?",
+            "timestamp": 1792857328762
+          },
+          "p_c395267d4145": {
+            "actualDelta": 2,
+            "answerTimeMs": 9208,
+            "answered": true,
+            "answeredAt": 1792857326940,
+            "basePosition": 25,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "B",
+            "diceRoll": 2,
+            "finalPosition": 27,
+            "landingPosition": 27,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 9,
+            "questionSetId": "money",
+            "questionText": "สิ่งใดช่วยให้รู้สึกว่าตัวเองยังไม่จนเกินไป?",
+            "selectedOption": "B",
+            "timestamp": 1792857328762
+          }
+        },
+        "diceMoves": {
+          "p_c395267d4145": {
+            "diceRoll": 2,
+            "fromPosition": 23,
+            "landingPosition": 25,
+            "pathCells": [
+              24,
+              25
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "timestamp": 1792857305272,
+            "toPosition": 25
+          }
+        }
+      },
+      "round_2": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": -2,
+            "answerTimeMs": 7779,
+            "answered": true,
+            "answeredAt": 1792856984475,
+            "basePosition": 12,
+            "configuredMove": -2,
+            "correct": false,
+            "correctOption": "C",
+            "diceRoll": 4,
+            "finalPosition": 10,
+            "landingPosition": 10,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": false,
+            "questionIndex": 1,
+            "questionSetId": "money",
+            "questionText": "ประโยคใดมักทำให้รูดบัตรเร็วขึ้น?",
+            "selectedOption": "B",
+            "timestamp": 1792856989707
+          },
+          "p_c395267d4145": {
+            "actualDelta": -2,
+            "answerTimeMs": 6211,
+            "answered": true,
+            "answeredAt": 1792856982907,
+            "basePosition": 12,
+            "configuredMove": -2,
+            "correct": false,
+            "correctOption": "C",
+            "diceRoll": 6,
+            "finalPosition": 10,
+            "landingPosition": 10,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 1,
+            "questionSetId": "money",
+            "questionText": "ประโยคใดมักทำให้รูดบัตรเร็วขึ้น?",
+            "selectedOption": "A",
+            "timestamp": 1792856989707
+          }
+        },
+        "diceMoves": {
+          "p_4d03793b84af": {
+            "diceRoll": 4,
+            "fromPosition": 8,
+            "landingPosition": 12,
+            "pathCells": [
+              9,
+              10,
+              11,
+              12
+            ],
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "timestamp": 1792856925594,
+            "toPosition": 12
+          },
+          "p_c395267d4145": {
+            "diceRoll": 6,
+            "fromPosition": 6,
+            "landingPosition": 12,
+            "pathCells": [
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "timestamp": 1792856931714,
+            "toPosition": 12
+          }
+        }
+      },
+      "round_3": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": 2,
+            "answerTimeMs": 18494,
+            "answered": true,
+            "answeredAt": 1792857039124,
+            "basePosition": 14,
+            "blocked": "drop",
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "B",
+            "diceRoll": 4,
+            "finalPosition": 16,
+            "landingPosition": 16,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": false,
+            "questionIndex": 2,
+            "questionSetId": "money",
+            "questionText": "สิ่งใดทำให้เงินหายแบบไม่รู้ตัวมากที่สุด?",
+            "selectedOption": "B",
+            "timestamp": 1792857043906
+          },
+          "p_c395267d4145": {
+            "actualDelta": 2,
+            "answerTimeMs": 21052,
+            "answered": true,
+            "answeredAt": 1792857041682,
+            "basePosition": 12,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "B",
+            "diceRoll": 2,
+            "finalPosition": 14,
+            "landingPosition": 14,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 2,
+            "questionSetId": "money",
+            "questionText": "สิ่งใดทำให้เงินหายแบบไม่รู้ตัวมากที่สุด?",
+            "selectedOption": "B",
+            "timestamp": 1792857043906
+          }
+        },
+        "diceMoves": {
+          "p_4d03793b84af": {
+            "diceRoll": 4,
+            "fromPosition": 10,
+            "landingPosition": 14,
+            "pathCells": [
+              11,
+              12,
+              13,
+              14
+            ],
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "timestamp": 1792857001583,
+            "toPosition": 14
+          },
+          "p_c395267d4145": {
+            "diceRoll": 2,
+            "fromPosition": 10,
+            "landingPosition": 12,
+            "pathCells": [
+              11,
+              12
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "timestamp": 1792857000795,
+            "toPosition": 12
+          }
+        }
+      },
+      "round_4": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": -2,
+            "answerTimeMs": 5930,
+            "answered": true,
+            "answeredAt": 1792857084322,
+            "basePosition": 19,
+            "blocked": "ladder",
+            "configuredMove": -2,
+            "correct": false,
+            "correctOption": "D",
+            "diceRoll": 3,
+            "finalPosition": 17,
+            "landingPosition": 17,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": false,
+            "questionIndex": 3,
+            "questionSetId": "money",
+            "questionText": "ปลายเดือน อาหารแบบไหนดูอร่อยเป็นพิเศษ?",
+            "selectedOption": "A",
+            "timestamp": 1792857089755
+          },
+          "p_c395267d4145": {
+            "actualDelta": 2,
+            "answerTimeMs": 10451,
+            "answered": true,
+            "answeredAt": 1792857088843,
+            "basePosition": 20,
+            "blocked": "drop",
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "D",
+            "diceRoll": 6,
+            "finalPosition": 22,
+            "landingPosition": 22,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 3,
+            "questionSetId": "money",
+            "questionText": "ปลายเดือน อาหารแบบไหนดูอร่อยเป็นพิเศษ?",
+            "selectedOption": "D",
+            "timestamp": 1792857089755
+          }
+        },
+        "diceMoves": {
+          "p_4d03793b84af": {
+            "diceRoll": 3,
+            "fromPosition": 16,
+            "landingPosition": 19,
+            "pathCells": [
+              17,
+              18,
+              19
+            ],
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "timestamp": 1792857057191,
+            "toPosition": 19
+          },
+          "p_c395267d4145": {
+            "diceRoll": 6,
+            "fromPosition": 14,
+            "landingPosition": 20,
+            "pathCells": [
+              15,
+              16,
+              17,
+              18,
+              19,
+              20
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "timestamp": 1792857055922,
+            "toPosition": 20
+          }
+        }
+      },
+      "round_5": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": 2,
+            "answerTimeMs": 11533,
+            "answered": true,
+            "answeredAt": 1792857129581,
+            "basePosition": 23,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "B",
+            "diceRoll": 6,
+            "finalPosition": 25,
+            "landingPosition": 25,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": false,
+            "questionIndex": 4,
+            "questionSetId": "money",
+            "questionText": "คำว่า ‘ไม่แพง’ ในใจเรา มักหมายถึงอะไร?",
+            "selectedOption": "B",
+            "timestamp": 1792857134548
+          },
+          "p_c395267d4145": {
+            "actualDelta": -2,
+            "answerTimeMs": 7637,
+            "answered": true,
+            "answeredAt": 1792857125685,
+            "basePosition": 23,
+            "configuredMove": -2,
+            "correct": false,
+            "correctOption": "B",
+            "diceRoll": 1,
+            "finalPosition": 21,
+            "landingPosition": 21,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 4,
+            "questionSetId": "money",
+            "questionText": "คำว่า ‘ไม่แพง’ ในใจเรา มักหมายถึงอะไร?",
+            "selectedOption": "D",
+            "timestamp": 1792857134548
+          }
+        },
+        "diceMoves": {
+          "p_4d03793b84af": {
+            "diceRoll": 6,
+            "fromPosition": 17,
+            "landingPosition": 23,
+            "pathCells": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ],
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "timestamp": 1792857103257,
+            "toPosition": 23
+          },
+          "p_c395267d4145": {
+            "diceRoll": 1,
+            "fromPosition": 22,
+            "landingPosition": 23,
+            "pathCells": [
+              23
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "timestamp": 1792857099132,
+            "toPosition": 23
+          }
+        }
+      },
+      "round_6": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": 0,
+            "answerTimeMs": 10794,
+            "answered": true,
+            "answeredAt": 1792857194733,
+            "basePosition": 30,
+            "configuredMove": 0,
+            "correct": false,
+            "correctOption": "A",
+            "diceRoll": 6,
+            "finalPosition": 30,
+            "landingPosition": 30,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": true,
+            "questionIndex": 5,
+            "questionSetId": "money",
+            "questionText": "สิ่งใดมักเกิดขึ้นทันทีหลังเงินเดือนออก?",
+            "selectedOption": "D",
+            "timestamp": 1792857199315
+          },
+          "p_c395267d4145": {
+            "actualDelta": 5,
+            "answerTimeMs": 13277,
+            "answered": true,
+            "answeredAt": 1792857197216,
+            "basePosition": 15,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "A",
+            "diceRoll": 1,
+            "finalPosition": 20,
+            "landingPosition": 17,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 5,
+            "questionSetId": "money",
+            "questionText": "สิ่งใดมักเกิดขึ้นทันทีหลังเงินเดือนออก?",
+            "selectedOption": "A",
+            "special": "ladder",
+            "timestamp": 1792857199315
+          }
+        },
+        "diceMoves": {
+          "p_4d03793b84af": {
+            "diceRoll": 6,
+            "fromPosition": 25,
+            "landingPosition": 30,
+            "pathCells": [
+              26,
+              27,
+              28,
+              29,
+              30
+            ],
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "timestamp": 1792857148609,
+            "toPosition": 30
+          },
+          "p_c395267d4145": {
+            "diceRoll": 1,
+            "fromPosition": 21,
+            "landingPosition": 22,
+            "pathCells": [
+              22
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "special": "drop",
+            "timestamp": 1792857145623,
+            "toPosition": 15
+          }
+        }
+      },
+      "round_7": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": 0,
+            "answered": false,
+            "basePosition": 30,
+            "configuredMove": 0,
+            "correctOption": "D",
+            "diceRoll": 6,
+            "finalPosition": 30,
+            "landingPosition": 30,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": true,
+            "questionIndex": 6,
+            "questionSetId": "money",
+            "questionText": "ค่าใช้จ่ายใดที่มักโผล่มาแบบไม่ทันตั้งตัว?",
+            "timestamp": 1792857236714
+          },
+          "p_c395267d4145": {
+            "actualDelta": 2,
+            "answerTimeMs": 7268,
+            "answered": true,
+            "answeredAt": 1792857232054,
+            "basePosition": 23,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "D",
+            "diceRoll": 3,
+            "finalPosition": 25,
+            "landingPosition": 25,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 6,
+            "questionSetId": "money",
+            "questionText": "ค่าใช้จ่ายใดที่มักโผล่มาแบบไม่ทันตั้งตัว?",
+            "selectedOption": "D",
+            "timestamp": 1792857236714
+          }
+        },
+        "diceMoves": {
+          "p_c395267d4145": {
+            "diceRoll": 3,
+            "fromPosition": 20,
+            "landingPosition": 23,
+            "pathCells": [
+              21,
+              22,
+              23
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "timestamp": 1792857209987,
+            "toPosition": 23
+          }
+        }
+      },
+      "round_8": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": 0,
+            "answered": false,
+            "basePosition": 30,
+            "configuredMove": 0,
+            "correctOption": "C",
+            "diceRoll": 6,
+            "finalPosition": 30,
+            "landingPosition": 30,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": true,
+            "questionIndex": 7,
+            "questionSetId": "money",
+            "questionText": "ช่วงไหนที่คำว่า ‘ประหยัด’ ดังที่สุดในใจ?",
+            "timestamp": 1792857269816
+          },
+          "p_c395267d4145": {
+            "actualDelta": -2,
+            "answerTimeMs": 14661,
+            "answered": true,
+            "answeredAt": 1792857268996,
+            "basePosition": 27,
+            "configuredMove": -2,
+            "correct": false,
+            "correctOption": "C",
+            "diceRoll": 2,
+            "finalPosition": 25,
+            "landingPosition": 25,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 7,
+            "questionSetId": "money",
+            "questionText": "ช่วงไหนที่คำว่า ‘ประหยัด’ ดังที่สุดในใจ?",
+            "selectedOption": "D",
+            "timestamp": 1792857269816
+          }
+        },
+        "diceMoves": {
+          "p_c395267d4145": {
+            "diceRoll": 2,
+            "fromPosition": 25,
+            "landingPosition": 27,
+            "pathCells": [
+              26,
+              27
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "timestamp": 1792857241493,
+            "toPosition": 27
+          }
+        }
+      },
+      "round_9": {
+        "answers": {
+          "p_4d03793b84af": {
+            "actualDelta": 0,
+            "answered": false,
+            "basePosition": 30,
+            "configuredMove": 0,
+            "correctOption": "A",
+            "diceRoll": 6,
+            "finalPosition": 30,
+            "landingPosition": 30,
+            "missedAnswer": false,
+            "playerId": "p_4d03793b84af",
+            "playerName": "Kang",
+            "practice": true,
+            "questionIndex": 8,
+            "questionSetId": "money",
+            "questionText": "พฤติกรรมใดทำให้เงินอยู่ไม่นาน?",
+            "timestamp": 1792857298196
+          },
+          "p_c395267d4145": {
+            "actualDelta": 2,
+            "answerTimeMs": 7985,
+            "answered": true,
+            "answeredAt": 1792857296785,
+            "basePosition": 21,
+            "configuredMove": 2,
+            "correct": true,
+            "correctOption": "A",
+            "diceRoll": 3,
+            "finalPosition": 23,
+            "landingPosition": 23,
+            "missedAnswer": false,
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "practice": false,
+            "questionIndex": 8,
+            "questionSetId": "money",
+            "questionText": "พฤติกรรมใดทำให้เงินอยู่ไม่นาน?",
+            "selectedOption": "A",
+            "timestamp": 1792857298196
+          }
+        },
+        "diceMoves": {
+          "p_c395267d4145": {
+            "diceRoll": 3,
+            "fromPosition": 25,
+            "landingPosition": 28,
+            "pathCells": [
+              26,
+              27,
+              28
+            ],
+            "playerId": "p_c395267d4145",
+            "playerName": "Lapras",
+            "special": "drop",
+            "timestamp": 1792857276100,
+            "toPosition": 21
+          }
+        }
+      }
+    },
+    "hostName": "Fon",
+    "players": {
+      "p_4d03793b84af": {
+        "answered": false,
+        "color": "#f4511e",
+        "connected": true,
+        "emoji": "🐖",
+        "finished": true,
+        "finishedBy": "dice",
+        "finishedRound": 6,
+        "hasRolled": true,
+        "joinedAt": 1792856640574,
+        "lastRoll": 6,
+        "lastSeen": 1792856640574,
+        "name": "Kang",
+        "position": 30,
+        "startOfRoundPos": 30
+      },
+      "p_c395267d4145": {
+        "answer": "B",
+        "answerUpdatedAt": 1792857326940,
+        "answered": true,
+        "color": "#ffb300",
+        "connected": true,
+        "emoji": "👑",
+        "finished": false,
+        "hasRolled": true,
+        "joinedAt": 1792856691661,
+        "lastAnswerCorrect": true,
+        "lastRoll": 2,
+        "lastSeen": 1792856691661,
+        "name": "Lapras",
+        "position": 27,
+        "startOfRoundPos": 23
+      }
+    },
+    "questionSet": {
+      "boardImageId": "bg-money-coach",
+      "emojis": [
+        "💰",
+        "💵",
+        "💴",
+        "💶",
+        "💷",
+        "💸",
+        "💳",
+        "🪙",
+        "🏦",
+        "💎",
+        "📈",
+        "📉",
+        "🧾",
+        "🏧",
+        "👛",
+        "👜",
+        "🛍️",
+        "🛒",
+        "🎰",
+        "🏷️",
+        "⚖️",
+        "🧮",
+        "🔑",
+        "🏆",
+        "🎁",
+        "🐖",
+        "👑",
+        "⌚",
+        "🚗",
+        "🏠"
+      ],
+      "id": "money",
+      "name": "Money Coach ที่ยังต้องรอเงินเดือน",
+      "questions": [
+        {
+          "choices": {
+            "A": "ตอนเงินเดือนเข้า",
+            "B": "ตอนเปิดแอปดูครั้งแรก",
+            "C": "ตอนยังไม่เช็กยอด",
+            "D": "ตอนคิดว่าเดี๋ยวก็หาใหม่ได้"
+          },
+          "correctOption": "A",
+          "text": "ช่วงเวลาไหนที่รู้สึกว่าเงินในบัญชีดูใจดีที่สุด?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ของมันต้องมี",
+            "B": "ซื้อเถอะ คุ้ม",
+            "C": "ลดวันนี้วันเดียว",
+            "D": "ไม่ซื้อก็ได้ (แต่ซื้อดีกว่า)"
+          },
+          "correctOption": "C",
+          "text": "ประโยคใดมักทำให้รูดบัตรเร็วขึ้น?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ของชิ้นใหญ่",
+            "B": "ของชิ้นเล็กหลายครั้ง",
+            "C": "ค่าเดินทาง",
+            "D": "ของที่เพื่อนชวนซื้อ"
+          },
+          "correctOption": "B",
+          "text": "สิ่งใดทำให้เงินหายแบบไม่รู้ตัวมากที่สุด?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "มาม่า",
+            "B": "ชาบู",
+            "C": "ข้าวไข่เจียว",
+            "D": "อะไรก็ได้ที่ยังจ่ายไหว"
+          },
+          "correctOption": "D",
+          "text": "ปลายเดือน อาหารแบบไหนดูอร่อยเป็นพิเศษ?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ถูกจริง",
+            "B": "แพงแต่ยังรับได้",
+            "C": "ลดจากราคาเดิม",
+            "D": "แพง แต่ทำเป็นไม่คิด"
+          },
+          "correctOption": "B",
+          "text": "คำว่า ‘ไม่แพง’ ในใจเรา มักหมายถึงอะไร?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "เปิดแอปเช็กยอด",
+            "B": "วางแผนเก็บเงิน",
+            "C": "โอนเงินให้ตัวเองในอนาคต",
+            "D": "บอกตัวเองว่าเดือนนี้จะประหยัด"
+          },
+          "correctOption": "A",
+          "text": "สิ่งใดมักเกิดขึ้นทันทีหลังเงินเดือนออก?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ค่าอาหาร",
+            "B": "ค่าเดินทาง",
+            "C": "ค่าอินเทอร์เน็ต",
+            "D": "ค่าสมาชิกที่ลืมไปแล้ว"
+          },
+          "correctOption": "D",
+          "text": "ค่าใช้จ่ายใดที่มักโผล่มาแบบไม่ทันตั้งตัว?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ต้นเดือน",
+            "B": "กลางเดือน",
+            "C": "ปลายเดือน",
+            "D": "ก่อนเงินเข้า"
+          },
+          "correctOption": "C",
+          "text": "ช่วงไหนที่คำว่า ‘ประหยัด’ ดังที่สุดในใจ?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ซื้อของตามอารมณ์",
+            "B": "จดรายจ่าย",
+            "C": "รอของลด",
+            "D": "คิดก่อนซื้อ"
+          },
+          "correctOption": "A",
+          "text": "พฤติกรรมใดทำให้เงินอยู่ไม่นาน?",
+          "timeLimit": 30
+        },
+        {
+          "choices": {
+            "A": "ยังมีเงินสดติดกระเป๋า",
+            "B": "ยังรูดบัตรผ่าน",
+            "C": "ยังมีเพื่อนเลี้ยง",
+            "D": "ยังไม่ต้องยืมใคร"
+          },
+          "correctOption": "B",
+          "text": "สิ่งใดช่วยให้รู้สึกว่าตัวเองยังไม่จนเกินไป?",
+          "timeLimit": 30
+        }
+      ]
+    },
+    "roomCode": "BSWWHP",
+    "savedAt": 1792857328769,
+    "winners": [
+      {
+        "finishedBy": "dice",
+        "finishedRound": 6,
+        "playerId": "p_4d03793b84af",
+        "playerName": "Kang",
+        "rank": 1
+      }
+    ]
   }
 }
