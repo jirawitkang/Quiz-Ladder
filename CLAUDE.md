@@ -142,8 +142,9 @@ node "../.claude/serve.mjs" [port]           # static server :8765 (python http.
   GitHub ปิด scheduled workflow เองถ้า repo ไม่มีความเคลื่อนไหว 60 วัน → กด Enable ในแท็บ Actions
 - `.entry-stage` ต้องมี `grid-template-columns: minmax(0,1fr)` ไม่งั้นแถวที่ nowrap (แถบหมวด emoji) ดันหน้าจอกว้างเกินมือถือ
 
-## กระดาน 2.5 มิติ "ภูเขาขั้นบันได" (ระยะ 1 ทำแล้ว: ใช้ในเกมผ่านลิงก์ทดลอง)
-- เปิดใช้: ครูเข้าเว็บด้วย `?board=3d` (จำใน sessionStorage QL_BOARD_STYLE) → ห้องที่สร้างมี gameSettings.boardStyle = "3d"
+## กระดาน 2.5 มิติ "ภูเขาขั้นบันได" (ใช้จริงแล้ว: ค่าเริ่มต้นของห้องใหม่)
+- ห้องใหม่เป็น 3D เป็นค่าเริ่มต้น (ตั้งแต่ 2026-10-24); ครูเข้าเว็บด้วย `?board=2d` เพื่อสลับกลับ (จำใน sessionStorage QL_BOARD_STYLE)
+  → gameSettings.boardStyle ของห้อง; ห้องเก่าที่ไม่มีค่านี้ = 2D
   นักเรียนเห็นตามห้องเอง; app.js ใช้ createSwitchableBoard สลับ 2D/3D เฉพาะกระดานของบทบาทตัวเอง (ไม่สร้าง WebGL สองชุด)
   เครื่องเปิด WebGL ไม่ได้ / โหลด three ไม่ได้ → 2 มิติอัตโนมัติ; รูปพื้นหลังชุดคำถามใช้เฉพาะ 2 มิติ
 - ตกลงแล้ว: กล้องตรง (orthographic) เท่านั้น, ทรงคางหมู (bakeWarp บีบแกน x ตามความลึก), หินหน้าผาเทา, แสงหัวค่ำส้มพีช + เงาม่วง,

@@ -327,14 +327,14 @@ const inRoom = () => !!session.roomCode && !!session.role;
 const isHost = () => session.role === ROLE.HOST;
 const isPlayer = () => session.role === ROLE.PLAYER;
 
-// ช่วงทดลอง: ครูเปิดเว็บด้วย ?board=3d → ห้องที่สร้างใช้กระดานภูเขา 3 มิติ (จำไว้ในแท็บนี้แม้ refresh)
+// ห้องใหม่ใช้กระดานภูเขา 3 มิติเป็นค่าเริ่มต้น; ครูเปิดเว็บด้วย ?board=2d เพื่อสลับกลับ (เครื่องช้า) — จำไว้ในแท็บนี้แม้ refresh
 const BOARD_STYLE = (() => {
   try {
     const q = new URLSearchParams(location.search).get("board");
     if (q === "3d" || q === "2d") sessionStorage.setItem("QL_BOARD_STYLE", q);
-    return sessionStorage.getItem("QL_BOARD_STYLE") === "3d" ? "3d" : "2d";
+    return sessionStorage.getItem("QL_BOARD_STYLE") === "2d" ? "2d" : "3d";
   } catch {
-    return "2d";
+    return "3d";
   }
 })();
 // กระดาน: 2 มิติเดิม หรือภูเขา 3 มิติ (ห้องที่ตั้ง gameSettings.boardStyle = "3d") — นักเรียนเห็นตามห้องที่ครูสร้าง
