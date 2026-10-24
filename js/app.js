@@ -365,7 +365,7 @@ function createSwitchableBoard(root, opts) {
       inner.destroy?.();
       root.innerHTML = "";
       root.classList.remove("board", "board3d", "has-bg");
-      inner = (kind === "3d" && board3dModule.createBoard3D(root, opts)) || createBoardView(root, opts);
+      inner = (kind === "3d" && board3dModule.createBoard3D(root, { ...opts, bare: true, crop: boardCrop })) || createBoardView(root, opts);
       inner.setMe(me);
       return true;
     },
@@ -378,6 +378,11 @@ function createSwitchableBoard(root, opts) {
     isIdle: () => inner.isIdle(),
     reset: () => inner.reset(),
   };
+}
+// กระดาน 3 มิติวางบนท้องฟ้าเต็มจอ (body.b3-full): ตัดท้องฟ้าว่างเหนือภูเขา, มือถือนักเรียนตัดต้นไม้ข้างเขาออกให้ช่องใหญ่สุด
+const NARROW = typeof matchMedia === "function" ? matchMedia("(max-width: 899px)") : null;
+function boardCrop() {
+  return isPlayer() && NARROW?.matches ? { sides: 0.1, top: 0.07, bottom: 0.03 } : { top: 0.07, bottom: 0.03 };
 }
 // ห้องอยากได้กระดานแบบไหน → สลับเฉพาะกระดานของบทบาทนี้ (ครู/นักเรียน ไม่สร้าง 3D สองชุด)
 function syncBoardKind(room) {
@@ -608,7 +613,7 @@ function resetRoomUi() {
   setHidden(dom.soundToggle, true);
   setHidden(dom.hostLobby, true);
   setHidden(dom.playerLobby, true);
-  document.body.classList.remove("on-lobby");
+  document.body.classList.remove("on-lobby", "b3-full");
   if (dom.lobbyPlayers) dom.lobbyPlayers.dataset.html = "";
   lastPickedEmoji = null;
   setHidden(dom.diceDock, true);
@@ -733,6 +738,7 @@ function renderRoom(rawRoom) {
   // ต้องแสดงหน้าก่อนวาด view — ลูกเต๋า 3D วัดตำแหน่งกล่อง #diceDock ตอน render ถ้าหน้ายังซ่อนจะได้ขนาด 0 แล้วลอยไปมุมจอ
   document.body.classList.toggle("on-lobby", inLobby);
   document.body.classList.toggle("on-game", !inLobby);
+  document.body.classList.toggle("b3-full", !inLobby && activeBoardView().is3d);
   setHidden(dom.roomView, inLobby);
   setHidden(dom.hostLobby, !(inLobby && isHost()));
   setHidden(dom.playerLobby, !(inLobby && isPlayer()));
@@ -1080,6 +1086,9 @@ function renderGameAction(room, me) {
   const html = (s) => {
     box.innerHTML = s;
   };
+  // จอเต็มท้องฟ้า: คำถาม/เฉลย = การ์ดใหญ่ทับกระดาน (คอม: กระดานเลื่อนหลบ), รอทอย = ลูกเต๋าลอยอย่างเดียว
+  dom.playerView.classList.toggle("has-q", phase === PHASE.ANSWERING || phase === PHASE.RESULT);
+  dom.playerView.classList.toggle("can-roll", phase === PHASE.ROLLING && !me.hasRolled && !busy.roll && !isPlayerDone(me));
 
   if (phase === PHASE.ENDED) {
     const rank = (room.winners || []).find((w) => w.playerId === session.playerId)?.rank;
@@ -1133,7 +1142,7 @@ function renderGameAction(room, me) {
       const question = getQuestionFromRoom(room, room.questionIndex ?? 0);
       const rec = room.history?.[roundKey(round)]?.answers?.[session.playerId];
       html(`${resultMessage(rec)}<div class="choices" id="playerChoices"></div><div class="sub">${
-        practice ? "ข้อฝึก · ไม่มีผลกับอันดับ รอข้อต่อไปได้เลย" : "กดดูกระดานด้านบนว่าหมากเดินไปไหน"
+        practice ? "ข้อฝึก · ไม่มีผลกับอันดับ รอข้อต่อไปได้เลย" : "ดูบนกระดานว่าหมากเดินไปไหน"
       }</div>`);
       renderChoices($("playerChoices"), question, { selected: rec?.selectedOption ?? null, showResult: true });
       return;

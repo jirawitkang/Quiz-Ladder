@@ -2025,3 +2025,88 @@
   /* กระดาน 3 มิติแบบไม่มีฉากของตัวเอง (คลิปวิธีเล่น): ภูเขาลอยบนพื้นหลังของคลิป */
   .board3d.b3-bare{ background:transparent; overflow:visible; border-radius:0; }
   .board3d.b3-bare .b3-sky, .board3d.b3-bare .b3-clouds, .board3d.b3-bare .b3-vignette{ display:none; }
+
+
+  /* =========================
+     23) GAME FULL SKY — กระดาน 3 มิติ: ท้องฟ้าเต็มจอ ภูเขาใหญ่กลางจอ การ์ดลอยทับ (body.b3-full; กระดาน 2 มิติใช้ส่วน 19 เดิม)
+     ========================= */
+  .game-sky{ display:none; }
+  body.b3-full .game-sky{ display:block; position:fixed; inset:0; overflow:hidden; pointer-events:none;
+    background:linear-gradient(#251e7a 0%, #4236b2 40%, #6a52cc 66%, #4a389f 86%, #2e2378 100%); }
+  .game-sky i{ position:absolute; display:block; pointer-events:none; }
+  .gs-stars{ inset:-5% -10%; animation:b3-twinkle 2.6s ease-in-out infinite alternate, b3-drift 40s ease-in-out infinite alternate; }
+  .gs-stars.a{ background-image:
+    radial-gradient(1.8px 1.8px at 6% 10%, #fff 50%, transparent 55%), radial-gradient(1.4px 1.4px at 18% 26%, #fff 50%, transparent 55%),
+    radial-gradient(2.2px 2.2px at 31% 7%, #fffbe0 50%, transparent 55%), radial-gradient(1.4px 1.4px at 44% 19%, #fff 50%, transparent 55%),
+    radial-gradient(1.8px 1.8px at 57% 5%, #fff 50%, transparent 55%), radial-gradient(1.4px 1.4px at 69% 22%, #fff 50%, transparent 55%),
+    radial-gradient(2.2px 2.2px at 82% 9%, #fffbe0 50%, transparent 55%), radial-gradient(1.4px 1.4px at 93% 28%, #fff 50%, transparent 55%),
+    radial-gradient(1.6px 1.6px at 4% 46%, #fff 50%, transparent 55%), radial-gradient(1.6px 1.6px at 96% 52%, #fff 50%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 12% 70%, #fff 50%, transparent 55%), radial-gradient(1.8px 1.8px at 88% 74%, #fff 50%, transparent 55%); }
+  .gs-stars.b{ animation-delay:-1.3s, -20s; background-image:
+    radial-gradient(1.4px 1.4px at 11% 17%, #fff 50%, transparent 55%), radial-gradient(1.8px 1.8px at 25% 4%, #fff 50%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 38% 30%, #fff 50%, transparent 55%), radial-gradient(2px 2px at 63% 14%, #fffbe0 50%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 76% 3%, #fff 50%, transparent 55%), radial-gradient(1.8px 1.8px at 88% 18%, #fff 50%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 8% 62%, #fff 50%, transparent 55%), radial-gradient(1.6px 1.6px at 92% 66%, #fff 50%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 22% 84%, #fff 50%, transparent 55%), radial-gradient(1.6px 1.6px at 78% 88%, #fff 50%, transparent 55%); }
+  .gs-stars.c{ animation-delay:-.6s, -10s; background-image:radial-gradient(1.0px 1.0px at 28.9% 19.4%, #fff 50%, transparent 55%),radial-gradient(1.9px 1.9px at 32.9% 69.2%, #fff 50%, transparent 55%),radial-gradient(2.0px 2.0px at 68.5% 58.5%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 37.4% 65.1%, #fffbe0 50%, transparent 55%),radial-gradient(1.9px 1.9px at 68.4% 43.0%, #fffbe0 50%, transparent 55%),radial-gradient(2.2px 2.2px at 12.3% 47.2%, #fff 50%, transparent 55%),radial-gradient(2.2px 2.2px at 64.4% 53.1%, #fff 50%, transparent 55%),radial-gradient(2.2px 2.2px at 37.2% 30.9%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 15.3% 27.4%, #fff 50%, transparent 55%),radial-gradient(1.6px 1.6px at 93.7% 51.3%, #fff 50%, transparent 55%),radial-gradient(1.9px 1.9px at 5.9% 25.2%, #fff 50%, transparent 55%),radial-gradient(1.7px 1.7px at 42.1% 17.8%, #fff 50%, transparent 55%),radial-gradient(2.2px 2.2px at 36.5% 31.7%, #fffbe0 50%, transparent 55%),radial-gradient(1.9px 1.9px at 51.5% 15.2%, #fff 50%, transparent 55%),radial-gradient(1.5px 1.5px at 36.4% 39.0%, #fff 50%, transparent 55%),radial-gradient(1.4px 1.4px at 61.4% 21.5%, #fff 50%, transparent 55%),radial-gradient(2.2px 2.2px at 86.3% 58.4%, #fff 50%, transparent 55%),radial-gradient(1.8px 1.8px at 50.5% 63.4%, #fff 50%, transparent 55%),radial-gradient(2.2px 2.2px at 70.8% 23.1%, #fff 50%, transparent 55%),radial-gradient(1.8px 1.8px at 33.1% 36.0%, #fff 50%, transparent 55%),radial-gradient(2.0px 2.0px at 11.1% 75.4%, #fff 50%, transparent 55%),radial-gradient(1.1px 1.1px at 15.4% 7.2%, #fff 50%, transparent 55%),radial-gradient(2.3px 2.3px at 63.2% 13.3%, #fffbe0 50%, transparent 55%),radial-gradient(1.6px 1.6px at 13.8% 84.8%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 88.5% 83.5%, #fff 50%, transparent 55%),radial-gradient(2.0px 2.0px at 1.0% 22.8%, #fff 50%, transparent 55%),radial-gradient(1.1px 1.1px at 61.7% 21.3%, #fffbe0 50%, transparent 55%),radial-gradient(2.0px 2.0px at 68.8% 21.9%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 37.4% 82.3%, #fffbe0 50%, transparent 55%),radial-gradient(1.2px 1.2px at 0.3% 84.0%, #fff 50%, transparent 55%),radial-gradient(1.8px 1.8px at 2.1% 82.8%, #fff 50%, transparent 55%),radial-gradient(1.2px 1.2px at 56.5% 62.5%, #fff 50%, transparent 55%),radial-gradient(1.3px 1.3px at 20.9% 51.9%, #fffbe0 50%, transparent 55%),radial-gradient(1.1px 1.1px at 70.1% 65.7%, #fff 50%, transparent 55%),radial-gradient(1.6px 1.6px at 11.0% 84.6%, #fffbe0 50%, transparent 55%),radial-gradient(1.2px 1.2px at 89.3% 3.4%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 99.3% 87.8%, #fff 50%, transparent 55%),radial-gradient(2.0px 2.0px at 24.8% 66.9%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 23.5% 37.2%, #fff 50%, transparent 55%),radial-gradient(2.2px 2.2px at 35.1% 57.2%, #fff 50%, transparent 55%),radial-gradient(2.0px 2.0px at 72.5% 38.9%, #fff 50%, transparent 55%),radial-gradient(1.3px 1.3px at 98.5% 91.5%, #fff 50%, transparent 55%),radial-gradient(1.8px 1.8px at 91.8% 18.4%, #fff 50%, transparent 55%),radial-gradient(1.8px 1.8px at 49.7% 51.3%, #fffbe0 50%, transparent 55%),radial-gradient(2.0px 2.0px at 48.2% 17.2%, #fff 50%, transparent 55%),radial-gradient(1.6px 1.6px at 66.3% 48.0%, #fffbe0 50%, transparent 55%); }
+  .gs-stars.d{ animation-delay:-2s, -30s; animation-duration:3.4s, 40s; background-image:radial-gradient(1.7px 1.7px at 75.7% 33.3%, #fff 50%, transparent 55%),radial-gradient(2.0px 2.0px at 29.9% 49.8%, #fffbe0 50%, transparent 55%),radial-gradient(1.3px 1.3px at 29.1% 21.7%, #fff 50%, transparent 55%),radial-gradient(1.9px 1.9px at 7.5% 71.1%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 91.0% 62.6%, #fff 50%, transparent 55%),radial-gradient(2.2px 2.2px at 76.2% 55.3%, #fffbe0 50%, transparent 55%),radial-gradient(1.9px 1.9px at 3.7% 12.5%, #fff 50%, transparent 55%),radial-gradient(1.1px 1.1px at 8.5% 0.9%, #fffbe0 50%, transparent 55%),radial-gradient(1.8px 1.8px at 19.2% 12.3%, #fff 50%, transparent 55%),radial-gradient(1.3px 1.3px at 24.3% 42.0%, #fff 50%, transparent 55%),radial-gradient(2.3px 2.3px at 67.4% 71.2%, #fff 50%, transparent 55%),radial-gradient(1.5px 1.5px at 6.1% 21.2%, #fff 50%, transparent 55%),radial-gradient(2.0px 2.0px at 15.2% 85.1%, #fff 50%, transparent 55%),radial-gradient(1.7px 1.7px at 21.0% 55.4%, #fffbe0 50%, transparent 55%),radial-gradient(1.2px 1.2px at 27.3% 59.5%, #fffbe0 50%, transparent 55%),radial-gradient(1.7px 1.7px at 99.4% 6.9%, #fff 50%, transparent 55%),radial-gradient(1.5px 1.5px at 0.4% 0.6%, #fff 50%, transparent 55%),radial-gradient(1.5px 1.5px at 23.4% 85.0%, #fffbe0 50%, transparent 55%),radial-gradient(2.0px 2.0px at 43.7% 78.7%, #fff 50%, transparent 55%),radial-gradient(2.3px 2.3px at 66.2% 52.6%, #fff 50%, transparent 55%),radial-gradient(1.5px 1.5px at 49.7% 45.5%, #fff 50%, transparent 55%),radial-gradient(1.7px 1.7px at 66.5% 58.2%, #fff 50%, transparent 55%),radial-gradient(1.9px 1.9px at 84.5% 90.9%, #fff 50%, transparent 55%),radial-gradient(1.6px 1.6px at 95.7% 89.7%, #fff 50%, transparent 55%),radial-gradient(1.5px 1.5px at 34.3% 81.2%, #fffbe0 50%, transparent 55%),radial-gradient(1.9px 1.9px at 95.5% 72.4%, #fff 50%, transparent 55%),radial-gradient(1.3px 1.3px at 79.8% 9.6%, #fffbe0 50%, transparent 55%),radial-gradient(2.2px 2.2px at 63.5% 65.5%, #fff 50%, transparent 55%),radial-gradient(1.7px 1.7px at 87.2% 51.8%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 68.7% 39.9%, #fff 50%, transparent 55%),radial-gradient(1.5px 1.5px at 58.9% 21.3%, #fffbe0 50%, transparent 55%),radial-gradient(2.2px 2.2px at 33.8% 62.8%, #fff 50%, transparent 55%),radial-gradient(2.1px 2.1px at 30.8% 84.7%, #fffbe0 50%, transparent 55%),radial-gradient(1.0px 1.0px at 39.7% 2.0%, #fffbe0 50%, transparent 55%),radial-gradient(1.9px 1.9px at 17.3% 19.5%, #fff 50%, transparent 55%),radial-gradient(2.2px 2.2px at 17.5% 10.7%, #fff 50%, transparent 55%),radial-gradient(1.8px 1.8px at 81.2% 54.4%, #fffbe0 50%, transparent 55%),radial-gradient(2.0px 2.0px at 33.1% 65.8%, #fffbe0 50%, transparent 55%),radial-gradient(2.2px 2.2px at 58.8% 71.5%, #fff 50%, transparent 55%),radial-gradient(1.9px 1.9px at 59.8% 9.2%, #fff 50%, transparent 55%),radial-gradient(1.1px 1.1px at 22.5% 53.5%, #fff 50%, transparent 55%),radial-gradient(1.3px 1.3px at 62.0% 57.9%, #fffbe0 50%, transparent 55%),radial-gradient(2.1px 2.1px at 90.6% 4.9%, #fffbe0 50%, transparent 55%),radial-gradient(1.9px 1.9px at 79.2% 60.7%, #fff 50%, transparent 55%),radial-gradient(2.0px 2.0px at 91.9% 46.1%, #fffbe0 50%, transparent 55%),radial-gradient(2.1px 2.1px at 86.6% 72.7%, #fff 50%, transparent 55%); }
+  .gs-cloud{ left:0; width:26%; height:16%; animation:gs-cloudmove 70s linear infinite;
+    background:radial-gradient(closest-side, rgba(226,220,255,.55), transparent) 0% 70% / 55% 80% no-repeat,
+      radial-gradient(closest-side, rgba(236,232,255,.6), transparent) 45% 30% / 60% 100% no-repeat,
+      radial-gradient(closest-side, rgba(222,214,255,.5), transparent) 100% 75% / 55% 75% no-repeat; }
+  .gs-cloud.c1{ top:3%; } .gs-cloud.c2{ top:14%; width:20%; opacity:.7; animation-duration:90s; animation-delay:-40s; }
+  .gs-cloud.c3{ top:40%; width:18%; opacity:.45; animation-duration:110s; animation-delay:-75s; }
+  .gs-cloud.c4{ top:62%; width:22%; opacity:.4; animation-duration:80s; animation-delay:-20s; }
+  @keyframes gs-cloudmove{ from{ transform:translateX(-110%); } to{ transform:translateX(520%); } }
+  /* หมอกม่วงเข้มอยู่หลังภูเขา (อยู่หน้าจะทำให้แถวล่างหมอง) */
+  .gs-fog{ left:-5%; right:-5%; bottom:-10%; height:22%; animation:b3-drift 45s ease-in-out infinite alternate;
+    background:radial-gradient(closest-side, rgba(44,30,120,.85), transparent) 0% 100% / 32% 90% no-repeat,
+      radial-gradient(closest-side, rgba(52,36,138,.8), transparent) 24% 110% / 36% 100% no-repeat,
+      radial-gradient(closest-side, rgba(44,30,120,.85), transparent) 50% 120% / 38% 100% no-repeat,
+      radial-gradient(closest-side, rgba(52,36,138,.8), transparent) 76% 110% / 36% 100% no-repeat,
+      radial-gradient(closest-side, rgba(44,30,120,.85), transparent) 100% 100% / 32% 90% no-repeat; }
+  @media (prefers-reduced-motion: reduce){ .gs-stars, .gs-cloud, .gs-fog{ animation:none; } }
+
+  /* ทั้งหน้าเป็นจอเดียวไม่เลื่อน: แถบบนลอย, กระดานเต็มพื้นที่ที่เหลือ */
+  body.b3-full #roomView{ position:fixed; inset:0; min-height:0; padding:0; overflow:hidden; background:#241c55; }
+  body.b3-full .game-top{ position:absolute; top:10px; left:16px; right:16px; z-index:20; margin:0; }
+  body.b3-full .gt-round, body.b3-full .gt-me, body.b3-full .gt-steps, body.b3-full #roomView .gt-ghost{
+    background:rgba(28,20,88,.58); border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  body.b3-full .gt-me{ padding:3px 14px 3px 4px; border-radius:999px; }
+  body.b3-full .gt-steps{ padding:6px 14px; border-radius:999px; }
+  body.b3-full .board3d{ position:absolute; inset:0; width:auto; height:auto; aspect-ratio:auto; }
+  body.b3-full .glass-panel, body.b3-full .side-panel, body.b3-full .wait{
+    background:rgba(28,20,88,.58); border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+  body.b3-full .end-game{ position:absolute; z-index:30; top:64px; bottom:16px; left:50%; transform:translateX(-50%); width:min(900px, calc(100% - 32px)); overflow:auto; margin:0; }
+
+  /* ครู: กระดานใหญ่ซ้าย + แถบสถานะกระจกโปร่งขวา */
+  body.b3-full .host-layout{ position:absolute; inset:62px 16px 16px; grid-template-columns:minmax(0,1fr) clamp(240px,22vw,320px); align-items:stretch; }
+  body.b3-full .host-stage, body.b3-full #hostBoardArea{ height:100%; min-height:0; }
+  body.b3-full #hostBoardArea{ max-width:none; padding:0; position:relative; }
+  body.b3-full .host-side{ min-height:0; overflow:auto; }
+  @media (max-width:640px){
+    body.b3-full .host-layout{ grid-template-columns:minmax(0,1fr); grid-template-rows:56vh auto; overflow:auto; }
+  }
+
+  /* นักเรียน: กระดานใหญ่กลางจอ, ลูกเต๋าลอยกลางล่าง, การ์ดลอยทับ */
+  body.b3-full .player-layout:not(.in-lobby){ position:absolute; inset:0; display:block; max-width:none; margin:0; }
+  /* justify-self:center ของเลย์เอาต์เดิมทำให้กล่อง absolute หดเหลือกว้าง 0 → ต้องคืนเป็น normal */
+  body.b3-full #playerBoard.board3d{ inset:58px 0 0; padding:0; max-width:none; justify-self:normal; align-self:normal; transition:transform .55s cubic-bezier(.4,0,.2,1); }
+  body.b3-full #diceDock{ position:absolute; z-index:12; left:50%; bottom:22px; width:170px; height:150px; transform:translateX(-50%); background:none; border:none; }
+  body.b3-full .can-roll #diceDock::after{ content:"แตะลูกเต๋าเพื่อทอย"; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); white-space:nowrap;
+    font-size:15px; padding:5px 14px; border-radius:999px; color:#fff; background:rgba(28,20,88,.58); border:1px solid rgba(255,255,255,.16); }
+  body.b3-full .can-roll #playerAction{ display:none; }
+  body.b3-full #playerAction{ position:absolute; z-index:15; right:24px; top:68px; width:clamp(340px,32vw,460px); max-height:calc(100% - 88px); overflow:auto;
+    box-shadow:0 8px 0 rgba(0,0,0,.18), 0 24px 50px rgba(10,6,40,.5); }
+  body.b3-full #playerAction:empty{ display:none; }
+  @media (min-width:900px){
+    /* คำถามเด้ง: กระดานเลื่อนซ้ายหลบ การ์ดทับขอบขวานิดเดียว ยังเห็นหมากฝั่งขวา */
+    body.b3-full .has-q #playerBoard.board3d{ transform:translateX(calc(-1 * min(205px, 14vw))); }
+  }
+  @media (max-width:899px){
+    body.b3-full .game-top{ top:8px; left:10px; right:10px; }
+    body.b3-full #playerBoard.board3d{ inset:52px 0 auto; height:min(52dvh, 95vw); }
+    body.b3-full #diceDock{ top:calc(60px + min(52dvh, 95vw)); bottom:auto; height:140px; }
+    body.b3-full #playerAction{ left:0; right:0; top:auto; bottom:0; width:auto; max-height:64dvh; border-radius:24px 24px 0 0;
+      padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px)); }
+  }

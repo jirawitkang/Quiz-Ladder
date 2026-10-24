@@ -52,7 +52,8 @@ const STAGE_HTML = `<div class="b3-sky"><div class="b3-stars a"></div><div class
 
 // คืน null ถ้าเครื่องเปิด WebGL ไม่ได้ → ผู้เรียกใช้กระดาน 2 มิติแทน
 // bare: ไม่มีท้องฟ้า/เมฆ/ขอบมืดของตัวเอง (วางบนฉากอื่น เช่นคลิปวิธีเล่น), pixelRatio: ความละเอียดภาพ (คลิปย่อ/ขยายทั้งเวที)
-export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hooks = {}, bare = false, pixelRatio = null } = {}) {
+// crop: ตัดขอบว่างรอบภูเขาออก (สัดส่วนของกรอบ { top, bottom, sides } หรือฟังก์ชันที่คืนค่านี้ — คิดใหม่ทุกครั้งที่ขนาดเปลี่ยน)
+export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hooks = {}, bare = false, pixelRatio = null, crop = null } = {}) {
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
@@ -143,7 +144,7 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
       g.stroke();
     }
   };
-  const cliffTex = canvasTex(256, 256, rockCanvas("#66646a", "#58565c", "#7f7d84")); // หินเทากลาง: ไม่น้ำตาล (ดูกลางวัน) และเข้มกว่า/ไม่ม่วงแบบทางเดิน → ทางเดินเด่น
+  const cliffTex = canvasTex(256, 256, rockCanvas("#76747c", "#68666e", "#8c8a92")); // หินเทากลาง: ไม่น้ำตาล (ดูกลางวัน) และเข้มกว่า/ไม่ม่วงแบบทางเดิน → ทางเดินเด่น
   cliffTex.wrapS = cliffTex.wrapT = THREE.RepeatWrapping;
   cliffTex.repeat.set(1.3, 0.8);
   const grassTex = canvasTex(256, 256, (g, w, h) => {
@@ -267,22 +268,41 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
     for (let i = 0; i < pos.count; i++) pos.setXYZ(i, pos.getX(i) * range(0.85, 1.12), pos.getY(i) * range(0.85, 1.12), pos.getZ(i) * range(0.85, 1.12));
     geo.computeVertexNormals();
     const items = [];
+    const behindLadder = (t, x) => t > 0 && ladderCols(t - 1).some((c) => Math.abs(x - xCol(c)) < 0.36);
     const skip = (t, x) => {
       if (t === 0) return false;
-      if (ladderCols(t - 1).some((c) => Math.abs(x - xCol(c)) < 0.36)) return true;
+      if (behindLadder(t, x)) return true;
       return TURNS.some((s) => s.tier === t - 1 && Math.abs(x - xCol(s.col)) < COLW * 0.45);
+    };
+    // หลังบันไดส้ม/ม่วง: หินแบนชิดผนัง (ไม่ชนตัวบันได) ให้บันไดเด่นบนหิน ไม่ลอยบนพื้นมืด
+    // ขนาดไม่ใช้ rnd() เพื่อให้ลำดับสุ่มเดิม ฉากส่วนอื่นไม่เปลี่ยน
+    const backRocks = (f, x) => {
+      const hgt = f.y1 - f.y0, j = (k) => Math.sin(x * 12.9898 + k * 78.233) * 0.5; // -0.5..0.5 คงที่ต่อ x
+      items.push([x + j(1) * 0.04, f.y0 + hgt * 0.5, f.z - 0.05, 0.2 + j(2) * 0.04, Math.min(hgt * 0.58, 0.62) * (0.95 + j(3) * 0.1), 0.06, true, true]);
+      items.push([x + 0.17, f.y0 + hgt * (0.75 + j(4) * 0.1), f.z - 0.06, 0.15, 0.13, 0.05, true, true]);
+      items.push([x + 0.17, f.y0 + hgt * (0.25 + j(5) * 0.1), f.z - 0.06, 0.14, 0.12, 0.05, true, true]);
     };
     for (const f of cliffFronts) {
       const hgt = f.y1 - f.y0;
       // หินก้อนใหญ่ตั้งเรียงเต็มความสูงหน้าผา + ก้อนเล็กแซมที่ฐาน (เหมือนภาพตัวอย่าง)
       for (let x = f.x0 + 0.16; x < f.x1 - 0.08;) {
         const step = range(0.3, 0.38);
+        if (behindLadder(f.tier, x)) backRocks(f, x);
         if (!skip(f.tier, x)) {
           const tall = Math.min(hgt * 0.58, 0.62);
           items.push([x + range(-0.02, 0.02), f.y0 + hgt * 0.5 + range(-0.04, 0.03), f.z + range(0.0, 0.04), range(0.2, 0.25), tall * range(0.86, 1.04), range(0.12, 0.16), true]);
           // อุดซอกระหว่างก้อนใหญ่: ก้อนกลางด้านบน + ก้อนเล็กด้านล่าง (สูงต่ำไม่เท่ากัน)
           const gx = x + step * 0.5;
+          for (const qx of [x + step * 0.25, x + step * 0.75]) {
+            if (skip(f.tier, qx)) continue;
+            const jq = (k) => Math.sin(qx * 53.3 + k * 19.7) * 0.5;
+            items.push([qx, f.y0 + hgt * (0.5 + jq(1) * 0.3), f.z - 0.03, 0.13 + jq(2) * 0.03, Math.min(hgt * 0.3, 0.34) * (0.9 + jq(3) * 0.2), 0.09, true, true]);
+            // แถวบนใต้ขอบหญ้า: ซอกตรงนี้อยู่ในเงาชั้นบน มืดที่สุด
+            items.push([qx + 0.04, f.y0 + hgt * 0.86, f.z - 0.02, 0.15 + jq(4) * 0.03, Math.min(hgt * 0.16, 0.18), 0.09, true, true]);
+          }
           if (!skip(f.tier, gx)) {
+            const jj = (k) => Math.sin(gx * 91.7 + k * 37.1) * 0.5;
+            items.push([gx + jj(1) * 0.03, f.y0 + hgt * (0.5 + jj(2) * 0.08), f.z - 0.02, 0.17 + jj(3) * 0.03, Math.min(hgt * 0.42, 0.46) * (0.9 + jj(4) * 0.15), 0.1, true, true]);
             items.push([gx + range(-0.03, 0.03), f.y0 + hgt * range(0.68, 0.82), f.z - 0.01, range(0.13, 0.18), range(0.11, 0.16), 0.1, true]);
             items.push([gx + range(-0.03, 0.03), f.y0 + hgt * range(0.18, 0.32), f.z - 0.01, range(0.12, 0.17), range(0.1, 0.15), 0.1, true]);
           }
@@ -353,12 +373,15 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
     }
     const inst = new THREE.InstancedMesh(geo, M.rock, items.length);
     const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), col = new THREE.Color();
-    items.forEach(([x, y, z, a, b, c, upright], i) => {
+    // ก้อนที่เติมทีหลัง (extra) สุ่มจากตำแหน่งตัวเอง ไม่ดึง rnd() — ถ้าดึง ต้นไม้/หินทั้งฉากที่สร้างหลังจากนี้จะย้ายที่หมด
+    const hashRange = (x, y, k) => (a, b) => a + (Math.sin(x * 127.1 + y * 311.7 + (k += 1) * 74.7) * 0.5 + 0.5) * (b - a);
+    items.forEach(([x, y, z, a, b, c, upright, extra], i) => {
+      const R = extra ? hashRange(x, y, 0) : range;
       // แท่งหินหน้าผาตั้งตรง (หมุนรอบแกนตั้งอย่างเดียว) ส่วนก้อนอื่นเอียงสุ่ม
-      q.setFromEuler(upright ? e.set(range(-0.06, 0.06), range(0, 6.28), range(-0.06, 0.06)) : e.set(range(-0.4, 0.4), range(0, 6.28), range(-0.3, 0.3)));
+      q.setFromEuler(upright ? e.set(R(-0.06, 0.06), R(0, 6.28), R(-0.06, 0.06)) : e.set(R(-0.4, 0.4), R(0, 6.28), R(-0.3, 0.3)));
       m4.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(a, b, c));
       inst.setMatrixAt(i, m4);
-      inst.setColorAt(i, col.setHSL(0.08 + range(-0.03, 0.03), range(0.03, 0.08), upright ? range(0.42, 0.54) : range(0.37, 0.49))); // เทาอมอุ่นนิด ๆ ต่างกันทีละก้อน
+      inst.setColorAt(i, col.setHSL(0.08 + R(-0.03, 0.03), R(0.03, 0.08), upright ? R(0.42, 0.54) : R(0.37, 0.49))); // เทาอมอุ่นนิด ๆ ต่างกันทีละก้อน
     });
     inst.castShadow = true; inst.receiveShadow = true;
     board.add(inst);
@@ -451,7 +474,7 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
     }
     // ป้าย START
     const s = cellWorld(1);
-    const signX = s.x - TILE_W / 2 - 0.36;
+    const signX = s.x - TILE_W / 2 - 0.5; // เสาขวาต้องปักบนหญ้า ไม่ทับแผ่นหินช่อง 1
     for (const dx of [-0.38, 0.38]) {
       const post = mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.98, 8), M.woodDark);
       post.position.set(signX + dx, s.y + 0.49, s.z - 0.02); board.add(post); // หลังป้าย
@@ -597,6 +620,9 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
       const b = mesh(new THREE.IcosahedronGeometry(r * s, 1), M.leafA); b.position.set(x + bx * s, y + r * s * 0.7, z + bz * s); board.add(b);
     }
   }
+  // ตำแหน่งตะเกียงตามไหล่เขา สลับซ้ายขวาทุกชั้น (ชั้นล่างซ้ายเว้นให้ป้าย START) — รู้ก่อนวางต้นไม้ จะได้ไม่ทับเสา
+  const LANTERN_SIDE = [1, -1, 1, -1]; // ชั้นบนสุดไม่มี (ข้างช่อง 24 มีแล้ว) — ข้างช่อง 25/30 เป็นต้นไม้/หินแทน
+  const lanternAt = (t) => ({ x: LANTERN_SIDE[t] * (HALF + sideW(t) * 0.42), z: zMid(t) + 0.38 });
   for (let t = 0; t < TIERS; t++) {
     const y = yTop(t), edgeL = xCol(0) - COLW / 2, edgeR = xCol(COLS - 1) + COLW / 2, w = sideW(t);
     const z = zMid(t);
@@ -606,23 +632,30 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
       const n = 2 + Math.floor(rnd() * 3);
       for (let k = 0; k < n; k++) {
         const x = edge + side * w * range(0.18, 0.85);
-        const zz = z + range(-0.65, 0.5);
+        let zz = z + range(-0.65, 0.5);
         if (t === 0 && side < 0 && zz > z - 0.3) continue; // เว้นที่ป้าย START
+        // ฝั่งที่มีตะเกียง: ต้นไม้สูงจะบังเสา (มองจากกล้องต้นที่อยู่หลังเสาก็ทับกัน) → ใช้พุ่มเตี้ยแทน และเลื่อนพ้นตัวเสา
+        // (สุ่มจำนวนครั้งเท่าเดิม ฉากส่วนอื่นจึงไม่เปลี่ยน)
+        const L = lanternAt(t);
+        const nearLamp = side === LANTERN_SIDE[t];
+        if (nearLamp && Math.abs(zz - L.z) < 0.35) zz = L.z + (zz < L.z ? -0.35 : 0.35);
         const pick = rnd();
-        if (pick < 0.22) pineTree(x, y, zz, range(0.85, 1.25));
+        const placedByHand = (t === 2 && side < 0) || (t === 3 && side > 0);
+        if ((nearLamp || placedByHand) && pick < 0.44) bush(x, y, zz, range(0.75, 1.0));
+        else if (pick < 0.22) pineTree(x, y, zz, range(0.85, 1.25));
         else if (pick < 0.44) roundTree(x, y, zz, range(0.8, 1.15));
         else if (pick < 0.82) bush(x, y, zz, range(0.75, 1.15));
         else { const b = mesh(new THREE.DodecahedronGeometry(range(0.16, 0.3), 0), sideRock); b.position.set(x, y + 0.08, zz); b.rotation.set(rnd(), rnd() * 6, rnd()); board.add(b); }
       }
     }
   }
-  // ตะเกียงตามไหล่เขา สลับซ้ายขวาทุกชั้น (ชั้นล่างซ้ายเว้นให้ป้าย START)
+  // ตะเกียง (ตำแหน่งจาก lanternAt)
   const lanternPts = [];
   {
     const post = std(0x4a3426, { roughness: 0.8 }), cap = std(0x3a2a20, { roughness: 0.7, flatShading: true });
     const glass = std(0xffd890, { emissive: 0xffa640, emissiveIntensity: 1.8, roughness: 0.4 });
-    [1, -1, 1, -1, -1].forEach((side, t) => {
-      const x = side * (HALF + sideW(t) * 0.42), z = zMid(t) + 0.38, y = yTop(t);
+    LANTERN_SIDE.forEach((side, t) => {
+      const { x, z } = lanternAt(t), y = yTop(t);
       const p1 = mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.62, 8), post); p1.position.set(x, y + 0.31, z); board.add(p1);
       const head = mesh(new THREE.BoxGeometry(0.15, 0.18, 0.15), glass, false); head.position.set(x, y + 0.71, z); board.add(head);
       const top = mesh(new THREE.ConeGeometry(0.13, 0.11, 4), cap); top.rotation.y = Math.PI / 4; top.position.set(x, y + 0.855, z); board.add(top);
@@ -630,6 +663,39 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
     });
   }
   roundTree(xCol(0) - 0.95, yTop(4), zMid(4) - 0.85, 1.25);
+  // ข้างช่อง 25 และ 30: ต้นไม้ใหญ่ + พุ่ม + หิน เป็นกรอบยอดเขา
+  {
+    const y4 = yTop(TIERS - 1), z4 = zMid(TIERS - 1), w4 = sideW(TIERS - 1);
+    const boulder4 = std(0x7c7a80, { flatShading: true, roughness: 0.9, emissive: 0x111014 });
+    const rock = (x, z, r) => { const b = mesh(new THREE.DodecahedronGeometry(r, 0), boulder4); b.position.set(x, y4 + r * 0.45, z); b.rotation.set(0.4, x * 3, 0.2); board.add(b); };
+    roundTree(-(HALF + w4 * 0.55), y4, z4 + 0.05, 1.2);
+    bush(-(HALF + w4 * 0.3), y4, z4 + 0.55, 0.95);
+    rock(-(HALF + w4 * 0.78), z4 + 0.5, 0.2);
+    pineTree(HALF + w4 * 0.58, y4, z4 + 0.0, 1.2);
+    bush(HALF + w4 * 0.32, y4, z4 + 0.58, 0.9);
+    rock(HALF + w4 * 0.8, z4 + 0.45, 0.22);
+  }
+  // หน้าป้าย START: พุ่มเตี้ย + หินก้อนเล็ก ไม่ให้โล่ง (เตี้ยกว่าแผ่นป้าย)
+  {
+    const s1 = cellWorld(1), sx0 = s1.x - TILE_W / 2 - 0.5, y0 = yTop(0);
+    const stone = std(0x7c7a80, { flatShading: true, roughness: 0.9, emissive: 0x111014 });
+    const pebble = (x, z, r) => { const b = mesh(new THREE.DodecahedronGeometry(r, 0), stone); b.position.set(x, y0 + r * 0.4, z); b.rotation.set(0.5, x * 4, 0.3); board.add(b); };
+    bush(sx0 - 0.42, y0, s1.z + 0.5, 0.55);
+    bush(sx0 + 0.2, y0, s1.z + 0.62, 0.5);
+    pebble(sx0 - 0.08, s1.z + 0.66, 0.11);
+    pebble(sx0 + 0.5, s1.z + 0.5, 0.09);
+    pebble(sx0 - 0.7, s1.z + 0.3, 0.13);
+    pebble(sx0 + 0.32, s1.z + 0.78, 0.12);
+  }
+  // ข้างช่อง 13: หิน + ต้นไม้หลังหิน / ข้างช่อง 19: หิน + พุ่มเตี้ยหลังหิน
+  {
+    const stone = std(0x7c7a80, { flatShading: true, roughness: 0.9, emissive: 0x111014 });
+    const boulder = (x, y, z, r) => { const b = mesh(new THREE.DodecahedronGeometry(r, 0), stone); b.position.set(x, y + r * 0.5, z); b.rotation.set(0.3, x * 2, 0.2); board.add(b); };
+    boulder(-(HALF + sideW(2) * 0.45), yTop(2), zMid(2) + 0.2, 0.26);
+    roundTree(-(HALF + sideW(2) * 0.5), yTop(2), zMid(2) - 0.45, 1.05);
+    boulder(HALF + sideW(3) * 0.45, yTop(3), zMid(3) + 0.2, 0.25);
+    bush(HALF + sideW(3) * 0.5, yTop(3), zMid(3) - 0.3, 0.7);
+  }
   pineTree(xCol(COLS - 1) + 0.85, yTop(4), zMid(4) - 0.9, 1.3);
   // ฉากหลังแถว 25–30: ต้นไม้ห่าง ๆ แซมหินกับพุ่มไม้ และแนวหลังสุดเป็นพุ่ม/หินชิดกันบังขอบหญ้า ไม่ให้เห็นเส้นตรงตัดฟ้า
   {
@@ -736,6 +802,12 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
       const v = new THREE.Vector3(x, y, z).applyMatrix4(cam.matrixWorldInverse);
       minX = Math.min(minX, v.x); maxX = Math.max(maxX, v.x); minY = Math.min(minY, v.y); maxY = Math.max(maxY, v.y);
     }
+    const cr = typeof crop === "function" ? crop() : crop;
+    if (cr) {
+      const cw = maxX - minX, ch = maxY - minY;
+      minX += cw * (cr.sides || 0); maxX -= cw * (cr.sides || 0);
+      maxY -= ch * (cr.top || 0); minY += ch * (cr.bottom || 0);
+    }
     const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
     let hw = (maxX - minX) / 2 * margin, hh = (maxY - minY) / 2 * margin;
     if (hw / hh > aspect) hh = hw / aspect; else hw = hh * aspect;
@@ -818,7 +890,9 @@ export function createBoard3D(root, { meId = null, floatsOnlyForMe = false, hook
 
   function spotPoint(pos, spot) {
     const c = cellWorld(pos);
-    return warp(new THREE.Vector3(c.x + 0.08 + spot[0], c.y, c.z - TILE_D * 0.1 + spot[1] + (pos === SIZE ? 0.14 : 0)));
+    // คนเดียว: เยื้องขวานิดให้เห็นเลขช่อง / หลายคน: วางสมมาตรกลางช่อง (เยื้องแล้วฐานตัวขวาหลุดขอบ)
+    const dx = spot[0] === 0 && spot[1] === 0 ? 0.08 : 0;
+    return warp(new THREE.Vector3(c.x + dx + spot[0], c.y, c.z - TILE_D * 0.1 + spot[1] + (pos === SIZE ? 0.14 : 0)));
   }
   // คนในช่องเดียวกัน: ไม่เกิน 4 คนแสดงครบ / เกิน 4 แสดง 3 คน + ป้าย "+N" (หมากของฉันอยู่ใน 3 คนนั้นและอยู่หน้าสุดเสมอ)
   function cellLayout(pids) {
