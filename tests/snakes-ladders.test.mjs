@@ -239,6 +239,26 @@ test("maskPendingRolls hides a winning roll and the game end it caused", async (
   assert.equal(v.finalPlayers, undefined);
 });
 
+test("maskPendingRolls holdPid: roller's own screen hides its winning roll until its dice closes, however long", async () => {
+  const { maskPendingRolls } = await import("../js/game-logic.js");
+  const r = room({ a: p("A", { position: 28 }), b: p("B", { position: 3 }) });
+  r.gameSettings.maxWinners = 1;
+  applyStartRound(r);
+  applyRoll(r, "a", 5, 1000);
+
+  // ลูกเต๋าบนจอตัวเองยังไม่ปิด (ผ่านเวลา hold ไปแล้วก็ยังซ่อน)
+  const held = maskPendingRolls(r, 60000, 5000, "a", "a");
+  assert.equal(held.room.players.a.position, 28);
+  assert.equal(held.room.players.a.finished, false);
+  assert.deepEqual(held.room.winners, []);
+  assert.equal(held.room.phase, PHASE.ROLLING, "game end stays hidden too");
+  assert.equal(held.nextRevealAt, null, "reveal is driven by the dice closing, not a timer");
+
+  // ลูกเต๋าปิดแล้ว → เห็นผลจริง
+  const open = maskPendingRolls(r, 60000, 5000, "a", null);
+  assert.equal(open.room.players.a.finished, true);
+});
+
 test("board layout: vertical one-row ladders, no shared cells, climb small / drop big, old 'snake' reads as a drop", () => {
   const ends = [...Object.entries(LADDERS), ...Object.entries(DROPS)].flat().map(Number);
   assert.equal(new Set(ends).size, ends.length);

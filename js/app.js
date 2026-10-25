@@ -703,11 +703,13 @@ const PHASE_TEXT = {
 };
 
 // ผลทอยของคนอื่นถูกซ่อนจนลูกเต๋า 3D บนมือถือคนทอยกลิ้งจบ (DICE_ROLL_MS) — คนดูจอ Host จะได้ลุ้นไปพร้อมกัน
+// จอคนทอยเอง: ซ่อนผลของตัวเอง (ตำแหน่ง/เข้าเส้นชัย/อันดับ/จบเกม) จนลูกเต๋าบนจอหยุดและปิด แม้ข้อมูลบันทึกไปแล้ว
 function renderRoom(rawRoom) {
   lastRoom = rawRoom;
   syncBoardKind(rawRoom);
   syncBoardBackground(rawRoom);
-  const masked = maskPendingRolls(rawRoom, serverNow(), DICE_ROLL_MS, isPlayer() ? session.playerId : null);
+  const ownRolling = isPlayer() && (busy.roll || dice.getState() !== "hidden");
+  const masked = maskPendingRolls(rawRoom, serverNow(), DICE_ROLL_MS, isPlayer() ? session.playerId : null, ownRolling ? session.playerId : null);
   const room = masked.room;
   lastView = room;
   clearTimeout(fx.revealTimer);

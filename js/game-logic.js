@@ -443,11 +443,13 @@ export function applyAnswer(player, optionKey, now) {
 // ผลทอยถูกบันทึกทันทีที่แตะ (กันแท็บเบื้องหลัง) แต่คนทอยยังดูลูกเต๋ากลิ้งอยู่ holdMs
 // คืนห้อง "สำหรับแสดงผล" ที่ย้อนการทอยนั้นกลับ (ตำแหน่งเดิม, ยังไม่เข้าเส้นชัย, ยังไม่มีในผู้ชนะ/ประวัติ, เกมยังไม่จบ)
 // และเวลา server ที่ควรวาดใหม่ครั้งถัดไป (nextRevealAt) — exceptPid = ไม่ซ่อนของตัวเอง (มือถือคนทอยจัดการเอง)
-export function maskPendingRolls(room, now, holdMs, exceptPid = null) {
+// holdPid: ซ่อนผลของคนนี้ไม่ว่าผ่านไปนานแค่ไหน (จอคนทอยเอง: รอจนลูกเต๋าบนจอตัวเองหยุดและปิด — ผู้เรียกเป็นคนบอก)
+export function maskPendingRolls(room, now, holdMs, exceptPid = null, holdPid = null) {
   const round = room?.currentRound || 0;
   const moves = room?.history?.[roundKey(round)]?.diceMoves || {};
   const pending = Object.entries(moves).filter(
-    ([pid, dm]) => pid !== exceptPid && !dm.missed && Number.isFinite(dm.timestamp) && dm.timestamp + holdMs > now
+    ([pid, dm]) =>
+      pid === holdPid ? !dm.missed : pid !== exceptPid && !dm.missed && Number.isFinite(dm.timestamp) && dm.timestamp + holdMs > now
   );
   if (!pending.length) return { room, nextRevealAt: null };
 
@@ -457,7 +459,7 @@ export function maskPendingRolls(room, now, holdMs, exceptPid = null) {
   let maskedEnd = false;
 
   for (const [pid, dm] of pending) {
-    nextRevealAt = Math.min(nextRevealAt, dm.timestamp + holdMs);
+    if (pid !== holdPid) nextRevealAt = Math.min(nextRevealAt, dm.timestamp + holdMs);
     delete roundHistory.diceMoves[pid];
     const p = view.players?.[pid];
     if (p) {
@@ -482,5 +484,5 @@ export function maskPendingRolls(room, now, holdMs, exceptPid = null) {
     delete view.finalWinners;
     delete view.ui;
   }
-  return { room: view, nextRevealAt };
+  return { room: view, nextRevealAt: Number.isFinite(nextRevealAt) ? nextRevealAt : null };
 }
