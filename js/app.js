@@ -862,7 +862,7 @@ function renderEndMine(standings) {
   const rank = i + 1;
   const where = s.finished ? `เข้าเส้นชัย${s.finishRound ? `รอบที่ ${s.finishRound}` : ""}` : `จบที่ช่อง ${s.finalPosition}`;
   dom.endMine.innerHTML = `<span class="medal r${Math.min(rank, 4)}">${rank}</span><span><b>${rank <= 3 ? `คุณได้อันดับ ${rank}! 🎉` : `คุณได้อันดับ ${rank}`}</b>
-    <small>${where} · ตอบถูก ${s.correct} จาก ${s.answeredTotal} ข้อ</small></span>`;
+    <small>${where}${s.answeredTotal ? ` · ตอบถูก ${s.correct} จาก ${s.answeredTotal} ข้อ` : ""}</small></span>`;
 }
 
 /* ---------- Host ---------- */

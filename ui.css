@@ -2107,6 +2107,11 @@
   body.b3-ended .end-awards-sheet:not(:empty){ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:8px; margin:0 0 14px; }
   .end-awards-sheet .award{ box-shadow:none; border:2px solid #ede9f7; }
   @media (min-width:900px){ body.b3-ended .end-awards-sheet:not(:empty){ display:none; } } /* คอมมีคอลัมน์รางวัลอยู่แล้ว */
+  /* ไม่มีรางวัล (เกมสั้นมาก) → ฉากกว้างเต็มจอ */
+  @media (min-width:900px){
+    .end-stage:has(.end-awards:empty) #endScene{ right:20px; }
+    .end-stage:has(.end-awards:empty) .end-mine{ left:50%; }
+  }
 
   /* การ์ดผลของฉัน (นักเรียน) + ปุ่มดูสรุปคะแนน */
   .end-mine{ position:absolute; z-index:6; left:calc((100% - 360px) / 2); bottom:22px; transform:translateX(-50%); display:flex; align-items:center; gap:12px;
