@@ -431,11 +431,21 @@
         <div id="playerAction" class="action card" aria-live="polite"></div>
       </div>
 
+      <!-- จบเกม (ห้อง 3 มิติ): แท่นรับรางวัลบนยอดเขา + รางวัลพิเศษ; ตารางสรุปคะแนนเปิดเป็นการ์ดลอย -->
+      <div id="endStage" class="end-stage" hidden>
+        <div id="endScene" class="end-scene"></div>
+        <aside id="endAwards" class="end-awards" aria-label="รางวัลพิเศษ"></aside>
+        <div id="endMine" class="end-mine" hidden></div>
+        <button type="button" id="endTableBtn" class="end-table-btn">☰ ดูสรุปคะแนน</button>
+      </div>
+
       <!-- END GAME -->
       <div id="endGameArea" class="card end-game" hidden>
         <div class="end-game-head">
           <h3 id="endGameTitle">สรุปผลเกม</h3>
+          <button type="button" class="dt-close end-sheet-close" id="endSheetClose">✕ ปิด</button>
         </div>
+        <div id="endAwardsSheet" class="end-awards-sheet"></div>
         <div id="podium" class="podium" aria-label="แท่นรับรางวัล 3 อันดับแรก"></div>
         <div id="endGameSummary"></div>
       </div>

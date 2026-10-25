@@ -77,7 +77,9 @@ import {
   renderPlayerList,
   renderPodium,
   renderWaitPanel,
+  computeStandings,
 } from "./render.js";
+import { computeAwards } from "./awards.js";
 import { createBoardView } from "./board-view.js";
 import { isDrop } from "./board-config.js";
 import { THEME_SIZE } from "./emoji-themes.js";
@@ -251,6 +253,13 @@ const dom = {
   endGameTitle: $("endGameTitle"),
   endGameSummary: $("endGameSummary"),
   podium: $("podium"),
+  endStage: $("endStage"),
+  endScene: $("endScene"),
+  endAwards: $("endAwards"),
+  endAwardsSheet: $("endAwardsSheet"),
+  endMine: $("endMine"),
+  endTableBtn: $("endTableBtn"),
+  endSheetClose: $("endSheetClose"),
 
   // countdown overlay
   questionCountdownOverlay: $("questionCountdownOverlay"),
@@ -315,7 +324,7 @@ const hq = {
 };
 
 // เสียง/ฉลอง: ค่าที่ใช้กันเล่นซ้ำ
-const fx = { lastPlayed: {}, countdownBeep: null, clockTick: null, prevEnded: null, endTimer: null };
+const fx = { lastPlayed: {}, countdownBeep: null, clockTick: null, prevEnded: null, endTimer: null, endPending: false };
 
 // แอนิเมชัน: การเดินใหม่จาก history ที่ยังไม่ได้เล่น
 const anim = { seen: new Set(), primed: false, queue: [], timer: null };
@@ -601,7 +610,11 @@ function resetRoomUi() {
   setHidden(dom.soundToggle, true);
   setHidden(dom.hostLobby, true);
   setHidden(dom.playerLobby, true);
-  document.body.classList.remove("on-lobby", "b3-full");
+  document.body.classList.remove("on-lobby", "b3-full", "b3-ended");
+  podiumView?.destroy();
+  podiumView = null;
+  podiumShownFor = null;
+  endSheetOpen = false;
   if (dom.lobbyPlayers) dom.lobbyPlayers.dataset.html = "";
   lastPickedEmoji = null;
   setHidden(dom.diceDock, true);
@@ -749,6 +762,107 @@ function renderRoom(rawRoom) {
   // เพิ่งจบเกมต่อหน้า (ไม่ใช่เปิดหน้ามาตอนจบแล้ว) → ฉลองหลังหมากเดินเสร็จ
   if (fx.prevEnded === false && ended) scheduleEndCelebration();
   fx.prevEnded = ended;
+  syncEndStage(room, ended);
+}
+
+/* ---------- จบเกม (ห้อง 3 มิติ): แท่นรับรางวัลบนยอดเขา + รางวัลพิเศษ ---------- */
+let podiumModule = null; // null = ยังไม่โหลด, false = โหลดไม่ได้ (ใช้แท่น 2 มิติเดิม)
+let podiumView = null;
+let podiumShownFor = null; // ห้อง+เวลาจบ ที่เล่นแอนิเมชันไปแล้ว
+let endSheetOpen = false;
+function use3dEnd(ended) {
+  return ended && document.body.classList.contains("b3-full") && podiumModule !== false;
+}
+function syncEndStage(room, ended) {
+  // ระหว่างรอหมากเดินจบ (fx.endPending) ยังโชว์กระดาน แล้วค่อยเปลี่ยนเป็นหน้าแท่นรางวัล
+  const on = use3dEnd(ended) && !fx.endPending;
+  document.body.classList.toggle("b3-ended", on);
+  setHidden(dom.endStage, !on);
+  dom.endGameArea.classList.toggle("sheet-open", endSheetOpen);
+  if (!on) {
+    if (!ended && podiumView) {
+      podiumView.destroy();
+      podiumView = null;
+      podiumShownFor = null;
+    }
+    return;
+  }
+  if (podiumModule === null) {
+    import("./podium3d.js")
+      .then((m) => (podiumModule = m))
+      .catch((e) => {
+        console.warn("[podium] 3D unavailable, using 2D podium", e);
+        podiumModule = false;
+      })
+      .finally(() => lastRoom && renderRoom(lastRoom));
+    return;
+  }
+  const players = getViewPlayers(room);
+  const standings = computeStandings(room, players);
+  renderEndAwards(room, players);
+  renderEndMine(standings);
+  if (!podiumView) {
+    podiumView = podiumModule.createPodium3D(dom.endScene, { crop: () => (NARROW?.matches ? 0.17 : 0) });
+    if (!podiumView) {
+      podiumModule = false; // WebGL ใช้ไม่ได้ → แท่น 2 มิติเดิม
+      return syncEndStage(room, ended);
+    }
+    dom.endScene.addEventListener("podium:rank", (e) => e.detail.rank === 1 && cheerChampion());
+    dom.endScene.addEventListener("podium:done", () => dom.endStage.classList.add("done"));
+  }
+  const key = `${session.roomCode}|${room.endInfo?.endedAt ?? ""}`;
+  if (podiumShownFor !== key) {
+    podiumShownFor = key;
+    dom.endStage.classList.remove("done");
+    const top = standings.slice(0, 3).map((s, i) => ({ ...podiumPawn(s), rank: i + 1 }));
+    podiumView.show({ standings: top, others: standings.slice(3).map(podiumPawn), meId: isPlayer() ? session.playerId : null });
+  }
+}
+function podiumPawn(s) {
+  return { id: s.id, name: s.name, emoji: s.player?.emoji || "❔", color: s.player?.color };
+}
+// อันดับ 1 ขึ้นแท่น: พลุ + fanfare (จอครู) / กระดาษสี (มือถือของคนที่ติด 3 อันดับ)
+function cheerChampion() {
+  if (isHost()) {
+    fireworks({ bursts: 9, spreadMs: 3200, onBurst: () => throttled("pop", playFireworkPop, 90) });
+    playFanfare(true);
+    return;
+  }
+  const myRank = computeStandings(lastView || {}, getViewPlayers(lastView || {})).findIndex((s) => s.id === session.playerId);
+  if (myRank >= 0 && myRank < 3) confetti({ palette: MEDAL_PALETTES[myRank + 1], pieces: 160 });
+  playFanfare(myRank >= 0 && myRank < 3);
+}
+function renderEndAwards(room, players) {
+  const awards = computeAwards(room.history || {}, players);
+  const html = awards
+    .map((a) => {
+      const p = players[a.pids[0]] || {};
+      const color = SAFE_COLOR.test(p.color || "") ? p.color : "#9e9e9e";
+      const more = a.pids.length > 1 ? ` +${a.pids.length - 1}` : "";
+      const mine = isPlayer() && a.pids.includes(session.playerId);
+      return `<div class="award${mine ? " me" : ""}"><span class="ic" aria-hidden="true">${a.emoji}</span><span class="t">${escapeHtml(a.title)}</span>
+        <span class="who"><span class="glass" style="--c:${color}">${escapeHtml(p.emoji || "❔")}</span><span>${escapeHtml(p.name || "")}${more}</span></span>
+        <span class="l">${escapeHtml(a.line)}</span></div>`;
+    })
+    .join("");
+  const key = html;
+  if (dom.endAwards.dataset.html !== key) {
+    dom.endAwards.dataset.html = key;
+    dom.endAwards.innerHTML = html ? `<div class="end-awards-head">🏅 รางวัลพิเศษ</div>${html}` : "";
+    dom.endAwards.querySelectorAll(".award").forEach((c, i) => c.style.setProperty("--i", i));
+    dom.endAwardsSheet.innerHTML = html;
+  }
+}
+// การ์ด "คุณได้อันดับ X" (นักเรียน)
+function renderEndMine(standings) {
+  const i = isPlayer() ? standings.findIndex((s) => s.id === session.playerId) : -1;
+  setHidden(dom.endMine, i < 0);
+  if (i < 0) return;
+  const s = standings[i];
+  const rank = i + 1;
+  const where = s.finished ? `เข้าเส้นชัย${s.finishRound ? `รอบที่ ${s.finishRound}` : ""}` : `จบที่ช่อง ${s.finalPosition}`;
+  dom.endMine.innerHTML = `<span class="medal r${Math.min(rank, 4)}">${rank}</span><span><b>${rank <= 3 ? `คุณได้อันดับ ${rank}! 🎉` : `คุณได้อันดับ ${rank}`}</b>
+    <small>${where} · ตอบถูก ${s.correct} จาก ${s.answeredTotal} ข้อ</small></span>`;
 }
 
 /* ---------- Host ---------- */
@@ -1394,12 +1508,14 @@ function celebrateFinish(pid) {
 // จบเกม: รอหมากเดินจบ (และแผงเฉลยปิด) แล้วค่อยขึ้นแท่นรับรางวัล + พลุ
 function scheduleEndCelebration() {
   clearInterval(fx.endTimer);
+  fx.endPending = true;
   const startedAt = Date.now();
   fx.endTimer = setInterval(() => {
     const idle = activeBoardView().isIdle() && anim.queue.length === 0 && !hq.revealOpen;
     if (!idle && Date.now() - startedAt < 12000) return;
     clearInterval(fx.endTimer);
     fx.endTimer = null;
+    fx.endPending = false;
     celebrateEnd();
   }, 300);
 }
@@ -1407,6 +1523,10 @@ function scheduleEndCelebration() {
 function celebrateEnd() {
   const room = lastRoom;
   if (!room || !isGameEnded(room)) return;
+  if (use3dEnd(true)) {
+    renderRoom(room); // ขึ้นหน้าแท่นรางวัล 3 มิติ — พลุยิงตอนอันดับ 1 ขึ้นแท่น (cheerChampion)
+    return;
+  }
   dom.podium?.classList.remove("rise");
   void dom.podium?.offsetWidth; // เริ่มแอนิเมชันแท่นใหม่
   dom.podium?.classList.add("rise");
@@ -2178,6 +2298,14 @@ function bindUIEvents() {
     if (lastView) renderDetailTable(lastView);
   });
   on(dom.gameExitBtn, "click", () => (isHost() ? hostCancelRoom() : playerLeave()));
+  on(dom.endTableBtn, "click", () => {
+    endSheetOpen = true;
+    dom.endGameArea.classList.add("sheet-open");
+  });
+  on(dom.endSheetClose, "click", () => {
+    endSheetOpen = false;
+    dom.endGameArea.classList.remove("sheet-open");
+  });
 
   // player
   on(dom.joinRoomBtn, "click", playerJoin);

@@ -2055,3 +2055,80 @@
     body.b3-full #playerAction{ left:0; right:0; top:auto; bottom:0; width:auto; max-height:64dvh; border-radius:24px 24px 0 0;
       padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px)); }
   }
+
+
+  /* =========================
+     24) END STAGE 3D — จบเกมห้อง 3 มิติ (body.b3-ended): แท่นรับรางวัลบนยอดเขา (js/podium3d.js) + รางวัลพิเศษ (js/awards.js)
+         ตารางสรุปคะแนนเดิม (#endGameArea) เป็นการ์ดลอย เปิดด้วยปุ่ม "ดูสรุปคะแนน"
+     ========================= */
+  .end-stage{ display:none; }
+  body.b3-ended .end-stage{ display:block; position:absolute; inset:0; z-index:5; }
+  body.b3-ended .host-layout, body.b3-ended .player-layout{ visibility:hidden; }
+  body.b3-ended #diceDock{ display:none; }
+  /* #endScene ก็เป็น .podium3d (inset:0) → ใช้ id ให้ชนะ ไม่งั้นฉากกว้างเต็มจอแล้วโดนคอลัมน์รางวัลทับ */
+  #endScene{ position:absolute; inset:58px 380px 0 20px; }
+  .podium3d{ position:absolute; inset:0; }
+  .podium3d > canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .p3-labels, .p3-glows{ position:absolute; inset:0; pointer-events:none; }
+  .p3-glows i{ position:absolute; left:0; top:0; width:calc(var(--u,60px) * 1.4); height:calc(var(--u,60px) * 1.4); margin:calc(var(--u,60px) * -.7) 0 0 calc(var(--u,60px) * -.7);
+    border-radius:50%; mix-blend-mode:screen; background:radial-gradient(closest-side, rgba(255,214,140,.85), rgba(255,170,80,.3) 45%, transparent); animation:b3-finpulse 2.2s ease-in-out infinite alternate; }
+  .p3-glows i.cup{ width:calc(var(--u,60px) * 3.4); height:calc(var(--u,60px) * 3.4); margin:calc(var(--u,60px) * -1.7) 0 0 calc(var(--u,60px) * -1.7);
+    background:radial-gradient(closest-side, rgba(255,214,120,.55), rgba(255,190,90,.18) 55%, transparent); }
+  .p3-meglow{ position:absolute; left:0; top:0; border-radius:50%; pointer-events:none; mix-blend-mode:screen;
+    background:radial-gradient(closest-side, transparent 52%, rgba(255,236,170,.8) 62%, rgba(255,214,110,.35) 76%, transparent 100%); animation:b3-mepulse 1.8s ease-in-out infinite alternate; }
+  .p3-name{ position:absolute; left:0; top:0; display:grid; justify-items:center; gap:1px; padding:5px 14px 6px; border-radius:14px; white-space:nowrap;
+    background:#f6f4fb; color:#2f2a66; box-shadow:0 5px 0 rgba(0,0,0,.22); font-family:"Mitr","Noto Sans Thai",system-ui,sans-serif; }
+  .p3-name b{ font-size:17px; font-weight:600; }
+  .p3-name small{ font-size:12px; color:#6b62a8; font-weight:500; }
+  .p3-name.crowd{ padding:2px 9px; border-radius:999px; background:rgba(28,20,88,.58); color:#fff; border:1px solid rgba(255,255,255,.16); box-shadow:none; }
+  .p3-name.crowd b{ font-size:12px; font-weight:500; }
+  .p3-name.empty{ opacity:.65; }
+  .p3-name.me, .p3-name.crowd.me{ background:#FFA240; color:#2b1b00; border:none; }
+  .p3-more{ position:absolute; left:0; top:0; font:600 13px "Mitr",system-ui,sans-serif; padding:2px 10px; border-radius:999px; background:#fff; color:#2f2a66; }
+
+  /* รางวัลพิเศษ: คอลัมน์ขวา (คอม) — การ์ดเด้งทีละใบหลังแท่นเปิดตัวเสร็จ */
+  .end-awards{ position:absolute; right:16px; top:62px; bottom:16px; width:340px; display:flex; flex-direction:column; gap:8px; overflow:auto; }
+  .end-awards:empty{ display:none; }
+  .end-awards-head{ font:400 20px "Lilita One","Mitr",system-ui,sans-serif; letter-spacing:.02em; padding:2px 4px; color:#fff; }
+  .award{ flex:none; min-width:0; display:grid; grid-template-columns:auto minmax(0,1fr); gap:2px 12px; align-items:center; padding:10px 14px; border-radius:16px;
+    background:#f6f4fb; color:#2f2a66; box-shadow:0 6px 0 rgba(0,0,0,.2); }
+  .award .ic{ grid-row:span 3; font-size:36px; line-height:1; }
+  .award .t{ font-size:15px; font-weight:600; color:#6b62a8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .award .who{ display:flex; align-items:center; gap:7px; font-size:19px; font-weight:600; min-width:0; }
+  .award .who > span:last-child{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .award .glass{ --s:28px; }
+  .award .l{ font-size:14px; color:#6b62a8; line-height:1.35; }
+  .award.me{ box-shadow:0 0 0 3px #FFA240, 0 6px 0 rgba(0,0,0,.2); }
+  .end-stage .award{ opacity:0; transform:translateY(24px) scale(.92); }
+  .end-stage.done .award{ animation:end-award-in .5s cubic-bezier(.2,1.3,.4,1) forwards; animation-delay:calc(var(--i, 0) * .12s); }
+  @keyframes end-award-in{ to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ .end-stage .award{ opacity:1; transform:none; } }
+  .end-awards-sheet{ display:none; }
+  body.b3-ended .end-awards-sheet:not(:empty){ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:8px; margin:0 0 14px; }
+  .end-awards-sheet .award{ box-shadow:none; border:2px solid #ede9f7; }
+  @media (min-width:900px){ body.b3-ended .end-awards-sheet:not(:empty){ display:none; } } /* คอมมีคอลัมน์รางวัลอยู่แล้ว */
+
+  /* การ์ดผลของฉัน (นักเรียน) + ปุ่มดูสรุปคะแนน */
+  .end-mine{ position:absolute; z-index:6; left:calc((100% - 360px) / 2); bottom:22px; transform:translateX(-50%); display:flex; align-items:center; gap:12px;
+    padding:10px 22px 10px 12px; border-radius:20px; background:#f6f4fb; color:#2f2a66; box-shadow:0 8px 0 rgba(0,0,0,.22); white-space:nowrap; }
+  .end-mine .medal{ width:46px; height:46px; border-radius:50%; display:grid; place-items:center; font:400 26px "Lilita One",system-ui,sans-serif; color:#fff; background:#7b5cd6; box-shadow:inset 0 -4px 0 rgba(0,0,0,.18); }
+  .end-mine .medal.r1{ background:#f4b324; } .end-mine .medal.r2{ background:#a9afc6; } .end-mine .medal.r3{ background:#de8a52; }
+  .end-mine b{ display:block; font-size:19px; font-weight:600; }
+  .end-mine small{ font-size:13px; color:#6b62a8; }
+  body.on-game .end-table-btn{ position:absolute; z-index:6; left:16px; bottom:16px; width:auto; margin:0; padding:10px 18px; border-radius:999px; font-weight:600; font-size:15px;
+    color:#fff; background:rgba(28,20,88,.58); border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:none; }
+  /* ตารางสรุปคะแนนเดิม: ซ่อนจนกดปุ่ม (แท่น 2 มิติในตารางไม่ต้องแล้ว) */
+  .end-sheet-close{ display:none; }
+  body.b3-ended .end-game:not(.sheet-open){ display:none; }
+  body.b3-ended .end-game{ z-index:40; }
+  body.b3-ended .end-game .podium{ display:none; }
+  body.b3-ended .end-sheet-close{ display:inline-block; margin-left:auto; }
+  body.b3-ended .end-game-head{ display:flex; align-items:center; gap:10px; }
+
+  @media (max-width:899px){
+    #endScene{ inset:52px 0 210px; }
+    .end-awards{ display:none; }
+    .end-mine{ left:12px; right:12px; bottom:80px; transform:none; justify-content:center; white-space:normal; }
+    body.on-game .end-table-btn{ left:12px; right:12px; bottom:20px; text-align:center; }
+    .p3-name{ padding:3px 9px 4px; } .p3-name b{ font-size:13px; } .p3-name.crowd{ display:none; }
+  }
